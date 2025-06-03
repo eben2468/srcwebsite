@@ -1,0 +1,185 @@
+/**
+ * SRC Website - Index Page Custom Styles
+ * Additional styles and animations for the homepage
+ */
+
+/* Gradient text effect */
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+/* Button hover effects */
+.btn {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: scale(0);
+    transform-origin: bottom center;
+    transition: transform 0.5s ease;
+    z-index: -1;
+}
+
+.btn:hover::after {
+    transform: scale(2);
+}
+
+/* Card hover effects */
+.feature-card .hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0,97,242,0.05), rgba(105,0,199,0.05));
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: -1;
+    border-radius: 15px;
+}
+
+.feature-card:hover .hover-overlay {
+    opacity: 1;
+}
+
+/* Animated underline for links */
+.animated-link {
+    position: relative;
+    text-decoration: none;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.animated-link::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    transition: width 0.3s ease;
+}
+
+.animated-link:hover::after {
+    width: 100%;
+}
+
+/* Glow effect for feature icons */
+.feature-icon {
+    position: relative;
+}
+
+.feature-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, rgba(0,97,242,0.2) 0%, rgba(0,97,242,0) 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s ease;
+    z-index: -1;
+}
+
+.feature-card:hover .feature-icon::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* Floating animation for hero elements */
+@keyframes float-slow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float-slow 5s ease-in-out infinite;
+}
+
+/* Shine effect for buttons */
+.btn-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-shine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 1s ease;
+}
+
+.btn-shine:hover::before {
+    animation: shine 1.5s infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 200%;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary-color), var(--secondary-color));
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .feature-card {
+        padding: 30px 20px;
+    }
+} 

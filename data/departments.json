@@ -1,0 +1,339 @@
+{
+    "NURSA": {
+        "id": 1685502000,
+        "code": "NURSA",
+        "name": "School of Nursing and Midwifery",
+        "head": "Prof. Sarah Johnson",
+        "email": "nursing@example.edu",
+        "phone": "+123-456-7890",
+        "description": "The School of Nursing and Midwifery is dedicated to developing competent, compassionate nursing professionals through innovative education, research, and clinical practice.",
+        "programs": [
+            "Bachelor of Nursing",
+            "Diploma in Midwifery",
+            "Master of Nursing Science",
+            "PhD in Nursing"
+        ],
+        "events": [
+            {
+                "id": 1685502001,
+                "title": "Annual Nursing Conference",
+                "date": "2023-11-15",
+                "description": "Join us for the annual nursing conference featuring guest speakers from leading healthcare institutions."
+            },
+            {
+                "id": 1685502002,
+                "title": "Midwifery Workshop",
+                "date": "2023-12-05",
+                "description": "Hands-on workshop for midwifery students and professionals."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502003,
+                "name": "Prof. Sarah Johnson",
+                "position": "Dean",
+                "email": "sjohnson@example.edu",
+                "phone": "+123-456-7890"
+            },
+            {
+                "id": 1685502004,
+                "name": "Dr. Emily White",
+                "position": "Head of Research",
+                "email": "ewhite@example.edu",
+                "phone": "+123-456-7891"
+            }
+        ],
+        "documents": [
+            {
+                "id": 1748565623,
+                "title": "Editor",
+                "filename": "nursa_1748565623.pdf",
+                "original_filename": "1748528046_VVUSRC_CONSTITUTION.pdf",
+                "upload_date": "2025-05-30 02:40:23"
+            }
+        ],
+        "gallery": [
+            {
+                "id": 1748613650,
+                "filename": "nursa_1748613650.jpg",
+                "path": "images\/departments\/gallery\/nursa\/nursa_1748613650.jpg",
+                "caption": "",
+                "upload_date": "2025-05-30 16:00:50"
+            }
+        ]
+    },
+    "THEMSA": {
+        "id": 1685502005,
+        "code": "THEMSA",
+        "name": "School of Theology and Mission",
+        "head": "Dr. James Matthews",
+        "email": "theology@example.edu",
+        "phone": "+123-456-7892",
+        "description": "The School of Theology and Mission prepares students for ministries in various contexts through theological education, spiritual formation, and practical training.",
+        "programs": [
+            "Bachelor of Theology",
+            "Master of Divinity",
+            "Master of Arts in Biblical Studies",
+            "Diploma in Mission Studies"
+        ],
+        "events": [
+            {
+                "id": 1685502006,
+                "title": "Theological Symposium",
+                "date": "2023-10-20",
+                "description": "Annual symposium on contemporary theological issues."
+            },
+            {
+                "id": 1685502007,
+                "title": "Mission Orientation",
+                "date": "2023-11-10",
+                "description": "Orientation for students interested in mission work."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502008,
+                "name": "Dr. James Matthews",
+                "position": "Dean",
+                "email": "jmatthews@example.edu",
+                "phone": "+123-456-7892"
+            },
+            {
+                "id": 1685502009,
+                "name": "Dr. Robert Clark",
+                "position": "Head of Biblical Studies",
+                "email": "rclark@example.edu",
+                "phone": "+123-456-7893"
+            }
+        ],
+        "documents": [],
+        "gallery": []
+    },
+    "EDSA": {
+        "id": 1685502015,
+        "code": "EDSA",
+        "name": "School of Education",
+        "head": "Dr. Jennifer Williams",
+        "email": "education@example.edu",
+        "phone": "+123-456-7896",
+        "description": "The School of Education is committed to developing skilled educators through comprehensive programs in teaching, educational leadership, curriculum development, and educational psychology.",
+        "programs": [
+            "Bachelor of Education",
+            "Master of Education",
+            "Postgraduate Diploma in Teaching",
+            "PhD in Educational Leadership"
+        ],
+        "events": [
+            {
+                "id": 1685502016,
+                "title": "Education Innovation Forum",
+                "date": "2023-10-15",
+                "description": "Annual forum discussing innovative teaching methods and educational technologies."
+            },
+            {
+                "id": 1685502017,
+                "title": "Teaching Practicum Orientation",
+                "date": "2023-11-20",
+                "description": "Orientation session for students beginning their teaching practicum in local schools."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502018,
+                "name": "Dr. Jennifer Williams",
+                "position": "Dean",
+                "email": "jwilliams@example.edu",
+                "phone": "+123-456-7896"
+            },
+            {
+                "id": 1685502019,
+                "name": "Dr. David Thompson",
+                "position": "Practicum Coordinator",
+                "email": "dthompson@example.edu",
+                "phone": "+123-456-7897"
+            }
+        ],
+        "documents": [],
+        "gallery": []
+    },
+    "SOBSA": {
+        "id": 1685502010,
+        "code": "SOBSA",
+        "name": "School of Business",
+        "head": "Prof. Michael Chen",
+        "email": "business@example.edu",
+        "phone": "+233 54 881 1774",
+        "description": "The School of Business prepares future business leaders through rigorous academic training, industry connections, and practical experiences in finance, marketing, management, and entrepreneurship.",
+        "programs": [
+            "Bachelor of Business Administration",
+            "Master of Business Administration (MBA)",
+            "Master of Finance",
+            "PhD in Business Management"
+        ],
+        "events": [
+            {
+                "id": 1685502011,
+                "title": "Entrepreneurship Summit",
+                "date": "2023-11-25",
+                "description": "Annual summit bringing together entrepreneurs, investors, and business students for networking and learning opportunities."
+            },
+            {
+                "id": 1685502012,
+                "title": "Finance Career Fair",
+                "date": "2023-12-10",
+                "description": "Connect with leading financial institutions and explore career opportunities in the finance sector."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502013,
+                "name": "Prof. Michael Chen",
+                "position": "Dean",
+                "email": "mchen@example.edu",
+                "phone": "+123-456-7894"
+            },
+            {
+                "id": 1685502014,
+                "name": "Dr. Lisa Rodriguez",
+                "position": "Head of Finance Department",
+                "email": "lrodriguez@example.edu",
+                "phone": "+123-456-7895"
+            }
+        ],
+        "documents": [],
+        "gallery": []
+    },
+    "COSSA": {
+        "id": 1685502020,
+        "code": "COSSA",
+        "name": "Faculty of Science",
+        "head": "Prof. Alan Roberts",
+        "email": "science@example.edu",
+        "phone": "+123-456-7898",
+        "description": "The Faculty of Science is dedicated to advancing scientific knowledge through rigorous research and comprehensive education in various scientific disciplines including biology, chemistry, physics, and mathematics.",
+        "programs": [
+            "Bachelor of Science in Information Technology",
+            "Bachelor of Science in Computer Science",
+            "Master of Science in Physics",
+            "PhD in Mathematics"
+        ],
+        "events": [
+            {
+                "id": 1685502021,
+                "title": "Science Innovation Fair",
+                "date": "2023-11-05",
+                "description": "Annual exhibition showcasing student research projects and scientific innovations."
+            },
+            {
+                "id": 1685502022,
+                "title": "Research Symposium",
+                "date": "2023-12-15",
+                "description": "Symposium featuring presentations on cutting-edge scientific research by faculty and graduate students."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502023,
+                "name": "Prof. Alan Roberts",
+                "position": "Dean",
+                "email": "aroberts@example.edu",
+                "phone": "+123-456-7898"
+            },
+            {
+                "id": 1685502024,
+                "name": "Dr. Sarah Kim",
+                "position": "Head of Research",
+                "email": "skim@example.edu",
+                "phone": "+123-456-7899"
+            },
+            {
+                "id": 1748567792,
+                "name": "Owusu Ebenezer",
+                "position": "I.T Personnel",
+                "email": "eben.owusu222@gmail.com",
+                "phone": "0548811774"
+            }
+        ],
+        "documents": [
+            {
+                "id": 1748568608,
+                "title": "VVUSRC Constitution",
+                "filename": "cossa_1748568608.pdf",
+                "original_filename": "1748531288_1748528046_VVUSRC_CONSTITUTION.pdf",
+                "upload_date": "2025-05-30 03:30:08"
+            }
+        ],
+        "gallery": [
+            {
+                "id": 1748567844,
+                "filename": "cossa_1748567844.jpeg",
+                "path": "images\/departments\/gallery\/cossa\/cossa_1748567844.jpeg",
+                "caption": "",
+                "upload_date": "2025-05-30 03:17:24"
+            }
+        ]
+    },
+    "DESSA": {
+        "id": 1685502025,
+        "code": "DESSA",
+        "name": "Development and Communication Studies",
+        "head": "Prof. Elizabeth Taylor",
+        "email": "devcomm@example.edu",
+        "phone": "+123-456-7900",
+        "description": "The Department of Development and Communication Studies focuses on equipping students with skills in media, communication strategies, development theories, and social change methodologies to address contemporary global challenges.",
+        "programs": [
+            "Bachelor of Arts in Communication",
+            "Bachelor of Development Studies",
+            "Master of Communication for Development",
+            "PhD in Communication Studies"
+        ],
+        "events": [
+            {
+                "id": 1685502026,
+                "title": "Media and Society Conference",
+                "date": "2023-10-25",
+                "description": "Annual conference exploring the intersection of media, technology, and social development."
+            },
+            {
+                "id": 1685502027,
+                "title": "Development Communication Workshop",
+                "date": "2023-11-30",
+                "description": "Practical workshop on communication strategies for development projects and social change initiatives."
+            }
+        ],
+        "contacts": [
+            {
+                "id": 1685502028,
+                "name": "Prof. Elizabeth Taylor",
+                "position": "Head of Department",
+                "email": "etaylor@example.edu",
+                "phone": "+123-456-7900"
+            },
+            {
+                "id": 1685502029,
+                "name": "Dr. Richard Garcia",
+                "position": "Program Coordinator",
+                "email": "rgarcia@example.edu",
+                "phone": "+123-456-7901"
+            }
+        ],
+        "documents": [],
+        "gallery": []
+    },
+    "BMEDSA": {
+        "id": 1748977132,
+        "code": "BMEDSA",
+        "name": "Biomedical Engineering",
+        "head": "Asare Emmanuel",
+        "email": "asare@gmail.com",
+        "phone": "+233 54 881 1774",
+        "description": "No description",
+        "programs": [
+            "Engineering",
+            "Biomedical"
+        ],
+        "events": [],
+        "contacts": [],
+        "documents": []
+    }
+}

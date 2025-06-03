@@ -1,0 +1,178 @@
+/**
+ * Custom Theme CSS
+ * This file applies the primary color throughout the system
+ */
+
+:root {
+    /* These variables will be overridden by inline styles in the header */
+    --primary-color: #0d6efd;
+    --primary-color-rgb: 13, 110, 253;
+    --primary-color-hover: #0b5ed7;
+    --primary-color-active: #0a58ca;
+    --primary-color-light: rgba(13, 110, 253, 0.1);
+}
+
+/* Primary buttons */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+    background-color: var(--primary-color-hover) !important;
+    border-color: var(--primary-color-hover) !important;
+}
+
+.btn-primary:active {
+    background-color: var(--primary-color-active) !important;
+    border-color: var(--primary-color-active) !important;
+}
+
+/* Outline buttons */
+.btn-outline-primary {
+    color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+/* Links */
+a {
+    color: var(--primary-color);
+}
+
+a:hover {
+    color: var(--primary-color-hover);
+}
+
+/* Navigation */
+.nav-pills .nav-link.active, 
+.nav-tabs .nav-link.active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--primary-color-light);
+}
+
+/* Sidebar active link */
+.sidebar-link.active {
+    background-color: var(--primary-color) !important;
+}
+
+/* Form elements */
+.form-check-input:checked {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color-light) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.25) !important;
+}
+
+/* Text color */
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.page-link {
+    color: var(--primary-color) !important;
+}
+
+.page-link:hover {
+    color: var(--primary-color-hover) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+    background-color: var(--primary-color) !important;
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: var(--primary-color-light) !important;
+    border-color: rgba(var(--primary-color-rgb), 0.2) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-color-rgb), 0.5) !important;
+}
+
+/* Announcement and Event Cards */
+.announcement-card, .event-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.announcement-card:hover, .event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.announcement-card .card-body, .event-card .card-body {
+    padding: 1rem;
+}
+
+.announcement-card .card-title, .event-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.announcement-card .card-text, .event-card .card-text {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.announcement-card img, .event-card img {
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    min-height: 150px;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .announcement-card, 
+[data-bs-theme="dark"] .event-card {
+    background-color: var(--dark-card-bg);
+    border-color: var(--dark-border-color);
+}
+
+[data-bs-theme="dark"] .announcement-card:hover, 
+[data-bs-theme="dark"] .event-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Badge styles */
+.badge.bg-info {
+    background-color: var(--info) !important;
+    color: white;
+} 

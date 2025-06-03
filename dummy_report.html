@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SRC Test Report</h1>
+        <p>Generated on: <span id="date"></span></p>
+        <script>
+            document.getElementById('date').textContent = new Date().toLocaleDateString();
+        </script>
+    </div>
+    
+    <div class="content">
+        <h2>Executive Summary</h2>
+        <p>
+            This is a test report created for testing the reports upload functionality of the SRC Management System.
+            The purpose of this document is to verify that PDF uploads work correctly and that the reports system
+            functions as expected.
+        </p>
+        
+        <h2>Test Results</h2>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit
+            arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.
+            Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor.
+        </p>
+        
+        <h2>Recommendations</h2>
+        <p>
+            Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor. Ut in nulla enim. Phasellus molestie
+            magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus.
+            Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.
+        </p>
+    </div>
+    
+    <div class="footer">
+        <p>SRC Management System - Test Report</p>
+    </div>
+</body>
+</html> 

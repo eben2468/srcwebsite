@@ -1,0 +1,148 @@
+/**
+ * Recent News Widget Styling
+ * Improves the appearance of the Recent News section
+ */
+
+/* Main container */
+.recent-news-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* Header styling */
+.recent-news-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.recent-news-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.recent-news-title i {
+  margin-right: 10px;
+  color: #0d6efd;
+}
+
+/* News items styling */
+.recent-news-list {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.news-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+}
+
+.news-item:last-child {
+  border-bottom: none;
+}
+
+.news-item:hover {
+  background-color: rgba(13, 110, 253, 0.03);
+}
+
+.news-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.news-title a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.news-title a:hover {
+  color: #0d6efd;
+}
+
+.news-meta {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.news-date {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+
+.news-date i {
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.news-author {
+  display: flex;
+  align-items: center;
+}
+
+.news-author i {
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+/* View all button */
+.view-all-btn {
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+  background-color: #0d6efd;
+  color: white;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.view-all-btn:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty state */
+.news-empty-state {
+  padding: 30px 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+.news-empty-state i {
+  font-size: 32px;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .news-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .news-date {
+    margin-bottom: 5px;
+  }
+} 

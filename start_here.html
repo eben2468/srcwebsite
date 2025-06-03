@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department System Tools</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 40px 0;
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
+        }
+        .btn-lg {
+            margin-bottom: 10px;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        .recommended {
+            position: relative;
+        }
+        .recommended::after {
+            content: "RECOMMENDED";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #28a745;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+        .new-tool {
+            position: relative;
+        }
+        .new-tool::after {
+            content: "NEW";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: #dc3545;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h3 mb-0">Department System Tools</h1>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <strong>Welcome!</strong> This page provides direct access to all department system tools.
+                        </div>
+                        
+                        <h4 class="mb-3">Main Tools</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="cleanup.html" class="btn btn-primary btn-lg btn-block recommended">
+                                    Cleanup Tools
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="departments.php" class="btn btn-success btn-lg btn-block">
+                                    Departments Page
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4 class="mb-3">Setup & Check Tools</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="directory_check.php" class="btn btn-info btn-lg btn-block">
+                                    Directory Structure Check
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="list_remaining_files.php" class="btn btn-info btn-lg btn-block">
+                                    List Remaining Files
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4 class="mb-3">File Management Tools</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="add_placeholder_files.php" class="btn btn-success btn-lg btn-block new-tool">
+                                    Add Placeholder Files
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="force_create_files.php" class="btn btn-success btn-lg btn-block new-tool">
+                                    Force Create Files
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="fix_document_names.php" class="btn btn-danger btn-lg btn-block">
+                                    Fix Document Names
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="delete_document_gallery_images.php" class="btn btn-danger btn-lg btn-block">
+                                    Delete Gallery & Documents
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="force_cleanup.php" class="btn btn-danger btn-lg btn-block">
+                                    Force Cleanup
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4 class="mb-3">No-GD Solutions</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="create_no_gd_placeholders.php" class="btn btn-secondary btn-lg btn-block">
+                                    Create Basic Placeholders
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="html_placeholders.php" class="btn btn-secondary btn-lg btn-block">
+                                    Install HTML Placeholders
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h4 class="mb-3">Department Management</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <a href="gallery_uploader.php" class="btn btn-dark btn-lg btn-block">
+                                    Gallery Uploader
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="setup_departments.php" class="btn btn-dark btn-lg btn-block">
+                                    Setup Departments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>To upload your own files, first clean up existing files, then use the Departments Page and Gallery Uploader</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

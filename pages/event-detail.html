@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - SRC Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="dashboard-sidebar">
+            <div class="p-3 border-bottom">
+                <h3 class="h5 text-center text-white mb-0">SRC Management</h3>
+            </div>
+            <div class="pt-2">
+                <div class="p-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <div id="user-name">Admin User</div>
+                            <small class="text-muted">Administrator</small>
+                        </div>
+                    </div>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="sidebar-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="events.html" class="sidebar-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="news.html" class="sidebar-link">
+                            <i class="fas fa-newspaper"></i>
+                            News
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="documents.html" class="sidebar-link">
+                            <i class="fas fa-file-alt"></i>
+                            Documents
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="elections.html" class="sidebar-link">
+                            <i class="fas fa-vote-yea"></i>
+                            Elections
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="users.html" class="sidebar-link">
+                            <i class="fas fa-users"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="budget.html" class="sidebar-link">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Budget
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="settings.html" class="sidebar-link">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+                <div class="mt-auto p-3">
+                    <a href="#" id="logout-button" class="btn btn-outline-light w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <div id="event-loading" class="text-center p-5">
+                <div class="loading-spinner"></div>
+                <p class="mt-3">Loading event details...</p>
+            </div>
+
+            <div id="event-error" class="alert alert-danger" style="display: none;">
+                <h4 class="alert-heading">Error</h4>
+                <p id="error-message">Failed to load event details.</p>
+                <a href="events.html" class="btn btn-outline-danger">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Events
+                </a>
+            </div>
+
+            <div id="event-content" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a href="events.html" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Events
+                    </a>
+                    <div>
+                        <a href="#" id="edit-event-btn" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-edit me-2"></i> Edit Event
+                        </a>
+                        <button id="delete-event-btn" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i> Delete Event
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Event Details -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h2 id="event-name">Event Name</h2>
+                                <div class="d-flex flex-wrap gap-3 mb-3">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="fas fa-calendar-alt me-2"></i> <span id="event-date">Date</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="fas fa-map-marker-alt me-2"></i> <span id="event-location">Location</span>
+                                    </div>
+                                    <span id="event-status-badge" class="badge bg-success">Status</span>
+                                </div>
+                                <p id="event-description">Description loading...</p>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-light h-100">
+                                    <div class="card-body">
+                                        <h5 class="mb-3">Event Details</h5>
+                                        <table class="table table-sm borderless">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-muted">Organizer:</td>
+                                                    <td id="event-organizer">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Capacity:</td>
+                                                    <td id="event-capacity">- attendees</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Registrations:</td>
+                                                    <td id="event-registrations">- attendees</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registration Status -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Registration Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Registration Progress</span>
+                                <span id="registration-percentage">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div id="registration-progress" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <span id="registration-stats">0 out of 0 spots filled</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-users me-2"></i> Manage Attendees
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                Export Attendee List
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/main.js"></script>
+    <script>
+        // Mock event data (in a real app this would come from an API)
+        const mockEvents = [
+            { id: 1, name: 'Orientation Week', date: '2023-08-15', location: 'Main Campus', status: 'Upcoming', description: 'Welcome event for new students', organizer: 'Student Affairs', capacity: 500, registrations: 320 },
+            { id: 2, name: 'Leadership Workshop', date: '2023-08-20', location: 'Conference Hall', status: 'Upcoming', description: 'Workshop to develop leadership skills', organizer: 'SRC', capacity: 100, registrations: 75 },
+            { id: 3, name: 'Cultural Festival', date: '2023-09-05', location: 'Student Center', status: 'Upcoming', description: 'Celebration of diverse cultures', organizer: 'Cultural Committee', capacity: 1000, registrations: 650 }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get event ID from URL
+            const eventId = parseInt(getUrlParameter('id'));
+            
+            // Find event by ID
+            const event = mockEvents.find(e => e.id === eventId);
+            
+            setTimeout(() => {
+                document.getElementById('event-loading').style.display = 'none';
+                
+                if (event) {
+                    // Show event content
+                    document.getElementById('event-content').style.display = 'block';
+                    
+                    // Set event details
+                    document.getElementById('event-name').textContent = event.name;
+                    document.getElementById('event-date').textContent = event.date;
+                    document.getElementById('event-location').textContent = event.location;
+                    document.getElementById('event-description').textContent = event.description;
+                    document.getElementById('event-organizer').textContent = event.organizer;
+                    document.getElementById('event-capacity').textContent = `${event.capacity} attendees`;
+                    document.getElementById('event-registrations').textContent = `${event.registrations} attendees`;
+                    
+                    // Set status badge
+                    const statusBadge = document.getElementById('event-status-badge');
+                    statusBadge.textContent = event.status;
+                    if (event.status === 'Upcoming') {
+                        statusBadge.className = 'badge bg-success';
+                    } else if (event.status === 'Planning') {
+                        statusBadge.className = 'badge bg-warning';
+                    } else {
+                        statusBadge.className = 'badge bg-secondary';
+                    }
+                    
+                    // Calculate registration percentage
+                    const registrationPercentage = Math.round((event.registrations / event.capacity) * 100);
+                    document.getElementById('registration-percentage').textContent = `${registrationPercentage}%`;
+                    
+                    // Update progress bar
+                    const progressBar = document.getElementById('registration-progress');
+                    progressBar.style.width = `${registrationPercentage}%`;
+                    
+                    // Change progress bar color based on percentage
+                    if (registrationPercentage > 90) {
+                        progressBar.className = 'progress-bar bg-danger';
+                    } else if (registrationPercentage > 75) {
+                        progressBar.className = 'progress-bar bg-warning';
+                    }
+                    
+                    // Update registration stats
+                    document.getElementById('registration-stats').textContent = `${event.registrations} out of ${event.capacity} spots filled`;
+                    
+                    // Set up edit button
+                    document.getElementById('edit-event-btn').href = `event-edit.html?id=${eventId}`;
+                    
+                    // Set up delete button
+                    document.getElementById('delete-event-btn').addEventListener('click', function() {
+                        if (confirm('Are you sure you want to delete this event?')) {
+                            alert('Event deleted successfully (mock)');
+                            window.location.href = 'events.html';
+                        }
+                    });
+                } else {
+                    // Show error
+                    document.getElementById('event-error').style.display = 'block';
+                    document.getElementById('error-message').textContent = 'The event you are looking for does not exist or has been removed.';
+                }
+            }, 1000); // Simulate loading delay
+        });
+    </script>
+</body>
+</html> 

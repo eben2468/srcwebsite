@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - SRC Management System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="dashboard-sidebar">
+            <div class="p-3 border-bottom">
+                <h3 class="h5 text-center text-white mb-0">SRC Management</h3>
+            </div>
+            <div class="pt-2">
+                <div class="p-3 border-bottom">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <div id="user-name">Admin User</div>
+                            <small class="text-muted">Administrator</small>
+                        </div>
+                    </div>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="dashboard.html" class="sidebar-link">
+                            <i class="fas fa-home"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="events.html" class="sidebar-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="news.html" class="sidebar-link">
+                            <i class="fas fa-newspaper"></i>
+                            News
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="documents.html" class="sidebar-link">
+                            <i class="fas fa-file-alt"></i>
+                            Documents
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="elections.html" class="sidebar-link">
+                            <i class="fas fa-vote-yea"></i>
+                            Elections
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="users.html" class="sidebar-link">
+                            <i class="fas fa-users"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="budget.html" class="sidebar-link">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Budget
+                        </a>
+                    </li>
+                    <li class="nav-item admin-only">
+                        <a href="settings.html" class="sidebar-link">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </li>
+                </ul>
+                <div class="mt-auto p-3">
+                    <a href="#" id="logout-button" class="btn btn-outline-light w-100">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">Events</h1>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                    <i class="fas fa-plus me-2"></i> Create Event
+                </button>
+            </div>
+
+            <!-- Filters and Search -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" placeholder="Search events...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="Upcoming">Upcoming</option>
+                                <option value="Planning">Planning</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="month" class="form-control" placeholder="Filter by month">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter me-1"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">All Events</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event Name</th>
+                                    <th>Date</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-table-body">
+                                <!-- Events loaded via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createEventModalLabel">Create New Event</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="event-form">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="event-name" class="form-label">Event Name</label>
+                                <input type="text" class="form-control" id="event-name" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="event-date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="event-date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="event-location" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="event-location" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="event-status" class="form-label">Status</label>
+                                <select class="form-select" id="event-status" required>
+                                    <option value="Upcoming">Upcoming</option>
+                                    <option value="Planning">Planning</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="event-capacity" class="form-label">Capacity</label>
+                                <input type="number" class="form-control" id="event-capacity" min="1" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="event-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="event-description" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="event-organizer" class="form-label">Organizer</label>
+                            <input type="text" class="form-control" id="event-organizer" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-event-btn">Save Event</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/main.js"></script>
+    <script>
+        // Handle event form submission
+        document.getElementById('save-event-btn').addEventListener('click', function() {
+            const form = document.getElementById('event-form');
+            
+            if (form.checkValidity()) {
+                // Get form values
+                const eventData = {
+                    name: document.getElementById('event-name').value,
+                    date: document.getElementById('event-date').value,
+                    location: document.getElementById('event-location').value,
+                    status: document.getElementById('event-status').value,
+                    capacity: document.getElementById('event-capacity').value,
+                    description: document.getElementById('event-description').value,
+                    organizer: document.getElementById('event-organizer').value
+                };
+                
+                // In a real application, we would send this data to the server
+                console.log('Event data:', eventData);
+                
+                // For demo purposes, just show a success message and close modal
+                alert('Event created successfully (mock)');
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
+                modal.hide();
+                
+                // Reload events
+                loadEvents();
+                
+                // Clear form
+                form.reset();
+            } else {
+                form.classList.add('was-validated');
+            }
+        });
+        
+        // Check for "new" action in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'new') {
+                // Show create event modal
+                const createEventModal = new bootstrap.Modal(document.getElementById('createEventModal'));
+                createEventModal.show();
+            }
+        });
+    </script>
+</body>
+</html> 

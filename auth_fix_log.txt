@@ -1,0 +1,80 @@
+Starting to process files in C:\xampp\htdocs\srcwebsite/pages_php
+Found 22 PHP files
+Processing about.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in about.php
+Processing admin_template.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in admin_template.php
+Skipping auth.php
+Processing budget.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in budget.php
+Processing dashboard.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in dashboard.php
+Skipping debug_session.php
+Processing departments.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in departments.php
+Processing documents.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in documents.php
+Processing elections.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in elections.php
+Processing event-detail.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in event-detail.php
+Processing events.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in events.php
+Processing feedback.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in feedback.php
+Skipping login.php
+Skipping logout.php
+Processing minutes.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in minutes.php
+Processing news.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in news.php
+Processing portfolio-detail.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in portfolio-detail.php
+Processing portfolio.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in portfolio.php
+Processing reports.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in reports.php
+Processing settings.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in settings.php
+Processing user_template.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in user_template.php
+Processing users.php...
+  Has require_once: NO
+  Has include: NO
+  No auth.php reference found in users.php
+
+Auth reference update complete!
