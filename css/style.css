@@ -1146,3 +1146,20 @@ header {
         padding: var(--mobile-padding-sm, 12px) !important;
     }
 }
+
+/* Mobile Column Padding Override - Remove Bootstrap default padding for full-width cards */
+@media (max-width: 991px) {
+    /* Remove Bootstrap default column padding on mobile for full-width cards */
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Specific pages: notifications.php, committees.php, settings.php */
+    .page-notifications [class*="col-md-"],
+    .committees-page [class*="col-md-"],
+    body[class*="settings"] [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}

@@ -542,6 +542,14 @@ try {
             margin-right: 0;
         }
     }
+    
+    /* Mobile Column Padding Override for Full-Width Cards */
+    @media (max-width: 991px) {
+        [class*="col-md-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+    }
 </style>
 
 <div class="modern-container">

@@ -455,6 +455,14 @@ require_once '../includes/header.php';
         font-size: 0.875rem;
     }
 }
+
+/* Mobile Column Padding Override for Full-Width Cards */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
 </style>
 
 <div class="container-fluid">

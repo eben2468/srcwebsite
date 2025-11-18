@@ -91,6 +91,14 @@
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
+    
+    /* Specific pages: notifications.php, committees.php, settings.php */
+    .page-notifications [class*="col-md-"],
+    .committees-page [class*="col-md-"],
+    body[class*="settings"] [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
 }
 
 /* Mobile Card Components */
