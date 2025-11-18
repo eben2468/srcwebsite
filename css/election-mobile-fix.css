@@ -1,0 +1,830 @@
+/**
+ * Election Mobile Fix CSS
+ * Responsive styles for election page on mobile devices (320px and up)
+ */
+
+/* Global overflow prevention for all mobile devices */
+@media (max-width: 767px) {
+    /* Prevent any element from overflowing the viewport */
+    * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Specific container fixes */
+    .container,
+    .container-fluid,
+    .row,
+    .col,
+    [class*="col-"] {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Card and content fixes */
+    .card,
+    .content-card,
+    .candidate-card,
+    .position-card,
+    .admin-tool,
+    .modal-content {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Text content fixes */
+    h1, h2, h3, h4, h5, h6,
+    p, span, div, a,
+    .btn, .badge, .alert {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        max-width: 100% !important;
+    }
+
+    /* Button specific fixes */
+    .btn {
+        white-space: normal !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* Image fixes */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
+
+/* Mobile-first responsive design for elections page */
+@media (max-width: 575px) {
+    /* Main content adjustments */
+    .main-content {
+        padding: 10px !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 20px !important;
+    }
+
+    /* Container adjustments */
+    .container-fluid {
+        padding-top: 10px !important;
+    }
+
+    /* Elections header mobile adjustments */
+    .elections-header {
+        padding: 1.5rem 1rem !important;
+        margin-top: 80px !important;
+        margin-bottom: 1rem !important;
+        border-radius: 8px !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+
+    .elections-header-content {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+
+    .elections-title {
+        font-size: 1.5rem !important;
+        margin: 0 0 0.5rem 0 !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+
+    .elections-title i {
+        font-size: 1.8rem !important;
+    }
+
+    .elections-description {
+        font-size: 0.9rem !important;
+        text-align: center !important;
+        line-height: 1.3 !important;
+    }
+
+    .btn-header-action {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 6px !important;
+    }
+    
+    /* Page header adjustments */
+    .page-header {
+        padding: 15px 10px !important;
+        margin: 0 0 15px 0 !important;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Election cards container */
+    .row {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .col-md-6, .col-lg-4, .col-xl-3 {
+        padding: 5px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    /* Election cards */
+    .content-card {
+        margin-bottom: 15px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+
+    .content-card-header {
+        padding: 12px 15px !important;
+        font-size: 0.9rem !important;
+        position: relative !important;
+        z-index: 2 !important;
+    }
+
+    .content-card-title {
+        font-size: 1rem !important;
+        line-height: 1.4 !important;
+        margin-bottom: 0 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .content-card-body {
+        padding: 15px !important;
+        position: relative !important;
+        z-index: 1 !important;
+        background-color: white !important;
+    }
+
+    /* Fix text overlapping in election cards */
+    .content-card .row {
+        margin: 0 !important;
+    }
+
+    .content-card .col-6 {
+        padding: 2px 5px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .content-card .text-muted {
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 2px !important;
+        display: block !important;
+        clear: both !important;
+    }
+
+    .content-card .fw-medium {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 5px !important;
+        display: block !important;
+        clear: both !important;
+        word-break: break-word !important;
+    }
+    
+    /* Action buttons */
+    .btn-action {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+        margin: 2px !important;
+        padding: 0 !important;
+    }
+    
+    .btn-group {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 3px !important;
+    }
+    
+    /* Status badges */
+    .badge {
+        font-size: 0.7rem !important;
+        padding: 3px 6px !important;
+        border-radius: 4px !important;
+    }
+    
+    /* Section headers */
+    .section-header {
+        font-size: 1.1rem !important;
+        margin: 1rem 0 0.5rem 0 !important;
+        padding: 0 5px !important;
+    }
+
+    /* Content panels */
+    .content-panel {
+        margin-bottom: 1rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .content-panel-body {
+        padding: 15px !important;
+    }
+
+    /* Admin tools container */
+    .admin-tools-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    .admin-tool {
+        text-align: center !important;
+        padding: 15px !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 8px !important;
+        background-color: #f8f9fa !important;
+    }
+
+    .admin-tool-icon {
+        margin-bottom: 10px !important;
+    }
+
+    .admin-tool-icon i {
+        font-size: 2rem !important;
+        color: #4e73df !important;
+    }
+
+    .admin-tool h4 {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+        color: #333 !important;
+    }
+
+    .admin-tool p {
+        font-size: 0.85rem !important;
+        margin-bottom: 12px !important;
+        color: #666 !important;
+        line-height: 1.4 !important;
+    }
+
+    .admin-tool .btn {
+        font-size: 0.8rem !important;
+        padding: 8px 12px !important;
+        border-radius: 4px !important;
+    }
+    
+    /* Diagnostics and tools cards */
+    .diagnostics-card,
+    .tools-card {
+        margin-bottom: 15px !important;
+    }
+    
+    .diagnostics-card .card-body,
+    .tools-card .card-body {
+        padding: 15px !important;
+        text-align: center !important;
+    }
+    
+    .diagnostics-card h5,
+    .tools-card h5 {
+        font-size: 1rem !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .diagnostics-card p,
+    .tools-card p {
+        font-size: 0.85rem !important;
+        margin-bottom: 12px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Buttons in cards */
+    .btn-primary, .btn-info, .btn-success {
+        font-size: 0.8rem !important;
+        padding: 8px 12px !important;
+        border-radius: 4px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Table responsiveness - Convert to card layout on mobile */
+    .table-responsive {
+        border: none !important;
+        margin-bottom: 15px !important;
+    }
+
+    .table {
+        font-size: 0.8rem !important;
+    }
+
+    .table thead {
+        display: none !important;
+    }
+
+    .table tbody tr {
+        display: block !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 8px !important;
+        margin-bottom: 15px !important;
+        padding: 15px !important;
+        background-color: white !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .table tbody td {
+        display: block !important;
+        border: none !important;
+        padding: 5px 0 !important;
+        text-align: left !important;
+        position: relative !important;
+        padding-left: 50% !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .table tbody td:before {
+        content: attr(data-label) !important;
+        position: absolute !important;
+        left: 0 !important;
+        width: 45% !important;
+        padding-right: 10px !important;
+        white-space: nowrap !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Add data labels for mobile table */
+    .table tbody td:nth-child(1):before { content: "Title:" !important; }
+    .table tbody td:nth-child(2):before { content: "Start Date:" !important; }
+    .table tbody td:nth-child(3):before { content: "End Date:" !important; }
+    .table tbody td:nth-child(4):before { content: "Positions:" !important; }
+    .table tbody td:nth-child(5):before { content: "Candidates:" !important; }
+    .table tbody td:nth-child(6):before { content: "Status:" !important; }
+    .table tbody td:nth-child(7):before { content: "Actions:" !important; }
+
+    .table tbody td .fw-medium {
+        font-size: 0.85rem !important;
+        line-height: 1.3 !important;
+        margin: 0 !important;
+        display: block !important;
+    }
+
+    .table tbody td .badge {
+        font-size: 0.7rem !important;
+        padding: 3px 6px !important;
+        margin: 2px 0 !important;
+        display: inline-block !important;
+    }
+
+    .table tbody td .btn-group {
+        display: flex !important;
+        gap: 3px !important;
+        flex-wrap: wrap !important;
+        margin-top: 5px !important;
+    }
+    
+    /* Progress containers */
+    .progress-container {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    
+    .progress {
+        width: 100% !important;
+        height: 6px !important;
+    }
+    
+    /* Modal adjustments for mobile */
+    .modal-dialog {
+        margin: 10px !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+    
+    .modal-content {
+        border-radius: 8px !important;
+    }
+    
+    .modal-header {
+        padding: 12px 15px !important;
+    }
+    
+    .modal-body {
+        padding: 15px !important;
+    }
+    
+    .modal-footer {
+        padding: 12px 15px !important;
+    }
+    
+    /* Form elements */
+    .form-control {
+        font-size: 0.9rem !important;
+        padding: 8px 12px !important;
+    }
+    
+    .form-label {
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* Alert messages */
+    .alert {
+        padding: 10px 12px !important;
+        margin-bottom: 15px !important;
+        font-size: 0.85rem !important;
+        border-radius: 6px !important;
+    }
+}
+
+/* Extra small devices (320px and up) */
+@media (max-width: 374px) {
+    .main-content {
+        padding: 8px !important;
+    }
+
+    /* Elections header for very small screens */
+    .elections-header {
+        padding: 1rem 0.75rem !important;
+        margin-top: 75px !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+
+    .elections-title {
+        font-size: 1.3rem !important;
+        margin: 0 0 0.3rem 0 !important;
+    }
+
+    .elections-title i {
+        font-size: 1.5rem !important;
+    }
+
+    .elections-description {
+        font-size: 0.8rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .btn-header-action {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    .content-card-header {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .content-card-body {
+        padding: 12px !important;
+        min-height: auto !important;
+    }
+
+    .content-card-title {
+        font-size: 0.9rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Extra small text fixes */
+    .content-card .col-6 {
+        padding: 1px 3px !important;
+        margin-bottom: 6px !important;
+        min-height: 35px !important;
+    }
+
+    .content-card .text-muted {
+        font-size: 0.7rem !important;
+        line-height: 1.1 !important;
+        margin-bottom: 1px !important;
+    }
+
+    .content-card .fw-medium {
+        font-size: 0.8rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 4px !important;
+    }
+
+    /* Admin tools for very small screens */
+    .section-header {
+        font-size: 1rem !important;
+        margin: 0.8rem 0 0.4rem 0 !important;
+    }
+
+    .content-panel-body {
+        padding: 12px !important;
+    }
+
+    .admin-tool {
+        padding: 12px !important;
+    }
+
+    .admin-tool-icon i {
+        font-size: 1.5rem !important;
+    }
+
+    .admin-tool h4 {
+        font-size: 0.9rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .admin-tool p {
+        font-size: 0.75rem !important;
+        margin-bottom: 10px !important;
+        line-height: 1.3 !important;
+    }
+
+    .admin-tool .btn {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+
+    /* Candidate and position card fixes for very small screens */
+    .candidate-card,
+    .position-card {
+        max-width: 100% !important;
+        margin: 0 0 10px 0 !important;
+        padding: 10px !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
+    }
+
+    .candidate-card .card-body,
+    .position-card .card-body {
+        padding: 8px !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .candidate-card h5,
+    .position-card h5 {
+        font-size: 0.85rem !important;
+        line-height: 1.2 !important;
+        margin-bottom: 5px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .candidate-card .btn,
+    .position-card .btn {
+        font-size: 0.7rem !important;
+        padding: 4px 8px !important;
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    
+    .btn-action {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 10px !important;
+    }
+    
+    .badge {
+        font-size: 0.65rem !important;
+        padding: 2px 4px !important;
+    }
+    
+    .btn-primary, .btn-info, .btn-success {
+        font-size: 0.75rem !important;
+        padding: 6px 10px !important;
+    }
+    
+    .table tbody tr {
+        padding: 12px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .table tbody td {
+        padding: 3px 0 !important;
+        padding-left: 45% !important;
+        font-size: 0.75rem !important;
+    }
+
+    .table tbody td:before {
+        width: 40% !important;
+        font-size: 0.7rem !important;
+    }
+
+    .table tbody td .fw-medium {
+        font-size: 0.8rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .table tbody td .badge {
+        font-size: 0.65rem !important;
+        padding: 2px 4px !important;
+    }
+    
+    .modal-dialog {
+        margin: 5px !important;
+        max-width: calc(100vw - 10px) !important;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 667px) and (orientation: landscape) {
+    .content-card {
+        margin-bottom: 10px !important;
+    }
+    
+    .content-card-header {
+        padding: 8px 12px !important;
+    }
+    
+    .content-card-body {
+        padding: 12px !important;
+    }
+}
+
+/* Fix for very wide content that might overflow */
+.election-container * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Specific fixes for election card text overlapping */
+@media (max-width: 575px) {
+    /* Election card content structure fixes */
+    .content-card .card-body > .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin: 0 !important;
+    }
+
+    .content-card .card-body > .row > .col-6 {
+        flex: 0 0 50% !important;
+        max-width: 50% !important;
+        padding: 3px 6px !important;
+        margin-bottom: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+    }
+
+    /* Ensure proper spacing between text elements */
+    .content-card .text-muted + .fw-medium {
+        margin-top: 3px !important;
+    }
+
+    /* Badge positioning */
+    .content-card .badge {
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+        display: inline-block !important;
+        white-space: nowrap !important;
+    }
+
+    /* Action buttons container */
+    .content-card .btn-group {
+        margin-top: 10px !important;
+        display: flex !important;
+        justify-content: center !important;
+        gap: 5px !important;
+        flex-wrap: wrap !important;
+    }
+
+    /* Prevent text from floating or overlapping */
+    .content-card * {
+        position: relative !important;
+        float: none !important;
+    }
+
+    /* Clear any potential floats */
+    .content-card::after,
+    .content-card .card-body::after,
+    .content-card .row::after {
+        content: "" !important;
+        display: table !important;
+        clear: both !important;
+    }
+}
+
+/* Comprehensive overflow prevention and layout fixes */
+@media (max-width: 575px) {
+    /* Prevent horizontal scrolling */
+    html, body {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+    }
+
+    /* Main containers */
+    .container-fluid {
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    .main-content {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Fix any potential overflow issues */
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .row > * {
+        padding-left: 5px !important;
+        padding-right: 5px !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Candidate cards and position cards overflow fixes */
+    .candidate-card,
+    .position-card,
+    .content-card,
+    .card {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Text content overflow fixes */
+    .candidate-card h5,
+    .candidate-card h4,
+    .position-card h5,
+    .position-card h4,
+    .content-card h5,
+    .content-card h4 {
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Button and badge overflow fixes */
+    .btn,
+    .badge {
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+    }
+
+    /* Specific fixes for candidate registration cards */
+    .candidate-registration-card,
+    .position-details-card {
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+
+    /* Fix for any modal or popup content */
+    .modal-dialog {
+        max-width: calc(100vw - 20px) !important;
+        margin: 10px !important;
+    }
+
+    .modal-content {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Fix for tables that might overflow */
+    .table-responsive {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-width: 100% !important;
+    }
+
+    /* Fix for any form elements */
+    .form-control,
+    .form-select,
+    input,
+    textarea,
+    select {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Fix for any images */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* Fix for any pre or code blocks */
+    pre,
+    code {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        word-wrap: break-word !important;
+        white-space: pre-wrap !important;
+    }
+}

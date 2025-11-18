@@ -7,13 +7,30 @@
 // Add cache-busting parameter to ensure fresh data
 $cacheBuster = time();
 
-// Get latest news/announcements (limit to 3) - simplified query to avoid non-existent columns
-$latestNews = fetchAll("SELECT n.news_id, n.title, n.content, n.image_path, n.document_path, n.created_at, 
-                        COALESCE(u.username, 'System') as author_name 
-                        FROM news n 
-                        LEFT JOIN users u ON n.author_id = u.user_id 
-                        ORDER BY n.created_at DESC 
-                        LIMIT 3");
+// Get latest news/announcements (limit to 3) - check for image column first
+$latestNews = [];
+try {
+    // First try with image_path column
+    $latestNews = fetchAll("SELECT n.news_id, n.title, n.content, n.image_path, n.created_at,
+                            COALESCE(u.username, 'System') as author_name
+                            FROM news n
+                            LEFT JOIN users u ON n.author_id = u.user_id
+                            ORDER BY n.created_at DESC
+                            LIMIT 3");
+} catch (Exception $e) {
+    // If image_path doesn't exist, try without it
+    try {
+        $latestNews = fetchAll("SELECT n.news_id, n.title, n.content, n.created_at,
+                                COALESCE(u.username, 'System') as author_name
+                                FROM news n
+                                LEFT JOIN users u ON n.author_id = u.user_id
+                                ORDER BY n.created_at DESC
+                                LIMIT 3");
+    } catch (Exception $e2) {
+        // If that fails too, use empty array
+        $latestNews = [];
+    }
+}
 
 // Get upcoming events (limit to 3)
 // First check if end_date column exists
@@ -62,7 +79,7 @@ if ($endDateExists) {
                     ?>
                     <div class="announcement-card mb-3" style="--card-index: <?php echo $cardIndex; ?>">
                         <div class="row g-0">
-                            <?php if (!empty($news['image_path'])): ?>
+                            <?php if (isset($news['image_path']) && !empty($news['image_path'])): ?>
                             <div class="col-md-4">
                                 <img src="<?php echo '../' . htmlspecialchars($news['image_path']); ?>" class="img-fluid rounded" alt="Announcement Image" style="height: 100%; object-fit: cover;">
                             </div>
@@ -77,11 +94,6 @@ if ($endDateExists) {
                                         <small class="text-muted">
                                             <i class="fas fa-calendar-alt me-1"></i> <?php echo date('M j, Y', strtotime($news['created_at'])); ?>
                                         </small>
-                                        <?php if (!empty($news['document_path'])): ?>
-                                        <span class="badge bg-info">
-                                            <i class="fas fa-file-alt"></i> Document
-                                        </span>
-                                        <?php endif; ?>
                                     </div>
                                     <a href="news-detail.php?id=<?php echo $news['news_id']; ?>" class="btn btn-sm btn-primary mt-2">Read More</a>
                                 </div>
@@ -116,7 +128,7 @@ if ($endDateExists) {
                     foreach ($upcomingEvents as $event): 
                         $eventCardIndex++;
                         // Default image if none is set
-                        $eventImage = !empty($event['image_path']) ? '../' . $event['image_path'] : '../assets/images/event-default.png';
+                        $eventImage = (isset($event['image_path']) && !empty($event['image_path'])) ? '../' . $event['image_path'] : '../assets/images/event-default.png';
                     ?>
                     <div class="announcement-card mb-3" style="--card-index: <?php echo $eventCardIndex; ?>">
                         <div class="row g-0">

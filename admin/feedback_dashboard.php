@@ -1,10 +1,11 @@
 <?php
 // Include authentication file and database config
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
 
-// Check if user is logged in and is admin
-if (!isLoggedIn() || !isAdmin()) {
+// Check if user is logged in and has admin interface access (admin or super admin)
+if (!isLoggedIn() || !shouldUseAdminInterface()) {
     header("Location: ../pages_php/login.php");
     exit();
 }
@@ -145,19 +146,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     if (hasPermission('update', 'feedback')) {
         $feedbackId = $_POST['feedback_id'] ?? 0;
         $newStatus = $_POST['new_status'] ?? '';
-        $assignedTo = $_POST['assigned_to'] ?? '';
+        $assignedToName = $_POST['assigned_to'] ?? '';
         $response = $_POST['response'] ?? '';
         $sendEmail = isset($_POST['email_response']) && $_POST['email_response'] === 'on';
-        
+
+        // Convert assigned user name to user ID
+        $assignedToUserId = null;
+        if (!empty($assignedToName) && $assignedToName !== 'unassigned') {
+            $userSql = "SELECT user_id FROM users WHERE CONCAT(first_name, ' ', last_name) = ? LIMIT 1";
+            $userResult = fetchOne($userSql, [$assignedToName]);
+            if ($userResult) {
+                $assignedToUserId = $userResult['user_id'];
+            }
+        }
+
         // Update feedback in database
-        $sql = "UPDATE feedback SET 
-                status = ?, 
-                assigned_to = ?, 
+        $sql = "UPDATE feedback SET
+                status = ?,
+                assigned_to = ?,
                 resolution = ?,
-                updated_at = CURRENT_TIMESTAMP 
+                updated_at = CURRENT_TIMESTAMP
                 WHERE feedback_id = ?";
-        
-        $result = update($sql, [$newStatus, $assignedTo, $response, $feedbackId]);
+
+        $result = update($sql, [$newStatus, $assignedToUserId, $response, $feedbackId]);
         
         if ($result) {
             $successMessage = "Feedback #$feedbackId has been updated successfully.";
@@ -289,7 +300,7 @@ $pageTitle = "Admin Feedback Dashboard";
     .status-badge-rejected {
         background-color: #6c757d !important; /* Gray */
     }
-    
+
     /* Feedback card borders based on status */
     .feedback-item-pending {
         border-left: 4px solid #dc3545;
@@ -306,12 +317,162 @@ $pageTitle = "Admin Feedback Dashboard";
 </style>
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Admin Feedback Dashboard</h1>
-        <a href="<?php echo $GLOBALS['path_prefix']; ?>feedback.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i> Back to Feedback Page
-        </a>
+    <script>
+        document.body.classList.add('feedback-dashboard-page');
+    </script>
+
+    <!-- Custom Feedback Dashboard Header -->
+    <div class="feedback-dashboard-header animate__animated animate__fadeInDown">
+        <div class="feedback-dashboard-header-content">
+            <div class="feedback-dashboard-header-main">
+                <h1 class="feedback-dashboard-title">
+                    <i class="fas fa-comments me-3"></i>
+                    Feedback Dashboard
+                </h1>
+                <p class="feedback-dashboard-description">Manage and respond to student feedback submissions</p>
+            </div>
+            <div class="feedback-dashboard-header-actions">
+                <a href="<?php echo $GLOBALS['path_prefix']; ?>feedback.php" class="btn btn-header-action">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Feedback
+                </a>
+                <button type="button" class="btn btn-header-action" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Print Report
+                </button>
+            </div>
+        </div>
     </div>
+
+    <style>
+    .feedback-dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        margin-top: 60px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .feedback-dashboard-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .feedback-dashboard-header-main {
+        flex: 1;
+        text-align: center;
+    }
+
+    .feedback-dashboard-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .feedback-dashboard-title i {
+        font-size: 2.2rem;
+        opacity: 0.9;
+    }
+
+    .feedback-dashboard-description {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .feedback-dashboard-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-header-action {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .btn-header-action:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .feedback-dashboard-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .feedback-dashboard-header-content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .feedback-dashboard-title {
+            font-size: 2rem;
+            gap: 0.6rem;
+        }
+
+        .feedback-dashboard-title i {
+            font-size: 1.8rem;
+        }
+
+        .feedback-dashboard-description {
+            font-size: 1.1rem;
+        }
+
+        .feedback-dashboard-header-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-header-action {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    /* Animation classes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .animate__animated {
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .animate__fadeInDown {
+        animation-name: fadeInDown;
+    }
+    </style>
 
     <?php if ($successMessage): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -676,7 +837,7 @@ $pageTitle = "Admin Feedback Dashboard";
         const viewText = document.getElementById('viewText');
         const listView = document.getElementById('listView');
         const gridView = document.getElementById('gridView');
-        
+
         toggleViewBtn.addEventListener('click', function() {
             if (listView.classList.contains('d-none')) {
                 // Switch to List View
@@ -730,7 +891,7 @@ $pageTitle = "Admin Feedback Dashboard";
                     <div class="col-md-6">
                         <h6 class="text-muted">Status Information</h6>
                         <p>
-                            <strong>Current Status:</strong> 
+                            <strong>Current Status:</strong>
                             <span class="badge status-badge-<?php echo $feedback['status']; ?> text-white">
                                 <?php echo $feedback['status_display']; ?>
                             </span><br>
@@ -739,7 +900,7 @@ $pageTitle = "Admin Feedback Dashboard";
                         </p>
                     </div>
                 </div>
-                
+
                 <div class="card mb-4">
                     <div class="card-header">
                         <h6 class="mb-0">Feedback Message</h6>
@@ -748,7 +909,7 @@ $pageTitle = "Admin Feedback Dashboard";
                         <p><?php echo nl2br(htmlspecialchars($feedback['message'])); ?></p>
                     </div>
                 </div>
-                
+
                 <?php if (!empty($feedback['resolution'])): ?>
                 <div class="card mb-4 border-success">
                     <div class="card-header bg-success text-white">
@@ -759,7 +920,7 @@ $pageTitle = "Admin Feedback Dashboard";
                     </div>
                 </div>
                 <?php endif; ?>
-                
+
                 <div class="d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateFeedbackModal<?php echo $feedback['feedback_id']; ?>" onclick="$('#viewFeedbackModal<?php echo $feedback['feedback_id']; ?>').modal('hide');">
@@ -782,7 +943,7 @@ $pageTitle = "Admin Feedback Dashboard";
             <form method="post" action="">
                 <div class="modal-body">
                     <input type="hidden" name="feedback_id" value="<?php echo $feedback['feedback_id']; ?>">
-                    
+
                     <div class="mb-3">
                         <label for="newStatus<?php echo $feedback['feedback_id']; ?>" class="form-label">Status</label>
                         <select class="form-select" id="newStatus<?php echo $feedback['feedback_id']; ?>" name="new_status">
@@ -792,17 +953,17 @@ $pageTitle = "Admin Feedback Dashboard";
                             <option value="rejected" <?php echo $feedback['status'] === 'rejected' ? 'selected' : ''; ?>>Rejected</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="assignedTo<?php echo $feedback['feedback_id']; ?>" class="form-label">Assign To</label>
                         <input type="text" class="form-control" id="assignedTo<?php echo $feedback['feedback_id']; ?>" name="assigned_to" value="<?php echo htmlspecialchars($feedback['assigned_to'] ?? ''); ?>" placeholder="Enter name of person to handle this feedback">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="response<?php echo $feedback['feedback_id']; ?>" class="form-label">Response</label>
                         <textarea class="form-control" id="response<?php echo $feedback['feedback_id']; ?>" name="response" rows="5" placeholder="Enter your response to this feedback"><?php echo htmlspecialchars($feedback['resolution'] ?? ''); ?></textarea>
                     </div>
-                    
+
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="emailResponse<?php echo $feedback['feedback_id']; ?>" name="email_response">
                         <label class="form-check-label" for="emailResponse<?php echo $feedback['feedback_id']; ?>">
@@ -820,4 +981,4 @@ $pageTitle = "Admin Feedback Dashboard";
 </div>
 <?php endforeach; ?>
 
-<?php require_once '../pages_php/includes/footer.php'; ?> 
+<?php require_once '../pages_php/includes/footer.php'; ?>

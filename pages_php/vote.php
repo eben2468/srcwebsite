@@ -1,7 +1,13 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -139,6 +145,10 @@ $pageTitle = "Vote - " . $position['title'] . " - " . $election['title'] . " - S
 
 // Include header
 require_once 'includes/header.php';
+
+// Add mobile fix CSS for candidate cards
+echo '<link rel="stylesheet" href="../css/candidate-card-mobile-fix.css">';
+echo '<link rel="stylesheet" href="../css/election-mobile-fix.css">';
 ?>
 
 <!-- Page Content -->
@@ -167,7 +177,10 @@ require_once 'includes/header.php';
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-0">Cast Your Vote</h1>
+            
+
+</div>
+
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
@@ -200,49 +213,93 @@ require_once 'includes/header.php';
                         <strong>Important:</strong> You can only vote once for this position. Your vote cannot be changed once submitted.
                     </div>
                     
-                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?election_id=" . $electionId . "&position_id=" . $positionId); ?>" id="voting-form">
-                        <div class="mb-4">
-                            <h5>Select your candidate:</h5>
-                            <div class="candidate-list">
+                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?election_id=" . $electionId . "&position_id=" . $positionId); ?>" id="voteForm">
+                        <div class="candidate-selection">
+                            <h6 class="mb-3">Select your preferred candidate for <?php echo htmlspecialchars($position['title']); ?>:</h6>
+                            
+                            <div class="candidates-grid row">
                                 <?php foreach ($candidates as $candidate): ?>
-                                    <div class="candidate-option form-check">
-                                        <input class="form-check-input" type="radio" name="candidate_id" 
-                                               id="candidate-<?php echo $candidate['candidate_id']; ?>" 
-                                               value="<?php echo $candidate['candidate_id']; ?>"
-                                               <?php echo ($candidateId == $candidate['candidate_id']) ? 'checked' : ''; ?>>
-                                        <label class="form-check-label candidate-card" for="candidate-<?php echo $candidate['candidate_id']; ?>">
-                                            <div class="candidate-info">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="candidate-card">
+                                            <input type="radio" class="candidate-radio" name="candidate_id" id="candidate-<?php echo $candidate['candidate_id']; ?>" value="<?php echo $candidate['candidate_id']; ?>" <?php echo $candidateId == $candidate['candidate_id'] ? 'checked' : ''; ?>>
+                                            <label for="candidate-<?php echo $candidate['candidate_id']; ?>" class="candidate-label">
+                                                <span class="selection-indicator"><i class="fas fa-check-circle"></i> Selected</span>
+                                                <div class="candidate-header">
                                                 <div class="candidate-photo">
                                                     <?php if (!empty($candidate['candidate_photo'])): ?>
                                                         <img src="../uploads/candidates/<?php echo htmlspecialchars($candidate['candidate_photo']); ?>" alt="<?php echo htmlspecialchars($candidate['first_name'] . ' ' . $candidate['last_name']); ?>">
                                                     <?php else: ?>
-                                                        <i class="fas fa-user-circle"></i>
+                                                            <div class="no-photo">
+                                                                <i class="fas fa-user"></i>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="candidate-info">
+                                                        <h5><?php echo htmlspecialchars($candidate['first_name'] . ' ' . $candidate['last_name']); ?></h5>
+                                                    </div>
+                                                </div>
+                                                <div class="candidate-manifesto-preview">
+                                                    <?php 
+                                                        // Show a preview of the manifesto
+                                                        $manifestoPreview = strlen($candidate['manifesto']) > 150 ? 
+                                                            substr($candidate['manifesto'], 0, 150) . '...' : 
+                                                            $candidate['manifesto'];
+                                                        echo nl2br(htmlspecialchars($manifestoPreview)); 
+                                                    ?>
+                                                    <?php if (strlen($candidate['manifesto']) > 150): ?>
+                                                        <a href="#" class="read-more" data-bs-toggle="modal" data-bs-target="#candidateModal-<?php echo $candidate['candidate_id']; ?>">Read more</a>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="candidate-details">
-                                                    <h5><?php echo htmlspecialchars($candidate['first_name'] . ' ' . $candidate['last_name']); ?></h5>
-                                                    <p class="text-muted"><?php echo htmlspecialchars($candidate['email']); ?></p>
-                                                    <a href="candidate_detail.php?id=<?php echo $candidate['candidate_id']; ?>" class="btn btn-sm btn-outline-primary" target="_blank">
-                                                        View Manifesto
-                                                    </a>
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Candidate Modal -->
+                                        <div class="modal fade" id="candidateModal-<?php echo $candidate['candidate_id']; ?>" tabindex="-1" aria-labelledby="candidateModalLabel-<?php echo $candidate['candidate_id']; ?>" aria-hidden="true" data-bs-backdrop="false">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="candidateModalLabel-<?php echo $candidate['candidate_id']; ?>">
+                                                            <?php echo htmlspecialchars($candidate['first_name'] . ' ' . $candidate['last_name']); ?>
+                                                        </h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-md-4 text-center">
+                                                                <?php if (!empty($candidate['candidate_photo'])): ?>
+                                                                    <img src="../uploads/candidates/<?php echo htmlspecialchars($candidate['candidate_photo']); ?>" alt="<?php echo htmlspecialchars($candidate['first_name'] . ' ' . $candidate['last_name']); ?>" class="img-fluid rounded candidate-modal-photo">
+                                                                <?php else: ?>
+                                                                    <div class="no-photo large">
+                                                                        <i class="fas fa-user"></i>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <div class="col-md-8">
+                                                                <h5>Manifesto</h5>
+                                                                <div class="manifesto-full">
+                                                                    <?php echo nl2br(htmlspecialchars($candidate['manifesto'])); ?>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="button" class="btn btn-primary select-candidate" data-candidate-id="<?php echo $candidate['candidate_id']; ?>" data-bs-dismiss="modal">Select this Candidate</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </label>
+                                        </div>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                         </div>
                         
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="confirm-vote" required>
-                            <label class="form-check-label" for="confirm-vote">
-                                I confirm that I am voting for my chosen candidate and understand this action cannot be undone.
-                            </label>
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-check-circle me-2"></i> Submit Vote
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a href="election_detail.php?id=<?php echo $electionId; ?>" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Election
+                            </a>
+                            <button type="submit" class="btn btn-success" id="submitVote">
+                                <i class="fas fa-vote-yea me-2"></i> Submit Vote
                             </button>
                         </div>
                     </form>
@@ -253,46 +310,112 @@ require_once 'includes/header.php';
 </div>
 
 <style>
-.candidate-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.candidate-option {
+.candidate-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
     position: relative;
 }
 
-.candidate-card {
-    display: block;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
+.candidate-card:hover {
+    border-color: #4e73df;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px);
+}
+
+.candidate-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.candidate-label {
     padding: 15px;
+    display: block;
     cursor: pointer;
-    transition: all 0.3s;
-    width: 100%;
-    margin: 0;
+    height: 100%;
+    position: relative;
+    padding-top: 35px; /* Make space for the selection indicator */
 }
 
-.form-check-input:checked + .candidate-card {
-    border-color: var(--primary-color);
-    background-color: rgba(var(--primary-color-rgb), 0.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Selection indicator */
+.selection-indicator {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #1cc88a;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    font-weight: bold;
+    font-size: 14px;
 }
 
-.candidate-info {
+.selection-indicator i {
+    margin-right: 5px;
+}
+
+.candidate-radio:checked + .candidate-label .selection-indicator {
+    display: block;
+}
+
+/* Add visible radio button */
+.candidate-label:before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #4e73df;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #fff;
+    transition: all 0.2s;
+}
+
+/* Radio button dot when selected */
+.candidate-radio:checked + .candidate-label:after {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    background-color: #4e73df;
+    border-radius: 50%;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1;
+}
+
+.candidate-radio:checked + .candidate-label {
+    background-color: rgba(78, 115, 223, 0.1);
+    border-color: #4e73df;
+}
+
+.candidate-radio:checked + .candidate-label:before {
+    border-color: #4e73df;
+    background-color: #fff;
+}
+
+.candidate-header {
     display: flex;
     align-items: center;
+    margin-bottom: 15px;
+    padding-right: 20px; /* Make space for the radio button */
 }
 
 .candidate-photo {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     overflow: hidden;
-    margin-right: 20px;
-    flex-shrink: 0;
+    margin-right: 15px;
     background-color: #f8f9fa;
     display: flex;
     align-items: center;
@@ -305,46 +428,120 @@ require_once 'includes/header.php';
     object-fit: cover;
 }
 
-.candidate-photo i {
-    font-size: 60px;
-    color: #ccc;
+.no-photo {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    color: #6c757d;
+    font-size: 24px;
 }
 
-.candidate-details {
-    flex-grow: 1;
+.no-photo.large {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    font-size: 50px;
+    border-radius: 50%;
 }
 
-.candidate-details h5 {
+.candidate-info h5 {
     margin-bottom: 5px;
     font-weight: 600;
 }
 
-.form-check-input {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    width: 1.5em;
-    height: 1.5em;
+.candidate-manifesto-preview {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.5;
 }
 
-@media (max-width: 768px) {
-    .candidate-info {
-        flex-direction: column;
-        text-align: center;
+.read-more {
+    display: inline-block;
+    margin-top: 8px;
+    color: #4e73df;
+    font-weight: 600;
     }
     
-    .candidate-photo {
-        margin-right: 0;
+.candidate-modal-photo {
+    max-width: 150px;
+    max-height: 150px;
         margin-bottom: 15px;
     }
     
-    .form-check-input {
-        top: 15px;
-        right: 15px;
-        transform: none;
-    }
+.manifesto-full {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+.candidates-grid {
+    margin-top: 20px;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const voteForm = document.getElementById('voteForm');
+    const submitBtn = document.getElementById('submitVote');
+    
+    voteForm.addEventListener('submit', function(e) {
+        const selectedCandidate = document.querySelector('input[name="candidate_id"]:checked');
+        
+        if (!selectedCandidate) {
+            e.preventDefault();
+            alert('Please select a candidate before submitting your vote.');
+            return false;
+        } else {
+            // Ask for confirmation
+            if (!confirm('Are you sure you want to vote for this candidate? This action cannot be undone.')) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Add a loading state to the button to prevent double-clicks
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        }
+    });
+    
+    // Modal select button functionality
+    const selectButtons = document.querySelectorAll('.select-candidate');
+    
+    selectButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const candidateId = this.getAttribute('data-candidate-id');
+            const radioButton = document.getElementById('candidate-' + candidateId);
+            
+            if (radioButton) {
+                radioButton.checked = true;
+                
+                // Scroll to the selected candidate
+                radioButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Highlight the selection briefly
+                const candidateCard = radioButton.closest('.candidate-card');
+                candidateCard.style.animation = 'pulse 1s';
+                setTimeout(() => {
+                    candidateCard.style.animation = '';
+                }, 1000);
+            }
+        });
+    });
+    
+    // Add a highlight animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?> 

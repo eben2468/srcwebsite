@@ -1,0 +1,317 @@
+/* ============================================================================
+   Persistent Theme Toggle - Enhanced Styling and Functionality
+   ============================================================================ */
+
+/* Theme Toggle Button - Base Styles */
+.theme-toggle {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    min-height: 40px;
+    position: relative;
+    margin-right: 1rem;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.theme-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover i {
+    transform: rotate(20deg);
+}
+
+/* Accessibility improvements */
+.theme-toggle:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+/* Dark mode specific adjustments */
+[data-bs-theme="dark"] .theme-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Light mode specific adjustments */
+[data-bs-theme="light"] .theme-toggle {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="light"] .theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+/* Smooth transition for theme changes */
+html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode body styles */
+[data-bs-theme="dark"] body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+}
+
+/* Light mode body styles */
+[data-bs-theme="light"] body {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+/* Preserve navbar styling across theme changes */
+.navbar {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-bs-theme="dark"] .navbar {
+    background-color: #2d2d2d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="light"] .navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Card and container transitions */
+.card,
+.content-card {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Modal transitions */
+.modal-content {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Sidebar transitions */
+.sidebar {
+    transition: background-color 0.3s ease;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle,
+    html,
+    body,
+    .navbar,
+    .card,
+    .content-card,
+    .modal-content,
+    .sidebar {
+        transition: none !important;
+    }
+    
+    .theme-toggle:hover i {
+        transform: none;
+    }
+    
+    .theme-toggle:hover {
+        transform: none;
+    }
+    
+    .theme-toggle:active {
+        transform: none;
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+    .theme-toggle {
+        padding: 0.4rem 0.6rem;
+        min-width: 36px;
+        min-height: 36px;
+        font-size: 1rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Touch device adjustments */
+@media (hover: none) and (pointer: coarse) {
+    .theme-toggle {
+        padding: 0.6rem 0.8rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .theme-toggle:active {
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .theme-toggle i {
+        transform: none;
+    }
+}
+
+/* Animation for icon change */
+@keyframes iconSpin {
+    0% {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.theme-toggle.changing i {
+    animation: iconSpin 0.3s ease-in-out;
+}
+
+/* ============================================================================
+   Dark Mode Enhancements
+   ============================================================================ */
+
+/* Text colors in dark mode */
+[data-bs-theme="dark"] {
+    --bs-body-color: #e0e0e0;
+    --bs-body-bg: #1a1a1a;
+    --bs-border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Links in dark mode */
+[data-bs-theme="dark"] a {
+    color: #66b3ff;
+}
+
+[data-bs-theme="dark"] a:hover {
+    color: #99ccff;
+}
+
+/* Dropdown menus in dark mode */
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: #2d2d2d;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+    color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus {
+    background-color: #3d3d3d;
+    color: #ffffff;
+}
+
+/* Form elements in dark mode */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #2d2d2d;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #3d3d3d;
+    border-color: #667eea;
+    color: #e0e0e0;
+}
+
+/* Input placeholders in dark mode */
+[data-bs-theme="dark"] .form-control::placeholder {
+    color: #999999;
+}
+
+/* Badge styling in dark mode */
+[data-bs-theme="dark"] .badge {
+    background-color: #667eea;
+}
+
+/* Button styling in dark mode */
+[data-bs-theme="dark"] .btn-outline-light {
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+}
+
+/* Table styling in dark mode */
+[data-bs-theme="dark"] .table {
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .table thead th {
+    border-color: rgba(255, 255, 255, 0.1);
+    background-color: #2d2d2d;
+}
+
+[data-bs-theme="dark"] .table tbody tr:hover {
+    background-color: #2d2d2d;
+}
+
+/* Alert styling in dark mode */
+[data-bs-theme="dark"] .alert {
+    background-color: #2d2d2d;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+    .theme-toggle {
+        border-width: 2px;
+    }
+    
+    [data-bs-theme="dark"] .theme-toggle {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* Color scheme preference sync */
+@media (prefers-color-scheme: dark) {
+    /* If user's system preference is dark but theme is light, still respect localStorage */
+    /* This is handled by JavaScript, just ensuring no flash */
+    body {
+        background-color: #1a1a1a;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    /* If user's system preference is light, ensure light background */
+    body {
+        background-color: #ffffff;
+    }
+}

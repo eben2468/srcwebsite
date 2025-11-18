@@ -1,4 +1,6 @@
 <?php
+// Include simple authentication
+require_once __DIR__ . '/../includes/simple_auth.php';
 /**
  * Auth Bridge - Links authentication system with URL parameter admin status
  * This file provides functions to help maintain admin status when navigating
@@ -15,7 +17,7 @@ if (session_status() === PHP_SESSION_NONE) {
  * 
  * @return bool True if admin, false otherwise
  */
-function getBridgedAdminStatus() {
+function isAdmin() {
     // Check URL parameter first
     if (isset($_GET['admin']) && $_GET['admin'] == 1) {
         // Store in session for other pages
@@ -29,8 +31,8 @@ function getBridgedAdminStatus() {
     }
     
     // Check auth system if available
-    if (file_exists('auth_functions.php')) {
-        require_once 'auth_functions.php';
+    if (file_exists('includes/auth_functions.php')) {
+        require_once 'includes/auth_functions.php';
         if (function_exists('isAdmin') && isAdmin()) {
             // Store in session for other pages
             $_SESSION['url_admin_status'] = true;
@@ -50,7 +52,7 @@ function getBridgedAdminStatus() {
 function getAdminUrlParameter($isAdmin = null) {
     // If admin status not provided, determine it
     if ($isAdmin === null) {
-        $isAdmin = getBridgedAdminStatus();
+        $isAdmin = isAdmin();
     }
     
     return $isAdmin ? '?admin=1' : '';
@@ -66,7 +68,7 @@ function getAdminUrlParameter($isAdmin = null) {
 function addAdminToUrl($url, $isAdmin = null) {
     // If admin status not provided, determine it
     if ($isAdmin === null) {
-        $isAdmin = getBridgedAdminStatus();
+        $isAdmin = isAdmin();
     }
     
     if (!$isAdmin) {

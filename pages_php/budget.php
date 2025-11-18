@@ -1,16 +1,23 @@
 <?php
-// Include authentication file and database config
-header('Content-Type: text/html; charset=utf-8');
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../auth_bridge.php'; // Add bridge for admin status consistency
-require_once '../activity_functions.php'; // Include activity functions
-require_once '../settings_functions.php';
-
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+// Require login for this page
+requireLogin();
+// Add bridge for admin status consistency
+require_once __DIR__ . '/../includes/activity_functions.php'; // Include activity functions
 // Check if user is logged in
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     header("Location: login.php");
+    exit();
+}
+
+// Check if budget feature is enabled
+if (!hasFeaturePermission('enable_budget')) {
+    $_SESSION['error'] = "The budget management feature is currently disabled.";
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -19,9 +26,14 @@ $siteName = getSetting('site_name', 'SRC Management System');
 
 // Get current user info
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin() || getBridgedAdminStatus(); // Check both auth system and bridge
+$isSuperAdmin = isSuperAdmin();
+$isAdmin = isAdmin(); // Check both auth system and bridge
 $isMember = isMember(); // Add member check
-$canManageContent = $isAdmin || $isMember; // Allow both admins and members to manage content
+$isFinance = isFinance(); // Add finance check
+$hasAdminPrivileges = hasAdminPrivileges(); // Super admin or admin
+$hasMemberPrivileges = hasMemberPrivileges(); // Super admin, admin, member, or finance
+$canManageContent = $hasMemberPrivileges; // Allow super admin, admin, member, and finance to manage content
+$canManageBudget = $hasMemberPrivileges; // Finance users have full budget CRUD privileges
 
 // Get user profile data including full name
 $userId = $currentUser['user_id'] ?? 0;
@@ -243,20 +255,65 @@ require_once 'includes/header.php';
         justify-content: flex-end !important;
         gap: 0.5rem !important;
     }
+
+    .cancel-budget-btn {
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        color: #6c757d !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.375rem !important;
+        font-weight: 500 !important;
+        transition: all 0.15s ease-in-out !important;
+        cursor: pointer !important;
+        user-select: none !important;
+        text-decoration: none !important;
+        display: inline-block !important;
+        line-height: 1.5 !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        position: relative !important;
+        z-index: 10001 !important;
+    }
+
+    .cancel-budget-btn:hover {
+        background-color: #e9ecef !important;
+        border-color: #adb5bd !important;
+        color: #495057 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    }
+
+    .cancel-budget-btn:active {
+        background-color: #dee2e6 !important;
+        border-color: #adb5bd !important;
+        color: #495057 !important;
+        transform: translateY(0) !important;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+    }
 </style>
 
+<?php
+// Set up modern page header variables
+$pageTitle = "Budget Management";
+$pageIcon = "fa-money-bill-wave";
+$pageDescription = "Plan, track, and manage financial resources and expenditures";
+$actions = [];
+
+if ($canManageBudget) {
+    $actions[] = [
+        'data-bs-toggle' => 'modal',
+        'data-bs-target' => '#createBudgetModal',
+        'icon' => 'fa-plus',
+        'text' => 'Create Budget',
+        'class' => 'btn-primary'
+    ];
+}
+
+// Include the modern page header
+include 'includes/modern_page_header.php';
+?>
+
 <div class="container-fluid py-4">
-    <div class="header">
-        <h1 class="page-title">Budget Management</h1>
-        
-        <div class="header-actions">
-            <?php if ($canManageContent): ?>
-            <button type="button" class="btn btn-primary" id="createBudgetBtn" onclick="openCreateBudgetModal()">
-                <i class="fas fa-plus me-1"></i> Create New Budget
-            </button>
-            <?php endif; ?>
-        </div>
-    </div>
 
     <?php if (isset($error)): ?>
     <div class="alert alert-danger" role="alert">
@@ -394,8 +451,8 @@ require_once 'includes/header.php';
                 </tr>
                 <?php else: ?>
                 <?php foreach ($budgets as $budget): ?>
-                <tr data-budget-id="<?php echo $budget['budget_id']; ?>" 
-                    data-status="<?php echo $budget['status']; ?>" 
+                <tr data-budget-id="<?php echo $budget['budget_id']; ?>"
+                    data-status="<?php echo $budget['status']; ?>"
                     data-category="<?php echo htmlspecialchars($budget['category'] ?? ''); ?>"
                     data-title="<?php echo htmlspecialchars($budget['title']); ?>"
                     data-description="<?php echo htmlspecialchars($budget['description'] ?? ''); ?>">
@@ -418,32 +475,37 @@ require_once 'includes/header.php';
                             <i class="fas fa-eye"></i>
                         </a>
                         
-                        <?php if ($canManageContent): ?>
-                        <a href="budget-edit.php?id=<?php echo $budget['budget_id']; ?>" class="btn btn-sm btn-outline-secondary">
+                        <?php if ($canManageBudget): ?>
+                        <a href="budget-edit.php?id=<?php echo $budget['budget_id']; ?>" class="btn btn-sm btn-outline-secondary" title="Edit Budget">
                             <i class="fas fa-edit"></i>
                         </a>
+                        <?php endif; ?>
                         
-                        <?php if ($isAdmin): ?>
+                        <?php if ($hasAdminPrivileges || $isFinance): ?>
                         <?php if ($budget['status'] === 'pending'): ?>
-                        <button type="button" class="btn btn-sm btn-outline-success status-change-btn" 
-                                data-budget-id="<?php echo $budget['budget_id']; ?>" 
-                                data-status="approved">
+                        <button type="button" class="btn btn-sm btn-outline-success status-change-btn"
+                                data-budget-id="<?php echo $budget['budget_id']; ?>"
+                                data-status="approved"
+                                title="Approve Budget">
                             <i class="fas fa-check"></i>
                         </button>
-                        
-                        <button type="button" class="btn btn-sm btn-outline-danger status-change-btn" 
-                                data-budget-id="<?php echo $budget['budget_id']; ?>" 
-                                data-status="declined">
+
+                        <button type="button" class="btn btn-sm btn-outline-warning status-change-btn"
+                                data-budget-id="<?php echo $budget['budget_id']; ?>"
+                                data-status="declined"
+                                title="Decline Budget">
                             <i class="fas fa-times"></i>
                         </button>
                         <?php endif; ?>
-                        
-                        <button type="button" class="btn btn-sm btn-outline-danger delete-budget-btn" 
-                                data-budget-id="<?php echo $budget['budget_id']; ?>" 
-                                data-title="<?php echo htmlspecialchars($budget['title']); ?>">
+                        <?php endif; ?>
+
+                        <?php if ($canManageBudget): ?>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-budget-btn"
+                                data-budget-id="<?php echo $budget['budget_id']; ?>"
+                                data-title="<?php echo htmlspecialchars($budget['title']); ?>"
+                                title="Delete Budget">
                             <i class="fas fa-trash"></i>
                         </button>
-                        <?php endif; ?>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -459,7 +521,7 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php if ($canManageContent): ?>
+<?php if ($canManageBudget): ?>
 <!-- Create Budget Modal -->
 <div class="modal-overlay" id="createBudgetModalOverlay">
     <div class="modal" id="createBudgetModal">
@@ -531,7 +593,7 @@ require_once 'includes/header.php';
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-modal-close>Cancel</button>
+            <button type="button" class="btn btn-outline-secondary cancel-budget-btn" data-modal-close style="cursor: pointer; z-index: 10001; position: relative;">Cancel</button>
             <button type="submit" form="createBudgetForm" class="btn btn-primary">Create Budget</button>
         </div>
     </div>
@@ -574,33 +636,69 @@ require_once 'includes/header.php';
     
     document.addEventListener('DOMContentLoaded', function() {
         // Direct fix for the Create Budget button
-        const createBudgetBtn = document.getElementById('createBudgetBtn');
         const createBudgetModal = document.getElementById('createBudgetModal');
         const createBudgetModalOverlay = document.getElementById('createBudgetModalOverlay');
-        
-        if (createBudgetBtn && createBudgetModal && createBudgetModalOverlay) {
+
+        if (createBudgetModal && createBudgetModalOverlay) {
+            // Close modal function
+            function closeBudgetModal() {
+                createBudgetModalOverlay.style.opacity = '0';
+                createBudgetModalOverlay.style.visibility = 'hidden';
+                createBudgetModal.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    createBudgetModalOverlay.style.display = 'none';
+                    createBudgetModal.style.transform = 'scale(1)';
+                }, 300);
+            }
+
             // Close modal when clicking on the close button
-            const closeButtons = createBudgetModal.querySelectorAll('.modal-close, [data-modal-close]');
+            const closeButtons = createBudgetModal.querySelectorAll('.modal-close, [data-modal-close], .cancel-budget-btn');
             closeButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    createBudgetModalOverlay.style.opacity = '0';
-                    createBudgetModalOverlay.style.visibility = 'hidden';
-                    setTimeout(() => {
-                        createBudgetModalOverlay.style.display = 'none';
-                    }, 300);
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeBudgetModal();
                 });
             });
-            
+
             // Close modal when clicking on the overlay
             createBudgetModalOverlay.addEventListener('click', function(e) {
                 if (e.target === createBudgetModalOverlay) {
-                    createBudgetModalOverlay.style.opacity = '0';
-                    createBudgetModalOverlay.style.visibility = 'hidden';
-                    setTimeout(() => {
-                        createBudgetModalOverlay.style.display = 'none';
-                    }, 300);
+                    closeBudgetModal();
+                }
+            });
+
+            // Close modal when pressing Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && createBudgetModalOverlay.style.visibility === 'visible') {
+                    closeBudgetModal();
                 }
             });
         }
+
+        // Additional event delegation for cancel button
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('cancel-budget-btn') || e.target.hasAttribute('data-modal-close')) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const modal = document.getElementById('createBudgetModal');
+                const overlay = document.getElementById('createBudgetModalOverlay');
+
+                if (modal && overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.visibility = 'hidden';
+                    modal.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        modal.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            }
+        });
     });
-</script> 
+</script>
+
+<?php
+// End of budget.php
+?>

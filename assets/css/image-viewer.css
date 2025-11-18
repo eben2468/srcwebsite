@@ -141,4 +141,231 @@
         flex-direction: column;
         align-items: flex-start;
     }
+}
+
+/* Election Results Print Stylesheet */
+@media print {
+    /* Reset margins and colors */
+    @page {
+        size: A4;
+        margin: 0.5cm;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff !important;
+        color: #333333 !important;
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Hide non-printable elements */
+    .breadcrumb, .btn, .navbar, .sidebar, footer, .header-actions, 
+    #adminActionsDropdown, .dropdown-menu, .no-print {
+        display: none !important;
+    }
+    
+    /* Create a custom print header */
+    .print-header {
+        display: block !important;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+        padding: 20px !important;
+        text-align: center !important;
+        color: white !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .print-header h1 {
+        font-size: 28px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        margin: 0 0 10px 0 !important;
+        color: white !important;
+    }
+    
+    .print-header h2 {
+        font-size: 18px !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.5px !important;
+        margin: 0 0 15px 0 !important;
+        color: white !important;
+    }
+    
+    .print-header h3 {
+        font-size: 22px !important;
+        font-weight: 600 !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        display: inline-block !important;
+        padding: 8px 20px !important;
+        border-radius: 30px !important;
+        margin: 0 !important;
+        color: white !important;
+    }
+    
+    /* Card styling for print */
+    .card {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin-bottom: 30px !important;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #4e73df, #224abe) !important;
+        color: white !important;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 15px 20px !important;
+    }
+    
+    .card-body {
+        border: 1px solid #e3e6f0 !important;
+        border-top: none !important;
+        border-radius: 0 0 10px 10px !important;
+        padding: 20px !important;
+    }
+    
+    /* Ensure columns display properly */
+    .position-results .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .position-results .col-md-6 {
+        width: 50% !important;
+        float: left !important;
+        padding: 10px !important;
+    }
+    
+    /* Candidate cards */
+    .candidate-result-card {
+        border: 1px solid #e3e6f0 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .candidate-result-card.winner {
+        border: 2px solid #28a745 !important;
+        background-color: rgba(40, 167, 69, 0.05) !important;
+    }
+    
+    .winner-badge {
+        background-color: #28a745 !important;
+        color: white !important;
+        border: 2px solid white !important;
+    }
+    
+    /* Progress bars */
+    .progress {
+        background-color: #e9ecef !important;
+    }
+    
+    .progress-bar.bg-success {
+        background-color: #28a745 !important;
+    }
+    
+    .progress-bar.bg-primary {
+        background-color: #4e73df !important;
+    }
+    
+    /* Summary box styling */
+    .list-group-item {
+        border-color: #e3e6f0 !important;
+    }
+    
+    .badge.bg-success {
+        background-color: #28a745 !important;
+        color: white !important;
+    }
+    
+    .badge.bg-primary {
+        background-color: #4e73df !important;
+        color: white !important;
+    }
+    
+    .badge.bg-warning {
+        background-color: #ffc107 !important;
+        color: #212529 !important;
+    }
+    
+    .badge.bg-secondary {
+        background-color: #6c757d !important;
+        color: white !important;
+    }
+    
+    /* Add a decorative element at the bottom of each page */
+    .print-footer {
+        display: block !important;
+        height: 10px !important;
+        background: linear-gradient(90deg, #4e54c8, #8f94fb) !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* Print Preview Styles - These will be visible on screen but simulate the print layout */
+.print-preview-mode .print-header,
+.print-preview-mode .print-footer {
+    display: block;
+}
+
+.print-preview-mode {
+    background-color: #f0f0f0;
+    padding: 20px;
+}
+
+.print-preview-mode .print-container {
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 210mm; /* A4 width */
+    margin: 0 auto;
+    padding: 0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.print-header {
+    display: none;
+    background: linear-gradient(135deg, #4e54c8, #8f94fb);
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.print-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 10px 0;
+}
+
+.print-header h2 {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin: 0 0 15px 0;
+}
+
+.print-header h3 {
+    font-size: 22px;
+    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 30px;
+    margin: 0;
+}
+
+.print-footer {
+    display: none;
+    height: 10px;
+    background: linear-gradient(90deg, #4e54c8, #8f94fb);
+    margin-top: 30px;
 } 

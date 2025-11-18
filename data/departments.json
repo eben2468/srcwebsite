@@ -3,23 +3,15 @@
         "id": 1685502000,
         "code": "NURSA",
         "name": "School of Nursing and Midwifery",
-        "head": "Prof. Sarah Johnson",
+        "head": "Prof. Sarah Johnsons",
         "email": "nursing@example.edu",
         "phone": "+123-456-7890",
         "description": "The School of Nursing and Midwifery is dedicated to developing competent, compassionate nursing professionals through innovative education, research, and clinical practice.",
         "programs": [
             "Bachelor of Nursing",
-            "Diploma in Midwifery",
-            "Master of Nursing Science",
-            "PhD in Nursing"
+            "Bachelor of Midwifery"
         ],
         "events": [
-            {
-                "id": 1685502001,
-                "title": "Annual Nursing Conference",
-                "date": "2023-11-15",
-                "description": "Join us for the annual nursing conference featuring guest speakers from leading healthcare institutions."
-            },
             {
                 "id": 1685502002,
                 "title": "Midwifery Workshop",
@@ -31,7 +23,7 @@
             {
                 "id": 1685502003,
                 "name": "Prof. Sarah Johnson",
-                "position": "Dean",
+                "position": "Deans",
                 "email": "sjohnson@example.edu",
                 "phone": "+123-456-7890"
             },
@@ -41,6 +33,13 @@
                 "position": "Head of Research",
                 "email": "ewhite@example.edu",
                 "phone": "+123-456-7891"
+            },
+            {
+                "id": 1752172654,
+                "name": "Prof. Ebenezer Owusu",
+                "position": "I.T Personnel",
+                "email": "eben.owusu222@gmail.com",
+                "phone": "0548811774"
             }
         ],
         "documents": [
@@ -50,6 +49,13 @@
                 "filename": "nursa_1748565623.pdf",
                 "original_filename": "1748528046_VVUSRC_CONSTITUTION.pdf",
                 "upload_date": "2025-05-30 02:40:23"
+            },
+            {
+                "id": 1751558133,
+                "title": "none",
+                "filename": "nursa_1751558133.pdf",
+                "original_filename": "VVUSRC CONSTITUTION_2.pdf",
+                "upload_date": "2025-07-03 17:55:33"
             }
         ],
         "gallery": [
@@ -59,6 +65,27 @@
                 "path": "images\/departments\/gallery\/nursa\/nursa_1748613650.jpg",
                 "caption": "",
                 "upload_date": "2025-05-30 16:00:50"
+            },
+            {
+                "id": 1751558153,
+                "filename": "nursa_1751558153.png",
+                "path": "images\/departments\/gallery\/nursa\/nursa_1751558153.png",
+                "caption": "y",
+                "upload_date": "2025-07-03 17:55:53"
+            },
+            {
+                "id": 1752172184,
+                "filename": "nursa_1752172184.jpg",
+                "path": "images\/departments\/gallery\/nursa\/nursa_1752172184.jpg",
+                "caption": "",
+                "upload_date": "2025-07-10 20:29:44"
+            },
+            {
+                "id": 1752172238,
+                "filename": "nursa_1752172238.jpg",
+                "path": "images\/departments\/gallery\/nursa\/nursa_1752172238.jpg",
+                "caption": "",
+                "upload_date": "2025-07-10 20:30:38"
             }
         ]
     },
@@ -71,10 +98,7 @@
         "phone": "+123-456-7892",
         "description": "The School of Theology and Mission prepares students for ministries in various contexts through theological education, spiritual formation, and practical training.",
         "programs": [
-            "Bachelor of Theology",
-            "Master of Divinity",
-            "Master of Arts in Biblical Studies",
-            "Diploma in Mission Studies"
+            "Bachelor of Theology"
         ],
         "events": [
             {
@@ -106,8 +130,61 @@
                 "phone": "+123-456-7893"
             }
         ],
-        "documents": [],
-        "gallery": []
+        "documents": [
+            {
+                "id": "6870315ced4b3",
+                "title": "VVUSRC CONSTITUTION_2",
+                "filename": "6870315ceb727_1752183132.pdf",
+                "original_filename": "VVUSRC CONSTITUTION_2.pdf",
+                "upload_date": "2025-07-10 23:32:12"
+            },
+            {
+                "id": "6870315d027e9",
+                "title": "Nicholas Baah",
+                "filename": "6870315ced9fd_1752183132.pdf",
+                "original_filename": "Nicholas Baah.pdf",
+                "upload_date": "2025-07-10 23:32:13"
+            },
+            {
+                "id": "6870315d0974d",
+                "title": "Obeng",
+                "filename": "6870315d02b8c_1752183133.docx",
+                "original_filename": "Obeng.docx",
+                "upload_date": "2025-07-10 23:32:13"
+            }
+        ],
+        "gallery": [
+            {
+                "id": "68705199b7230",
+                "path": "images\/departments\/gallery\/themsa\/68705199b6735_1752191385.jpeg",
+                "caption": "event_1752104081_Monday flyer design (1).jpeg",
+                "upload_date": "2025-07-11 01:49:45"
+            },
+            {
+                "id": "68705199c0355",
+                "path": "images\/departments\/gallery\/themsa\/68705199b9fc5_1752191385.jpg",
+                "caption": "news_1752109765_Music Week Main.jpg",
+                "upload_date": "2025-07-11 01:49:45"
+            },
+            {
+                "id": "68705199c5ded",
+                "path": "images\/departments\/gallery\/themsa\/68705199c115c_1752191385.jpg",
+                "caption": "Images - Positivity.jpg",
+                "upload_date": "2025-07-11 01:49:45"
+            },
+            {
+                "id": "68705199caa76",
+                "path": "images\/departments\/gallery\/themsa\/68705199c64a0_1752191385.jpg",
+                "caption": "None.jpg",
+                "upload_date": "2025-07-11 01:49:45"
+            },
+            {
+                "id": "68705199d1473",
+                "path": "images\/departments\/gallery\/themsa\/68705199cb0f8_1752191385.jpg",
+                "caption": "Getting ready.jpg",
+                "upload_date": "2025-07-11 01:49:45"
+            }
+        ]
     },
     "EDSA": {
         "id": 1685502015,
@@ -118,10 +195,13 @@
         "phone": "+123-456-7896",
         "description": "The School of Education is committed to developing skilled educators through comprehensive programs in teaching, educational leadership, curriculum development, and educational psychology.",
         "programs": [
-            "Bachelor of Education",
-            "Master of Education",
-            "Postgraduate Diploma in Teaching",
-            "PhD in Educational Leadership"
+            "Bachelor of Education in IT",
+            "Bachelor of Education in Mathematics",
+            "Bachelor of Education in Accounting",
+            "Bachelor of Education in Management",
+            "Bachelor of Education in Social Studies",
+            "Bachelor of Education in English Language",
+            "Diploma in Music"
         ],
         "events": [
             {
@@ -135,6 +215,12 @@
                 "title": "Teaching Practicum Orientation",
                 "date": "2023-11-20",
                 "description": "Orientation session for students beginning their teaching practicum in local schools."
+            },
+            {
+                "id": 1749852509,
+                "title": "gvkbj",
+                "date": "2025-06-14",
+                "description": "xicvkubhjnk"
             }
         ],
         "contacts": [
@@ -221,30 +307,17 @@
             {
                 "id": 1685502021,
                 "title": "Science Innovation Fair",
-                "date": "2023-11-05",
+                "date": "2025-06-25",
                 "description": "Annual exhibition showcasing student research projects and scientific innovations."
-            },
-            {
-                "id": 1685502022,
-                "title": "Research Symposium",
-                "date": "2023-12-15",
-                "description": "Symposium featuring presentations on cutting-edge scientific research by faculty and graduate students."
             }
         ],
         "contacts": [
             {
                 "id": 1685502023,
-                "name": "Prof. Alan Roberts",
+                "name": "Prof. Alan Robert",
                 "position": "Dean",
                 "email": "aroberts@example.edu",
                 "phone": "+123-456-7898"
-            },
-            {
-                "id": 1685502024,
-                "name": "Dr. Sarah Kim",
-                "position": "Head of Research",
-                "email": "skim@example.edu",
-                "phone": "+123-456-7899"
             },
             {
                 "id": 1748567792,
@@ -263,15 +336,7 @@
                 "upload_date": "2025-05-30 03:30:08"
             }
         ],
-        "gallery": [
-            {
-                "id": 1748567844,
-                "filename": "cossa_1748567844.jpeg",
-                "path": "images\/departments\/gallery\/cossa\/cossa_1748567844.jpeg",
-                "caption": "",
-                "upload_date": "2025-05-30 03:17:24"
-            }
-        ]
+        "gallery": []
     },
     "DESSA": {
         "id": 1685502025,
@@ -331,6 +396,21 @@
         "programs": [
             "Engineering",
             "Biomedical"
+        ],
+        "events": [],
+        "contacts": [],
+        "documents": []
+    },
+    "BESSA": {
+        "id": 1751566952,
+        "code": "BESSA",
+        "name": "Bennsa Dept",
+        "head": "none",
+        "email": "on@gmail.com",
+        "phone": "+233123456",
+        "description": "feklgekml",
+        "programs": [
+            "rkglmrep"
         ],
         "events": [],
         "contacts": [],

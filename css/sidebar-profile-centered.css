@@ -1,0 +1,218 @@
+/**
+ * Sidebar Profile Centered Layout
+ * Centers the profile icon and stacks name/role below it
+ */
+
+/* Sidebar profile section - centered layout */
+.sidebar .user-profile,
+.sidebar .sidebar-user {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.75rem !important;
+    background: transparent !important;
+}
+
+/* Profile picture/avatar styling */
+.sidebar .user-profile .profile-picture,
+.sidebar .user-profile .avatar-initials,
+.sidebar .sidebar-user .profile-picture,
+.sidebar .sidebar-user .avatar-initials,
+.sidebar .sidebar-user-avatar {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 2rem !important;
+    font-weight: bold !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border: 3px solid rgba(255, 255, 255, 0.3) !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    object-fit: cover !important;
+}
+
+/* User info container */
+.sidebar .user-profile .user-info,
+.sidebar .sidebar-user .user-info,
+.sidebar .sidebar-user-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.25rem !important;
+    width: 100% !important;
+}
+
+/* User name styling */
+.sidebar .user-profile .user-name,
+.sidebar .user-profile .sidebar-user-name,
+.sidebar .sidebar-user .user-name,
+.sidebar .sidebar-user .sidebar-user-name,
+.sidebar .sidebar-user-name {
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    color: white !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 180px !important;
+    line-height: 1.2 !important;
+}
+
+/* User role styling */
+.sidebar .user-profile .user-role,
+.sidebar .user-profile .sidebar-user-role,
+.sidebar .sidebar-user .user-role,
+.sidebar .sidebar-user .sidebar-user-role,
+.sidebar .sidebar-user-role {
+    font-size: 0.85rem !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    margin: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 180px !important;
+    line-height: 1.2 !important;
+}
+
+/* Alternative class names that might be used */
+.sidebar .profile-section,
+.sidebar .user-section {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.75rem !important;
+}
+
+/* Ensure proper spacing and alignment */
+.sidebar .user-profile > *,
+.sidebar .sidebar-user > * {
+    margin: 0 !important;
+}
+
+/* Handle any div containers within the profile section */
+.sidebar .user-profile > div,
+.sidebar .sidebar-user > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.25rem !important;
+}
+
+/* Collapsed sidebar - hide profile section */
+.sidebar.collapsed .user-profile,
+.sidebar.collapsed .sidebar-user {
+    display: none !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 991px) {
+    .sidebar .user-profile,
+    .sidebar .sidebar-user {
+        padding: 1rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .sidebar .user-profile .profile-picture,
+    .sidebar .user-profile .avatar-initials,
+    .sidebar .sidebar-user .profile-picture,
+    .sidebar .sidebar-user .avatar-initials,
+    .sidebar .sidebar-user-avatar {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 1.25rem !important;
+        border-width: 2px !important;
+    }
+
+    .sidebar .user-profile .user-name,
+    .sidebar .sidebar-user .user-name,
+    .sidebar .sidebar-user-name {
+        font-size: 0.9rem !important;
+        max-width: 150px !important;
+    }
+
+    .sidebar .user-profile .user-role,
+    .sidebar .sidebar-user .user-role,
+    .sidebar .sidebar-user-role {
+        font-size: 0.8rem !important;
+        max-width: 150px !important;
+    }
+}
+
+/* Small mobile screens */
+@media (max-width: 576px) {
+    .sidebar .user-profile,
+    .sidebar .sidebar-user {
+        padding: 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .sidebar .user-profile .profile-picture,
+    .sidebar .user-profile .avatar-initials,
+    .sidebar .sidebar-user .profile-picture,
+    .sidebar .sidebar-user .avatar-initials,
+    .sidebar .sidebar-user-avatar {
+        width: 75px !important;
+        height: 75px !important;
+        font-size: 1.1rem !important;
+    }
+
+    .sidebar .user-profile .user-name,
+    .sidebar .sidebar-user .user-name,
+    .sidebar .sidebar-user-name {
+        font-size: 0.85rem !important;
+        max-width: 120px !important;
+    }
+
+    .sidebar .user-profile .user-role,
+    .sidebar .sidebar-user .user-role,
+    .sidebar .sidebar-user-role {
+        font-size: 0.75rem !important;
+        max-width: 120px !important;
+    }
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .sidebar .user-profile .profile-picture,
+[data-bs-theme="dark"] .sidebar .user-profile .avatar-initials,
+[data-bs-theme="dark"] .sidebar .sidebar-user .profile-picture,
+[data-bs-theme="dark"] .sidebar .sidebar-user .avatar-initials,
+[data-bs-theme="dark"] .sidebar .sidebar-user-avatar {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Ensure consistent styling across different implementations */
+.sidebar .user-profile,
+.sidebar .sidebar-user,
+.sidebar .profile-container,
+.sidebar .user-container {
+    padding: 1.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.75rem !important;
+}
+
+/* Override any inline styles that might interfere */
+.sidebar .user-profile[style],
+.sidebar .sidebar-user[style] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+}

@@ -1,8 +1,15 @@
 <?php
-// Include authentication file and database connection
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php'; // Include the functions file directly
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php'; // Include the functions file directly
 
 // Define the function locally in case it's not found from the include
 if (!function_exists('getAllPortfolios')) {
@@ -55,7 +62,7 @@ if (!isLoggedIn()) {
 
 // Get current user
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$isAdmin = shouldUseAdminInterface(); // Use unified admin interface check for super admin users
 $isMember = isMember();
 $canManageEvents = $isAdmin || $isMember; // Allow both admins and members to manage events
 
@@ -237,15 +244,159 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_event'])) {
 require_once 'includes/header.php';
 ?>
 
-<div class="header">
-    <h1 class="page-title">Edit Event</h1>
-    
-    <div class="header-actions">
-        <a href="events.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i> Back to Events
-        </a>
+
+<!-- Custom Event Edit Header -->
+<div class="event-edit-header animate__animated animate__fadeInDown">
+    <div class="event-edit-header-content">
+        <div class="event-edit-header-main">
+            <h1 class="event-edit-title">
+                <i class="fas fa-edit me-3"></i>
+                Edit Event
+            </h1>
+            <p class="event-edit-description">Modify event details and information</p>
+        </div>
+        <div class="event-edit-header-actions">
+            <a href="event-detail.php?id=<?php echo $eventId; ?>" class="btn btn-header-action">
+                <i class="fas fa-arrow-left me-2"></i>Back to Event
+            </a>
+            <a href="events.php" class="btn btn-header-action">
+                <i class="fas fa-calendar-alt me-2"></i>All Events
+            </a>
+        </div>
     </div>
 </div>
+
+<style>
+.event-edit-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.event-edit-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.event-edit-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.event-edit-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.event-edit-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.event-edit-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.event-edit-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .event-edit-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .event-edit-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .event-edit-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+    }
+
+    .event-edit-title i {
+        font-size: 1.8rem;
+    }
+
+    .event-edit-description {
+        font-size: 1.1rem;
+    }
+
+    .event-edit-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
 
 <!-- Notification area -->
 <?php if (!empty($successMessage)): ?>
@@ -268,19 +419,21 @@ require_once 'includes/header.php';
         <h3 class="content-card-title">Edit Event: <?php echo htmlspecialchars($event['title']); ?></h3>
     </div>
     <div class="content-card-body">
-        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $eventId; ?>" enctype="multipart/form-data">
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $eventId; ?>" enctype="multipart/form-data" style="padding: 0 15px;">
             <div class="row">
                 <div class="col-md-8">
                     <div class="mb-3">
                         <label for="event_name" class="form-label">Event Name</label>
                         <input type="text" class="form-control" id="event_name" name="event_name" required
-                               value="<?php echo htmlspecialchars($event['title']); ?>">
+                               value="<?php echo htmlspecialchars($event['title']); ?>"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label for="event_status" class="form-label">Status</label>
-                        <select class="form-select" id="event_status" name="event_status" required>
+                        <select class="form-select" id="event_status" name="event_status" required
+                                style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                             <option value="planning" <?php echo $event['status'] === 'planning' ? 'selected' : ''; ?>>Planning</option>
                             <option value="upcoming" <?php echo $event['status'] === 'upcoming' ? 'selected' : ''; ?>>Upcoming</option>
                             <option value="ongoing" <?php echo $event['status'] === 'ongoing' ? 'selected' : ''; ?>>Ongoing</option>
@@ -296,14 +449,16 @@ require_once 'includes/header.php';
                     <div class="mb-3">
                         <label for="event_date" class="form-label">Event Date</label>
                         <input type="date" class="form-control" id="event_date" name="event_date" required
-                               value="<?php echo $event['date']; ?>">
+                               value="<?php echo $event['date']; ?>"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="event_location" class="form-label">Location</label>
                         <input type="text" class="form-control" id="event_location" name="event_location" required
-                               value="<?php echo htmlspecialchars($event['location']); ?>">
+                               value="<?php echo htmlspecialchars($event['location']); ?>"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                     </div>
                 </div>
             </div>
@@ -313,7 +468,8 @@ require_once 'includes/header.php';
                     <div class="mb-3">
                         <label for="event_organizer" class="form-label">Organizer (User ID)</label>
                         <input type="number" class="form-control" id="event_organizer" name="event_organizer" min="1"
-                               value="<?php echo htmlspecialchars($event['organizer_id']); ?>">
+                               value="<?php echo htmlspecialchars($event['organizer_id']); ?>"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                         <small class="form-text text-muted">Enter a valid User ID (e.g., 1 for admin)</small>
                     </div>
                 </div>
@@ -321,7 +477,8 @@ require_once 'includes/header.php';
                     <div class="mb-3">
                         <label for="event_capacity" class="form-label">Capacity</label>
                         <input type="number" class="form-control" id="event_capacity" name="event_capacity" min="0"
-                               value="<?php echo $event['capacity']; ?>">
+                               value="<?php echo $event['capacity']; ?>"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                         <small class="form-text text-muted">Maximum number of attendees (0 for unlimited)</small>
                     </div>
                 </div>
@@ -331,7 +488,8 @@ require_once 'includes/header.php';
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label for="event_portfolio" class="form-label">Portfolio</label>
-                        <select class="form-select" id="event_portfolio" name="event_portfolio">
+                        <select class="form-select" id="event_portfolio" name="event_portfolio"
+                                style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                             <option value="">Select Portfolio</option>
                             <?php 
                             $portfolioList = getAllPortfolios();
@@ -356,7 +514,8 @@ require_once 'includes/header.php';
             
             <div class="mb-3">
                 <label for="event_description" class="form-label">Description</label>
-                <textarea class="form-control" id="event_description" name="event_description" rows="4"><?php 
+                <textarea class="form-control" id="event_description" name="event_description" rows="4"
+                          style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;"><?php 
                     // Remove portfolio info from displayed description
                     echo htmlspecialchars(preg_replace('/\n\nPortfolio: [^\n]+/', '', $event['description'])); 
                 ?></textarea>
@@ -366,7 +525,8 @@ require_once 'includes/header.php';
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="event_image" class="form-label">Event Image</label>
-                        <input type="file" class="form-control" id="event_image" name="event_image" accept="image/jpeg,image/png,image/gif,image/webp">
+                        <input type="file" class="form-control" id="event_image" name="event_image" accept="image/jpeg,image/png,image/gif,image/webp"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                         <small class="form-text text-muted">Upload a new image (JPG, PNG, GIF, WEBP)</small>
                         
                         <?php if (!empty($event['image_path'])): ?>
@@ -380,7 +540,8 @@ require_once 'includes/header.php';
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="event_document" class="form-label">Event Document</label>
-                        <input type="file" class="form-control" id="event_document" name="event_document" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                        <input type="file" class="form-control" id="event_document" name="event_document" accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                               style="padding: 8px 12px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
                         <small class="form-text text-muted">Upload a new document (PDF, DOC, DOCX)</small>
                         
                         <?php if (!empty($event['document_path'])): ?>

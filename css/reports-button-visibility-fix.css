@@ -1,0 +1,271 @@
+/* Reports Page Button Visibility Fix */
+/* Fixes hidden buttons in the reports page */
+
+/* Ensure secondary actions container is visible */
+.secondary-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    margin-top: 10px !important;
+    overflow: visible !important;
+    z-index: 10 !important;
+    position: relative !important;
+}
+
+/* Fix action button visibility and sizing */
+.action-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+    border-radius: 10px !important;
+    background: white !important;
+    color: #64748b !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+    border: 1px solid #e2e8f0 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+    flex-shrink: 0 !important;
+}
+
+/* Ensure icons are visible */
+.action-btn i {
+    font-size: 16px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    color: inherit !important;
+}
+
+/* Hover effects */
+.action-btn:hover {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    transform: translateY(-2px) !important;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.action-btn.delete-btn:hover {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+    border-color: #fecaca !important;
+}
+
+/* Fix card footer layout */
+.card-footer-modern {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 1.5rem !important;
+    background: #f8fafc !important;
+    border-top: 1px solid #e2e8f0 !important;
+    overflow: visible !important;
+    position: relative !important;
+}
+
+/* Ensure primary action button is visible */
+.btn-primary-modern {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1.5rem !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+.btn-primary-modern:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+    color: white !important;
+    text-decoration: none !important;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .card-footer-modern {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: stretch !important;
+    }
+
+    .secondary-actions {
+        margin-left: 0 !important;
+        justify-content: center !important;
+        gap: 0.75rem !important;
+        flex-wrap: wrap !important;
+    }
+
+    .action-btn {
+        width: 45px !important;
+        height: 45px !important;
+        min-width: 45px !important;
+        min-height: 45px !important;
+    }
+
+    .action-btn i {
+        font-size: 18px !important;
+    }
+
+    .btn-primary-modern {
+        justify-content: center !important;
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+/* Fix for very small screens */
+@media (max-width: 480px) {
+    .secondary-actions {
+        justify-content: space-around !important;
+        gap: 0.5rem !important;
+    }
+    
+    .action-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+    }
+    
+    .action-btn i {
+        font-size: 16px !important;
+    }
+}
+
+/* Ensure buttons don't get clipped by parent containers */
+.report-card,
+.content-card,
+.card {
+    overflow: visible !important;
+}
+
+.report-card .card-body,
+.content-card .card-body {
+    overflow: visible !important;
+}
+
+/* Fix for button tooltips */
+.action-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Fix for disabled buttons */
+.btn-disabled-modern {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.75rem 1.5rem !important;
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    cursor: not-allowed !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Animation fixes */
+.animate-fadeIn {
+    animation: fadeInUp 0.6s ease-out forwards !important;
+    animation-delay: calc(var(--card-index) * 0.1s) !important;
+    opacity: 0 !important;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure all interactive elements are clickable */
+.action-btn,
+.btn-primary-modern,
+.btn-disabled-modern {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    cursor: pointer !important;
+}
+
+.btn-disabled-modern {
+    cursor: not-allowed !important;
+}
+
+/* Fix for report type icons */
+.report-type-icon {
+    font-size: 2rem !important;
+    opacity: 0.9 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Fix for featured ribbon */
+.featured-ribbon {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+    color: white !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    z-index: 20 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.featured-ribbon i {
+    font-size: 12px !important;
+}
+
+/* Print media fixes */
+@media print {
+    .secondary-actions,
+    .action-btn {
+        display: none !important;
+    }
+}

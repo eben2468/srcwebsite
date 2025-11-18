@@ -1,8 +1,16 @@
 <?php
-// Include required files
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -11,7 +19,12 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Document feature is always enabled now (feature check removed)
+// Check if documents feature is enabled
+if (!hasFeaturePermission('enable_documents')) {
+    $_SESSION['error'] = "The document repository feature is currently disabled.";
+    header("Location: dashboard.php");
+    exit();
+}
 
 // Create uploads directory if it doesn't exist
 $uploadsDir = '../uploads/documents';
@@ -98,6 +111,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'upload') {
             
             if ($insertId) {
                 $_SESSION['success'] = "Document uploaded successfully.";
+
+                // Send notification to all users about new document
+                autoNotifyDocumentUploaded($title, $category, $uploadedBy, $insertId);
             } else {
                 // Delete the file if database insert failed
                 unlink($uploadFilePath);
@@ -117,45 +133,61 @@ if (isset($_POST['action']) && $_POST['action'] === 'upload') {
 // Handle file download
 if (isset($_GET['action']) && $_GET['action'] === 'download' && isset($_GET['id'])) {
     $documentId = intval($_GET['id']);
-    
-    // Check permission
-    if (!hasPermission('read', 'documents')) {
+
+    // Get document information first to check category
+    $sql = "SELECT * FROM documents WHERE document_id = ? AND status = 'active'";
+    $document = fetchOne($sql, [$documentId]);
+
+    if (!$document) {
+        $_SESSION['error'] = "Document not found.";
+        header("Location: documents.php");
+        exit();
+    }
+
+    // Define categories that students can access
+    $studentAccessibleCategories = ['general', 'legal', 'bylaws', 'elections', 'events'];
+
+    // Check permission based on user role and document category
+    $canDownload = false;
+
+    if (shouldUseAdminInterface() || isMember()) {
+        // Admin interface users and members can download all documents
+        $canDownload = true;
+    } elseif (isLoggedIn()) {
+        // Students can only download documents from specific categories
+        $documentCategory = strtolower(trim($document['category']));
+        if (in_array($documentCategory, $studentAccessibleCategories)) {
+            $canDownload = true;
+        }
+    }
+
+    if (!$canDownload) {
         $_SESSION['error'] = "You don't have permission to download documents.";
         header("Location: documents.php");
         exit();
     }
-    
-    // Get document information
-    $sql = "SELECT * FROM documents WHERE document_id = ? AND status = 'active'";
-    $document = fetchOne($sql, [$documentId]);
-    
-    if ($document) {
-        $filePath = $uploadsDir . '/' . $document['file_path'];
-        
-        if (file_exists($filePath)) {
-            // Set headers for download
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="' . basename($document['file_path']) . '"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
-            
-            // Clear output buffer
-            ob_clean();
-            flush();
-            
-            // Output file
-            readfile($filePath);
-            exit;
-        } else {
-            $_SESSION['error'] = "File not found.";
-            header("Location: documents.php");
-            exit();
-        }
+
+    $filePath = $uploadsDir . '/' . $document['file_path'];
+
+    if (file_exists($filePath)) {
+        // Set headers for download
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($document['file_path']) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($filePath));
+
+        // Clear output buffer
+        ob_clean();
+        flush();
+
+        // Output file
+        readfile($filePath);
+        exit;
     } else {
-        $_SESSION['error'] = "Document not found.";
+        $_SESSION['error'] = "File not found.";
         header("Location: documents.php");
         exit();
     }
@@ -166,7 +198,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     $documentId = intval($_GET['id']);
     
     // Check permission
-    if (!hasPermission('delete', 'documents')) {
+    if (!shouldUseAdminInterface()) {
         $_SESSION['error'] = "You don't have permission to delete documents.";
         header("Location: documents.php");
         exit();

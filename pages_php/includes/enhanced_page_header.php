@@ -40,7 +40,6 @@ $currentDate = date('l, F j, Y');
                 
                 // Add special header-action-btn class for better targeting
                 $btnClass = $action['class'] ?? 'btn-primary';
-                $btnClass .= ' header-action-btn';
                 
                 // Check if this is a modal toggle button
                 $isModal = strpos($attributesStr, 'data-bs-toggle="modal"') !== false;
@@ -51,12 +50,37 @@ $currentDate = date('l, F j, Y');
                     $modalId = isset($matches[1]) ? $matches[1] : '';
                 }
                 
-                // Get button text and icon
-                $btnText = $action['text'];
-                $btnIcon = $action['icon'];
+                // Check if this is a dropdown button
+                $isDropdown = strpos($attributesStr, 'data-bs-toggle="dropdown"') !== false;
                 
+                // Get button text and icon
+                $btnText = $action['label'] ?? $action['text'] ?? '';
+                $btnIcon = $action['icon'] ?? '';
+                
+                // If it's a dropdown button
+                if ($isDropdown && isset($action['dropdown'])):
+                ?>
+                <div class="btn-group ms-2">
+                    <button type="button" class="btn <?php echo $btnClass; ?>"<?php echo $attributesStr; ?>>
+                        <?php echo $btnText; ?>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <?php foreach ($action['dropdown'] as $dropdownItem): ?>
+                            <?php
+                            $dropdownAttributesStr = '';
+                            if (isset($dropdownItem['attributes'])) {
+                                $dropdownAttributesStr = ' ' . $dropdownItem['attributes'];
+                            }
+                            ?>
+                            <a class="dropdown-item" href="<?php echo $dropdownItem['url']; ?>"<?php echo $dropdownAttributesStr; ?>>
+                                <?php echo $dropdownItem['label']; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php
                 // If it's a modal button, use our reliable button instead
-                if ($isModal && !empty($modalId)):
+                elseif ($isModal && !empty($modalId)):
                 ?>
                 <button type="button" class="btn <?php echo $btnClass; ?> enhanced-modal-btn animate-pulse ms-2" 
                         onclick="openModal('<?php echo $modalId; ?>')" 
@@ -133,6 +157,41 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Ensure dropdown functionality works
+    const dropdownToggles = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    console.log('Found', dropdownToggles.length, 'dropdown toggles');
+    
+    dropdownToggles.forEach(function(toggle) {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Find parent btn-group and toggle dropdown
+            const btnGroup = this.closest('.btn-group');
+            if (btnGroup) {
+                btnGroup.classList.toggle('show');
+                const dropdown = btnGroup.querySelector('.dropdown-menu');
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                }
+            }
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        const openDropdowns = document.querySelectorAll('.btn-group.show');
+        openDropdowns.forEach(function(dropdown) {
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+                const menu = dropdown.querySelector('.dropdown-menu');
+                if (menu) {
+                    menu.classList.remove('show');
+                }
+            }
+        });
+    });
 });
 </script>
 
@@ -160,5 +219,55 @@ document.addEventListener('DOMContentLoaded', function() {
     right: -10px;
     bottom: -10px;
     z-index: -1;
+}
+
+/* Dropdown menu styling */
+.btn-group {
+    position: relative;
+    z-index: 1050;
+}
+
+.dropdown-menu {
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    border: none;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdown-item:active {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Fix for dropdown positioning */
+.dropdown-menu-end {
+    right: 0;
+    left: auto;
+}
+
+/* Show dropdown when active */
+.btn-group.show .dropdown-menu {
+    display: block;
+}
+
+/* Additional button styling */
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style> 

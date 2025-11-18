@@ -1,0 +1,926 @@
+/* Enhanced Portfolio Cards Styling */
+:root {
+    --card-gradient-start: #ffffff;
+    --card-gradient-end: #f8f9fa;
+    --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    --card-radius: 24px;
+    --card-transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Role-specific colors with enhanced gradients */
+    --president-color: #4e73df;
+    --president-gradient: linear-gradient(135deg, #4e73df, #224abe);
+    --vice-president-color: #1cc88a;
+    --vice-president-gradient: linear-gradient(135deg, #1cc88a, #13855c);
+    --secretary-color: #f6c23e;
+    --secretary-gradient: linear-gradient(135deg, #f6c23e, #dda20a);
+    --executive-secretary-color: #17a2b8;
+    --executive-secretary-gradient: linear-gradient(135deg, #17a2b8, #117a8b);
+    --organizing-secretary-color: #8d6e63;
+    --organizing-secretary-gradient: linear-gradient(135deg, #8d6e63, #5d4037);
+    --finance-color: #36b9cc;
+    --finance-gradient: linear-gradient(135deg, #36b9cc, #258391);
+    --sports-color: #e74a3b;
+    --sports-gradient: linear-gradient(135deg, #e74a3b, #be2617);
+    --welfare-color: #6f42c1;
+    --welfare-gradient: linear-gradient(135deg, #6f42c1, #4e2a84);
+    --womens-color: #e83e8c;
+    --womens-gradient: linear-gradient(135deg, #e83e8c, #b52e6f);
+    --chaplain-color: #5a5c69;
+    --chaplain-gradient: linear-gradient(135deg, #5a5c69, #373840);
+    
+    /* Additional role colors */
+    --senate-color: #ff9800;
+    --senate-gradient: linear-gradient(135deg, #ff9800, #e65100);
+    --editor-color: #009688;
+    --editor-gradient: linear-gradient(135deg, #009688, #00695c);
+    --pro-color: #9c27b0;
+    --pro-gradient: linear-gradient(135deg, #9c27b0, #6a0080);
+}
+
+/* Portfolio Card Container */
+.portfolio-card {
+    position: relative;
+    border: none;
+    border-radius: var(--card-radius);
+    overflow: hidden;
+    transition: var(--card-transition);
+    background: var(--card-gradient-start);
+    box-shadow: var(--card-shadow);
+    height: 100%;
+    border-left: none;
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Role-specific card styling */
+.portfolio-card[data-role="President"],
+.portfolio-card[data-role*="president"],
+.portfolio-card[data-role*="President"] {
+    border-left-color: var(--president-color);
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.08), rgba(34, 74, 190, 0.05));
+}
+
+.portfolio-card[data-role="Vice President"],
+.portfolio-card[data-role*="vice president"],
+.portfolio-card[data-role*="Vice President"] {
+    border-left-color: var(--vice-president-color);
+    background: linear-gradient(135deg, rgba(28, 200, 138, 0.08), rgba(19, 133, 92, 0.05));
+}
+
+.portfolio-card[data-role="Secretary"],
+.portfolio-card[data-role*="secretary"],
+.portfolio-card[data-role*="Secretary"] {
+    border-left-color: var(--secretary-color);
+    background: linear-gradient(135deg, rgba(246, 194, 62, 0.08), rgba(221, 162, 10, 0.05));
+}
+
+.portfolio-card[data-role="Executive Secretary"],
+.portfolio-card[data-role*="Executive Secretary"] {
+    border-left-color: var(--executive-secretary-color);
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.08), rgba(17, 122, 139, 0.05));
+}
+
+.portfolio-card[data-role="Organizing Secretary"],
+.portfolio-card[data-role*="Organizing Secretary"] {
+    border-left-color: var(--organizing-secretary-color);
+    background: linear-gradient(135deg, rgba(141, 110, 99, 0.08), rgba(93, 64, 55, 0.05));
+}
+
+.portfolio-card[data-role="Finance"],
+.portfolio-card[data-role*="finance"],
+.portfolio-card[data-role*="Finance"],
+.portfolio-card[data-role*="treasurer"],
+.portfolio-card[data-role*="Treasurer"] {
+    border-left-color: var(--finance-color);
+    background: linear-gradient(135deg, rgba(54, 185, 204, 0.08), rgba(37, 131, 145, 0.05));
+}
+
+.portfolio-card[data-role="Sports"],
+.portfolio-card[data-role*="sport"],
+.portfolio-card[data-role*="Sport"] {
+    border-left-color: var(--sports-color);
+    background: linear-gradient(135deg, rgba(231, 74, 59, 0.08), rgba(190, 38, 23, 0.05));
+}
+
+.portfolio-card[data-role="Welfare"],
+.portfolio-card[data-role*="welfare"],
+.portfolio-card[data-role*="Welfare"] {
+    border-left-color: var(--welfare-color);
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.08), rgba(78, 42, 132, 0.05));
+}
+
+.portfolio-card[data-role="Women"],
+.portfolio-card[data-role*="women"],
+.portfolio-card[data-role*="Women"] {
+    border-left-color: var(--womens-color);
+    background: linear-gradient(135deg, rgba(232, 62, 140, 0.08), rgba(181, 46, 111, 0.05));
+}
+
+.portfolio-card[data-role="Chaplain"],
+.portfolio-card[data-role*="chaplain"],
+.portfolio-card[data-role*="Chaplain"] {
+    border-left-color: var(--chaplain-color);
+    background: linear-gradient(135deg, rgba(90, 92, 105, 0.08), rgba(55, 56, 64, 0.05));
+}
+
+/* Card Header */
+.portfolio-card .card-header {
+    background: var(--president-gradient);
+    color: white;
+    font-weight: 600;
+    padding: 1.5rem;
+    border-bottom: none;
+    position: relative;
+    overflow: hidden;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+}
+
+.portfolio-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.portfolio-card:hover .card-header::before {
+    transform: translateX(100%);
+}
+
+/* Role-specific header colors */
+.portfolio-card[data-role="President"] .card-header,
+.portfolio-card[data-role*="president"] .card-header,
+.portfolio-card[data-role*="President"] .card-header {
+    background: var(--president-gradient);
+}
+
+.portfolio-card[data-role="Vice President"] .card-header,
+.portfolio-card[data-role*="vice president"] .card-header,
+.portfolio-card[data-role*="Vice President"] .card-header {
+    background: var(--vice-president-gradient);
+}
+
+.portfolio-card[data-role="Secretary"] .card-header,
+.portfolio-card[data-role*="secretary"] .card-header,
+.portfolio-card[data-role*="Secretary"] .card-header {
+    background: var(--secretary-gradient);
+}
+
+.portfolio-card[data-role="Finance"] .card-header,
+.portfolio-card[data-role*="finance"] .card-header,
+.portfolio-card[data-role*="Finance"] .card-header,
+.portfolio-card[data-role*="treasurer"] .card-header,
+.portfolio-card[data-role*="Treasurer"] .card-header {
+    background: var(--finance-gradient);
+}
+
+.portfolio-card[data-role="Sports"] .card-header,
+.portfolio-card[data-role*="sport"] .card-header,
+.portfolio-card[data-role*="Sport"] .card-header {
+    background: var(--sports-gradient);
+}
+
+.portfolio-card[data-role="Welfare"] .card-header,
+.portfolio-card[data-role*="welfare"] .card-header,
+.portfolio-card[data-role*="Welfare"] .card-header {
+    background: var(--welfare-gradient);
+}
+
+.portfolio-card[data-role="Women"] .card-header,
+.portfolio-card[data-role*="women"] .card-header,
+.portfolio-card[data-role*="Women"] .card-header {
+    background: var(--womens-gradient);
+}
+
+.portfolio-card[data-role="Chaplain"] .card-header,
+.portfolio-card[data-role*="chaplain"] .card-header,
+.portfolio-card[data-role*="Chaplain"] .card-header {
+    background: var(--chaplain-gradient);
+}
+
+/* Profile Image Container */
+.member-image-container {
+    position: relative;
+    margin: -50px auto 25px;
+    width: 130px !important;
+    height: 130px !important;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    transition: var(--card-transition);
+    background-color: #f0f0f0;
+}
+
+.member-image {
+    width: 120% !important;
+    height: 120% !important;
+    object-fit: cover;
+    object-position: center;
+    transition: var(--card-transition);
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Card Body */
+.portfolio-card .card-body {
+    padding: 1.5rem 2rem;
+    text-align: left;
+}
+
+.portfolio-card .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+.portfolio-card .card-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Responsibilities Section */
+.responsibilities-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin: 1.5rem 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #edf2f7;
+    position: relative;
+    text-align: center;
+}
+
+.responsibilities-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background: var(--president-color);
+}
+
+.responsibilities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    text-align: left;
+}
+
+.responsibilities-list li {
+    margin-bottom: 0.85rem;
+    padding-left: 1.75rem;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #4a5568;
+    text-align: left;
+}
+
+.responsibilities-list li i {
+    position: absolute;
+    left: 0;
+    top: 0.3rem;
+    color: var(--president-color);
+    font-size: 0.9rem;
+}
+
+.responsibilities-list li.more-items {
+    font-style: italic;
+    color: #718096;
+    text-align: center;
+    padding-left: 0;
+    margin-top: 1rem;
+}
+
+.responsibilities-list li.more-items a {
+    color: var(--president-color);
+    text-decoration: none;
+    transition: var(--card-transition);
+    font-weight: 500;
+}
+
+.responsibilities-list li.more-items a:hover {
+    color: #2b6cb0;
+    text-decoration: underline;
+}
+
+/* Card Actions */
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: center;
+}
+
+.card-actions .btn {
+    flex: 1;
+    padding: 0.85rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 12px;
+    transition: var(--card-transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-actions .btn-primary {
+    background: var(--president-gradient);
+    border: none;
+    box-shadow: 0 4px 15px rgba(78, 115, 223, 0.2);
+}
+
+.card-actions .btn-info {
+    background: linear-gradient(135deg, #4299e1, #2b6cb0);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 15px rgba(66, 153, 225, 0.2);
+}
+
+.card-actions .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover Effects */
+.portfolio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--card-hover-shadow);
+}
+
+.portfolio-card:hover .member-image {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Admin Controls */
+.admin-controls {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: var(--card-transition);
+}
+
+.portfolio-card:hover .admin-controls {
+    opacity: 1;
+}
+
+.admin-controls .btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: var(--card-transition);
+}
+
+.admin-controls .btn:hover {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered animation delay for cards */
+.portfolio-card:nth-child(1) { animation-delay: 0.1s; }
+.portfolio-card:nth-child(2) { animation-delay: 0.2s; }
+.portfolio-card:nth-child(3) { animation-delay: 0.3s; }
+.portfolio-card:nth-child(4) { animation-delay: 0.4s; }
+.portfolio-card:nth-child(5) { animation-delay: 0.5s; }
+.portfolio-card:nth-child(6) { animation-delay: 0.6s; }
+.portfolio-card:nth-child(7) { animation-delay: 0.7s; }
+.portfolio-card:nth-child(8) { animation-delay: 0.8s; }
+
+/* Dark Mode Support */
+[data-bs-theme="dark"] .portfolio-card {
+    --card-gradient-start: #2d3748;
+    --card-gradient-end: #1a202c;
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+}
+
+[data-bs-theme="dark"] .portfolio-card .card-title {
+    color: #e2e8f0;
+}
+
+[data-bs-theme="dark"] .portfolio-card .card-subtitle {
+    color: #a0aec0;
+}
+
+[data-bs-theme="dark"] .responsibilities-title {
+    color: #e2e8f0;
+    border-bottom-color: #4a5568;
+}
+
+[data-bs-theme="dark"] .responsibilities-list li {
+    color: #cbd5e0;
+}
+
+[data-bs-theme="dark"] .responsibilities-list li.more-items {
+    color: #a0aec0;
+}
+
+[data-bs-theme="dark"] .admin-controls .btn {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .portfolio-card {
+        margin-bottom: 2rem;
+    }
+    
+    .member-image-container {
+        width: 110px !important;
+        height: 110px !important;
+        margin-top: -40px;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .card-actions .btn {
+        width: 100%;
+    }
+    
+    .portfolio-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .portfolio-card .card-title {
+        font-size: 1.3rem;
+    }
+    
+    .portfolio-card .card-subtitle {
+        font-size: 1rem;
+    }
+}
+
+/* Role-specific responsibilities title underline */
+.portfolio-card[data-role="President"] .responsibilities-title::after,
+.portfolio-card[data-role*="president"] .responsibilities-title::after,
+.portfolio-card[data-role*="President"] .responsibilities-title::after {
+    background: var(--president-color);
+}
+
+.portfolio-card[data-role="Vice President"] .responsibilities-title::after,
+.portfolio-card[data-role*="vice president"] .responsibilities-title::after,
+.portfolio-card[data-role*="Vice President"] .responsibilities-title::after {
+    background: var(--vice-president-color);
+}
+
+.portfolio-card[data-role="Secretary"] .responsibilities-title::after,
+.portfolio-card[data-role*="secretary"] .responsibilities-title::after,
+.portfolio-card[data-role*="Secretary"] .responsibilities-title::after {
+    background: var(--secretary-color);
+}
+
+.portfolio-card[data-role="Finance"] .responsibilities-title::after,
+.portfolio-card[data-role*="finance"] .responsibilities-title::after,
+.portfolio-card[data-role*="Finance"] .responsibilities-title::after,
+.portfolio-card[data-role*="treasurer"] .responsibilities-title::after,
+.portfolio-card[data-role*="Treasurer"] .responsibilities-title::after {
+    background: var(--finance-color);
+}
+
+.portfolio-card[data-role="Sports"] .responsibilities-title::after,
+.portfolio-card[data-role*="sport"] .responsibilities-title::after,
+.portfolio-card[data-role*="Sport"] .responsibilities-title::after {
+    background: var(--sports-color);
+}
+
+.portfolio-card[data-role="Welfare"] .responsibilities-title::after,
+.portfolio-card[data-role*="welfare"] .responsibilities-title::after,
+.portfolio-card[data-role*="Welfare"] .responsibilities-title::after {
+    background: var(--welfare-color);
+}
+
+.portfolio-card[data-role="Women"] .responsibilities-title::after,
+.portfolio-card[data-role*="women"] .responsibilities-title::after,
+.portfolio-card[data-role*="Women"] .responsibilities-title::after {
+    background: var(--womens-color);
+}
+
+.portfolio-card[data-role="Chaplain"] .responsibilities-title::after,
+.portfolio-card[data-role*="chaplain"] .responsibilities-title::after,
+.portfolio-card[data-role*="Chaplain"] .responsibilities-title::after {
+    background: var(--chaplain-color);
+}
+
+/* Role-specific list item icons */
+.portfolio-card[data-role="President"] .responsibilities-list li i,
+.portfolio-card[data-role*="president"] .responsibilities-list li i,
+.portfolio-card[data-role*="President"] .responsibilities-list li i {
+    color: var(--president-color);
+}
+
+.portfolio-card[data-role="Vice President"] .responsibilities-list li i,
+.portfolio-card[data-role*="vice president"] .responsibilities-list li i,
+.portfolio-card[data-role*="Vice President"] .responsibilities-list li i {
+    color: var(--vice-president-color);
+}
+
+.portfolio-card[data-role="Secretary"] .responsibilities-list li i,
+.portfolio-card[data-role*="secretary"] .responsibilities-list li i,
+.portfolio-card[data-role*="Secretary"] .responsibilities-list li i {
+    color: var(--secretary-color);
+}
+
+.portfolio-card[data-role="Finance"] .responsibilities-list li i,
+.portfolio-card[data-role*="finance"] .responsibilities-list li i,
+.portfolio-card[data-role*="Finance"] .responsibilities-list li i,
+.portfolio-card[data-role*="treasurer"] .responsibilities-list li i,
+.portfolio-card[data-role*="Treasurer"] .responsibilities-list li i {
+    color: var(--finance-color);
+}
+
+.portfolio-card[data-role="Sports"] .responsibilities-list li i,
+.portfolio-card[data-role*="sport"] .responsibilities-list li i,
+.portfolio-card[data-role*="Sport"] .responsibilities-list li i {
+    color: var(--sports-color);
+}
+
+.portfolio-card[data-role="Welfare"] .responsibilities-list li i,
+.portfolio-card[data-role*="welfare"] .responsibilities-list li i,
+.portfolio-card[data-role*="Welfare"] .responsibilities-list li i {
+    color: var(--welfare-color);
+}
+
+.portfolio-card[data-role="Women"] .responsibilities-list li i,
+.portfolio-card[data-role*="women"] .responsibilities-list li i,
+.portfolio-card[data-role*="Women"] .responsibilities-list li i {
+    color: var(--womens-color);
+}
+
+.portfolio-card[data-role="Chaplain"] .responsibilities-list li i,
+.portfolio-card[data-role*="chaplain"] .responsibilities-list li i,
+.portfolio-card[data-role*="Chaplain"] .responsibilities-list li i {
+    color: var(--chaplain-color);
+}
+
+/* Role-specific buttons */
+.portfolio-card[data-role="President"] .card-actions .btn-primary,
+.portfolio-card[data-role*="president"] .card-actions .btn-primary,
+.portfolio-card[data-role*="President"] .card-actions .btn-primary {
+    background: var(--president-gradient);
+    box-shadow: 0 4px 15px rgba(78, 115, 223, 0.2);
+}
+
+.portfolio-card[data-role="Vice President"] .card-actions .btn-primary,
+.portfolio-card[data-role*="vice president"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Vice President"] .card-actions .btn-primary {
+    background: var(--vice-president-gradient);
+    box-shadow: 0 4px 15px rgba(28, 200, 138, 0.2);
+}
+
+.portfolio-card[data-role="Secretary"] .card-actions .btn-primary,
+.portfolio-card[data-role*="secretary"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Secretary"] .card-actions .btn-primary {
+    background: var(--secretary-gradient);
+    box-shadow: 0 4px 15px rgba(246, 194, 62, 0.2);
+}
+
+.portfolio-card[data-role="Finance"] .card-actions .btn-primary,
+.portfolio-card[data-role*="finance"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Finance"] .card-actions .btn-primary,
+.portfolio-card[data-role*="treasurer"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Treasurer"] .card-actions .btn-primary {
+    background: var(--finance-gradient);
+    box-shadow: 0 4px 15px rgba(54, 185, 204, 0.2);
+}
+
+.portfolio-card[data-role="Sports"] .card-actions .btn-primary,
+.portfolio-card[data-role*="sport"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Sport"] .card-actions .btn-primary {
+    background: var(--sports-gradient);
+    box-shadow: 0 4px 15px rgba(231, 74, 59, 0.2);
+}
+
+.portfolio-card[data-role="Welfare"] .card-actions .btn-primary,
+.portfolio-card[data-role*="welfare"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Welfare"] .card-actions .btn-primary {
+    background: var(--welfare-gradient);
+    box-shadow: 0 4px 15px rgba(111, 66, 193, 0.2);
+}
+
+.portfolio-card[data-role="Women"] .card-actions .btn-primary,
+.portfolio-card[data-role*="women"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Women"] .card-actions .btn-primary {
+    background: var(--womens-gradient);
+    box-shadow: 0 4px 15px rgba(232, 62, 140, 0.2);
+}
+
+.portfolio-card[data-role="Chaplain"] .card-actions .btn-primary,
+.portfolio-card[data-role*="chaplain"] .card-actions .btn-primary,
+.portfolio-card[data-role*="Chaplain"] .card-actions .btn-primary {
+    background: var(--chaplain-gradient);
+    box-shadow: 0 4px 15px rgba(90, 92, 105, 0.2);
+}
+
+/* Role-specific more-items links */
+.portfolio-card[data-role="President"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="president"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="President"] .responsibilities-list li.more-items a {
+    color: var(--president-color);
+}
+
+.portfolio-card[data-role="Vice President"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="vice president"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Vice President"] .responsibilities-list li.more-items a {
+    color: var(--vice-president-color);
+}
+
+.portfolio-card[data-role="Secretary"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="secretary"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Secretary"] .responsibilities-list li.more-items a {
+    color: var(--secretary-color);
+}
+
+.portfolio-card[data-role="Finance"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="finance"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Finance"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="treasurer"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Treasurer"] .responsibilities-list li.more-items a {
+    color: var(--finance-color);
+}
+
+.portfolio-card[data-role="Sports"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="sport"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Sport"] .responsibilities-list li.more-items a {
+    color: var(--sports-color);
+}
+
+.portfolio-card[data-role="Welfare"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="welfare"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Welfare"] .responsibilities-list li.more-items a {
+    color: var(--welfare-color);
+}
+
+.portfolio-card[data-role="Women"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="women"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Women"] .responsibilities-list li.more-items a {
+    color: var(--womens-color);
+}
+
+.portfolio-card[data-role="Chaplain"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="chaplain"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="Chaplain"] .responsibilities-list li.more-items a {
+    color: var(--chaplain-color);
+}
+
+/* Force card styling based on header text content */
+.portfolio-card .card-header:contains("President"):not(:contains("Vice")) ~ .card-body .responsibilities-title::after {
+    background: var(--president-color);
+}
+
+.portfolio-card .card-header:contains("Vice President") ~ .card-body .responsibilities-title::after {
+    background: var(--vice-president-color);
+}
+
+.portfolio-card .card-header:contains("Secretary") ~ .card-body .responsibilities-title::after {
+    background: var(--secretary-color);
+}
+
+.portfolio-card .card-header:contains("Finance") ~ .card-body .responsibilities-title::after,
+.portfolio-card .card-header:contains("Treasurer") ~ .card-body .responsibilities-title::after {
+    background: var(--finance-color);
+}
+
+.portfolio-card .card-header:contains("Sport") ~ .card-body .responsibilities-title::after {
+    background: var(--sports-color);
+}
+
+.portfolio-card .card-header:contains("Welfare") ~ .card-body .responsibilities-title::after {
+    background: var(--welfare-color);
+}
+
+.portfolio-card .card-header:contains("Women") ~ .card-body .responsibilities-title::after {
+    background: var(--womens-color);
+}
+
+.portfolio-card .card-header:contains("Chaplain") ~ .card-body .responsibilities-title::after {
+    background: var(--chaplain-color);
+}
+
+/* Direct header styling */
+.portfolio-card .card-header:contains("President"):not(:contains("Vice")) {
+    background: var(--president-gradient);
+}
+
+.portfolio-card .card-header:contains("Vice President") {
+    background: var(--vice-president-gradient);
+}
+
+.portfolio-card .card-header:contains("Secretary") {
+    background: var(--secretary-gradient);
+}
+
+.portfolio-card .card-header:contains("Finance"),
+.portfolio-card .card-header:contains("Treasurer") {
+    background: var(--finance-gradient);
+}
+
+.portfolio-card .card-header:contains("Sport") {
+    background: var(--sports-gradient);
+}
+
+.portfolio-card .card-header:contains("Welfare") {
+    background: var(--welfare-gradient);
+}
+
+.portfolio-card .card-header:contains("Women") {
+    background: var(--womens-gradient);
+}
+
+.portfolio-card .card-header:contains("Chaplain") {
+    background: var(--chaplain-gradient);
+}
+
+/* Additional role card styling */
+.portfolio-card[data-role*="Senate"],
+.portfolio-card[data-role*="senate"],
+.portfolio-card .card-header:contains("Senate") {
+    border-left-color: var(--senate-color);
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.08), rgba(230, 81, 0, 0.05));
+}
+
+.portfolio-card[data-role*="Editor"],
+.portfolio-card[data-role*="editor"],
+.portfolio-card .card-header:contains("Editor") {
+    border-left-color: var(--editor-color);
+    background: linear-gradient(135deg, rgba(0, 150, 136, 0.08), rgba(0, 105, 92, 0.05));
+}
+
+.portfolio-card[data-role*="Public Relations"],
+.portfolio-card[data-role*="public relations"],
+.portfolio-card[data-role*="PRO"],
+.portfolio-card[data-role*="pro"],
+.portfolio-card .card-header:contains("Public Relations"),
+.portfolio-card .card-header:contains("PRO") {
+    border-left-color: var(--pro-color);
+    background: linear-gradient(135deg, rgba(156, 39, 176, 0.08), rgba(106, 0, 128, 0.05));
+}
+
+/* Additional role header colors */
+.portfolio-card[data-role*="Senate"] .card-header,
+.portfolio-card[data-role*="senate"] .card-header,
+.portfolio-card .card-header:contains("Senate") {
+    background: var(--senate-gradient);
+}
+
+.portfolio-card[data-role*="Editor"] .card-header,
+.portfolio-card[data-role*="editor"] .card-header,
+.portfolio-card .card-header:contains("Editor") {
+    background: var(--editor-gradient);
+}
+
+.portfolio-card[data-role*="Public Relations"] .card-header,
+.portfolio-card[data-role*="public relations"] .card-header,
+.portfolio-card[data-role*="PRO"] .card-header,
+.portfolio-card[data-role*="pro"] .card-header,
+.portfolio-card .card-header:contains("Public Relations"),
+.portfolio-card .card-header:contains("PRO") {
+    background: var(--pro-gradient);
+}
+
+/* Direct header styling for additional roles */
+.portfolio-card .card-header:contains("Senate") {
+    background: var(--senate-gradient);
+}
+
+.portfolio-card .card-header:contains("Editor") {
+    background: var(--editor-gradient);
+}
+
+.portfolio-card .card-header:contains("Public Relations"),
+.portfolio-card .card-header:contains("PRO") {
+    background: var(--pro-gradient);
+}
+
+/* Additional role responsibilities title underline */
+.portfolio-card[data-role*="Senate"] .responsibilities-title::after,
+.portfolio-card[data-role*="senate"] .responsibilities-title::after,
+.portfolio-card .card-header:contains("Senate") ~ .card-body .responsibilities-title::after {
+    background: var(--senate-color);
+}
+
+.portfolio-card[data-role*="Editor"] .responsibilities-title::after,
+.portfolio-card[data-role*="editor"] .responsibilities-title::after,
+.portfolio-card .card-header:contains("Editor") ~ .card-body .responsibilities-title::after {
+    background: var(--editor-color);
+}
+
+.portfolio-card[data-role*="Public Relations"] .responsibilities-title::after,
+.portfolio-card[data-role*="public relations"] .responsibilities-title::after,
+.portfolio-card[data-role*="PRO"] .responsibilities-title::after,
+.portfolio-card[data-role*="pro"] .responsibilities-title::after,
+.portfolio-card .card-header:contains("Public Relations") ~ .card-body .responsibilities-title::after,
+.portfolio-card .card-header:contains("PRO") ~ .card-body .responsibilities-title::after {
+    background: var(--pro-color);
+}
+
+/* Additional role list item icons */
+.portfolio-card[data-role*="Senate"] .responsibilities-list li i,
+.portfolio-card[data-role*="senate"] .responsibilities-list li i,
+.portfolio-card .card-header:contains("Senate") ~ .card-body .responsibilities-list li i {
+    color: var(--senate-color);
+}
+
+.portfolio-card[data-role*="Editor"] .responsibilities-list li i,
+.portfolio-card[data-role*="editor"] .responsibilities-list li i,
+.portfolio-card .card-header:contains("Editor") ~ .card-body .responsibilities-list li i {
+    color: var(--editor-color);
+}
+
+.portfolio-card[data-role*="Public Relations"] .responsibilities-list li i,
+.portfolio-card[data-role*="public relations"] .responsibilities-list li i,
+.portfolio-card[data-role*="PRO"] .responsibilities-list li i,
+.portfolio-card[data-role*="pro"] .responsibilities-list li i,
+.portfolio-card .card-header:contains("Public Relations") ~ .card-body .responsibilities-list li i,
+.portfolio-card .card-header:contains("PRO") ~ .card-body .responsibilities-list li i {
+    color: var(--pro-color);
+}
+
+/* Additional role buttons */
+.portfolio-card[data-role*="Senate"] .card-actions .btn-primary,
+.portfolio-card[data-role*="senate"] .card-actions .btn-primary,
+.portfolio-card .card-header:contains("Senate") ~ .card-body .card-actions .btn-primary {
+    background: var(--senate-gradient);
+    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.2);
+}
+
+.portfolio-card[data-role*="Editor"] .card-actions .btn-primary,
+.portfolio-card[data-role*="editor"] .card-actions .btn-primary,
+.portfolio-card .card-header:contains("Editor") ~ .card-body .card-actions .btn-primary {
+    background: var(--editor-gradient);
+    box-shadow: 0 4px 15px rgba(0, 150, 136, 0.2);
+}
+
+.portfolio-card[data-role*="Public Relations"] .card-actions .btn-primary,
+.portfolio-card[data-role*="public relations"] .card-actions .btn-primary,
+.portfolio-card[data-role*="PRO"] .card-actions .btn-primary,
+.portfolio-card[data-role*="pro"] .card-actions .btn-primary,
+.portfolio-card .card-header:contains("Public Relations") ~ .card-body .card-actions .btn-primary,
+.portfolio-card .card-header:contains("PRO") ~ .card-body .card-actions .btn-primary {
+    background: var(--pro-gradient);
+    box-shadow: 0 4px 15px rgba(156, 39, 176, 0.2);
+}
+
+/* Additional role more-items links */
+.portfolio-card[data-role*="Senate"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="senate"] .responsibilities-list li.more-items a,
+.portfolio-card .card-header:contains("Senate") ~ .card-body .responsibilities-list li.more-items a {
+    color: var(--senate-color);
+}
+
+.portfolio-card[data-role*="Editor"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="editor"] .responsibilities-list li.more-items a,
+.portfolio-card .card-header:contains("Editor") ~ .card-body .responsibilities-list li.more-items a {
+    color: var(--editor-color);
+}
+
+.portfolio-card[data-role*="Public Relations"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="public relations"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="PRO"] .responsibilities-list li.more-items a,
+.portfolio-card[data-role*="pro"] .responsibilities-list li.more-items a,
+.portfolio-card .card-header:contains("Public Relations") ~ .card-body .responsibilities-list li.more-items a,
+.portfolio-card .card-header:contains("PRO") ~ .card-body .responsibilities-list li.more-items a {
+    color: var(--pro-color);
+} 

@@ -1,0 +1,476 @@
+[2025-07-22 16:06:54] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-22 16:10:14] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-22 19:33:19] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-22 21:31:23] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-22 21:31:45] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-23 13:01:35] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-23 17:26:05] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-23 17:26:20] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-24 02:33:28] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:01:56] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:02:15] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:08:42] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:09:01] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:45:52] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 14:58:27] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 15:06:50] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-25 15:22:05] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 15:24:20] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 15:25:14] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:09:55] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:10:56] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:11:22] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:11:43] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:18:17] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:22:18] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:22:33] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:22:38] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:22:53] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:23:06] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:26:54] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:27:07] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:27:32] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:27:45] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:31:36] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-25 17:55:24] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-28 01:07:06] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-28 01:08:13] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-28 01:38:10] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-28 03:19:46] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-28 03:20:08] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-29 02:52:24] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access = 'all' AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-29 03:21:27] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-29 16:11:24] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-30 15:06:38] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-31 01:19:49] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-07-31 01:39:13] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-31 11:16:30] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-31 11:22:15] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-31 12:34:05] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-07-31 13:19:16] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-11 04:14:22] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-11 15:19:23] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-11 15:53:58] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-14 16:04:11] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-14 16:10:40] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-08-17 01:49:59] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-08-17 01:52:07] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-09-03 15:29:18] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-09-04 00:23:38] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-09-04 01:13:25] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-10-13 15:09:05] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-13 15:13:20] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-10-17 23:49:13] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-20 22:38:25] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-20 22:43:02] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-21 18:29:40] Error: Unknown column 'username' in 'field list'
+SQL: SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture FROM users WHERE email = ? AND status = 'active' LIMIT 1
+Params: ["superadmin@vvusrc.edu.gh"]
+MySQL Error: Unknown column 'username' in 'field list'
+
+[2025-10-21 18:30:05] Error: Unknown column 'username' in 'field list'
+SQL: SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture FROM users WHERE email = ? AND status = 'active' LIMIT 1
+Params: ["superadmin@vvusrc.edu.gh"]
+MySQL Error: Unknown column 'username' in 'field list'
+
+[2025-10-21 19:04:17] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["site_name"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-21 19:04:17] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["logo_type"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-21 19:04:35] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["site_name"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-21 19:04:35] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["logo_type"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-21 19:09:50] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["site_name"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-21 19:09:50] Error: Table 'vvusrc.settings' doesn't exist
+SQL: SELECT setting_value FROM settings WHERE setting_key = ?
+Params: ["logo_type"]
+MySQL Error: Table 'vvusrc.settings' doesn't exist
+
+[2025-10-23 18:36:18] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-23 21:10:09] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-23 21:11:33] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-23 21:14:36] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-23 21:15:41] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-10-23 21:51:07] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-09 21:26:21] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-11 23:18:01] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-13 14:56:40] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-13 15:58:05] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-15 20:47:53] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-15 23:04:32] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-16 00:22:32] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-16 09:47:34] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 17:08:18] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 17:21:51] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 18:05:16] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 18:11:36] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 18:11:52] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-17 18:14:08] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-17 23:13:51] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access = 'all' AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-18 00:44:46] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 01:09:57] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 01:10:23] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 01:10:35] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 07:40:51] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+

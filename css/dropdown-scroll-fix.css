@@ -1,0 +1,315 @@
+/* Dropdown Scroll Fix */
+/* Fixes the scroll buttons that appear when dropdowns are opened */
+
+/* Remove scroll indicators from all dropdowns */
+.dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+/* Hide webkit scrollbars in dropdowns */
+.dropdown-menu::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Remove any scroll buttons or indicators */
+.dropdown-menu .scroll-up,
+.dropdown-menu .scroll-down,
+.dropdown-menu .dropdown-scroll-up,
+.dropdown-menu .dropdown-scroll-down,
+.dropdown-menu .scroll-indicator,
+.dropdown-menu .scroll-arrow {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Fix Bootstrap dropdown scroll behavior */
+.dropdown-menu.show {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Remove scroll buttons from notification dropdown */
+.dropdown-menu[aria-labelledby*="notification"],
+.dropdown-menu[aria-labelledby*="Notification"],
+#notificationDropdown + .dropdown-menu,
+.notification-dropdown {
+    overflow: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+}
+
+/* Remove scroll buttons from profile dropdown */
+.dropdown-menu[aria-labelledby*="profile"],
+.dropdown-menu[aria-labelledby*="Profile"],
+.dropdown-menu[aria-labelledby*="user"],
+.dropdown-menu[aria-labelledby*="User"],
+#userDropdown + .dropdown-menu,
+.profile-dropdown,
+.user-dropdown {
+    overflow: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+}
+
+/* Hide any scroll elements that might appear in dropdowns */
+.dropdown-menu * {
+    overflow: visible !important;
+}
+
+.dropdown-menu *[class*="scroll"],
+.dropdown-menu *[id*="scroll"] {
+    display: none !important;
+}
+
+/* Remove scroll buttons from navbar dropdowns specifically */
+.navbar .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.navbar .dropdown-menu::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Fix for Bootstrap 5 dropdown scroll behavior */
+.dropdown-menu[data-bs-popper] {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Remove any scroll arrows or indicators */
+.dropdown-toggle::after {
+    border: none !important;
+    content: none !important;
+}
+
+/* Ensure dropdown items are fully visible */
+.dropdown-item {
+    white-space: nowrap !important;
+    overflow: visible !important;
+}
+
+/* Fix dropdown positioning to prevent scroll */
+.dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    z-index: 1000 !important;
+    min-width: 160px !important;
+    padding: 0.5rem 0 !important;
+    margin: 0.125rem 0 0 !important;
+    font-size: 1rem !important;
+    color: #212529 !important;
+    text-align: left !important;
+    list-style: none !important;
+    background-color: #fff !important;
+    background-clip: padding-box !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175) !important;
+}
+
+/* Remove any scroll-related pseudo-elements */
+.dropdown-menu::before,
+.dropdown-menu::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Hide scroll buttons that might be added by JavaScript */
+.dropdown-scroll-wrapper,
+.dropdown-scroll-container,
+.scroll-wrapper {
+    overflow: visible !important;
+}
+
+.dropdown-scroll-wrapper .scroll-up,
+.dropdown-scroll-wrapper .scroll-down,
+.dropdown-scroll-container .scroll-up,
+.dropdown-scroll-container .scroll-down {
+    display: none !important;
+}
+
+/* Specific fix for navbar dropdown scroll issues */
+.navbar-nav .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+    position: absolute !important;
+}
+
+/* Remove scroll from dropdown toggle buttons */
+.dropdown-toggle {
+    overflow: visible !important;
+}
+
+/* Fix for dropdown menu positioning */
+.dropdown-menu.dropdown-menu-end {
+    right: 0 !important;
+    left: auto !important;
+    overflow: visible !important;
+}
+
+/* Remove any scroll indicators from dropdown headers */
+.dropdown-header,
+.dropdown-divider {
+    overflow: visible !important;
+}
+
+/* Ensure dropdown content is not clipped */
+.dropdown-menu .dropdown-item-text {
+    overflow: visible !important;
+    white-space: nowrap !important;
+}
+
+/* Fix for mobile dropdown scroll issues */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        overflow: visible !important;
+        max-height: none !important;
+        position: absolute !important;
+    }
+    
+    .navbar-nav .dropdown-menu {
+        position: absolute !important;
+        overflow: visible !important;
+    }
+}
+
+/* Remove scroll from any dropdown-related elements */
+[class*="dropdown"] {
+    overflow: visible !important;
+}
+
+[class*="dropdown"] *[class*="scroll"] {
+    display: none !important;
+}
+
+/* Hide scroll buttons that might appear on dropdown open */
+body.dropdown-open .scroll-up,
+body.dropdown-open .scroll-down,
+body.dropdown-open .scroll-indicator {
+    display: none !important;
+}
+
+/* Remove scroll from Bootstrap dropdown components */
+.btn-group .dropdown-menu,
+.btn-group-vertical .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Fix for dropup menus */
+.dropup .dropdown-menu,
+.dropend .dropdown-menu,
+.dropstart .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Remove any scroll-related animations */
+.dropdown-menu.show {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Ensure dropdown doesn't create scroll on body */
+body {
+    overflow-x: hidden !important;
+}
+
+body.dropdown-open {
+    overflow: visible !important;
+}
+
+/* Remove scroll from specific dropdown IDs */
+#notificationsDropdown,
+#userDropdown,
+#profileDropdown {
+    overflow: visible !important;
+}
+
+#notificationsDropdown + .dropdown-menu,
+#userDropdown + .dropdown-menu,
+#profileDropdown + .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Final catch-all for any remaining scroll elements */
+.dropdown-menu * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.dropdown-menu *::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* Remove scroll from dropdown when it's shown */
+.dropdown-menu[aria-expanded="true"] {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Hide any scroll buttons that might be injected by JavaScript */
+.dropdown-menu .btn[class*="scroll"],
+.dropdown-menu button[class*="scroll"],
+.dropdown-menu a[class*="scroll"] {
+    display: none !important;
+}
+
+/* Remove scroll from dropdown content */
+.dropdown-menu .dropdown-content,
+.dropdown-menu .menu-content {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Ensure dropdown items don't cause scroll */
+.dropdown-menu .dropdown-item {
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Remove any scroll-related data attributes effects */
+.dropdown-menu[data-scroll],
+.dropdown-menu[data-scrollable] {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Fix for perfect-scrollbar or similar libraries */
+.dropdown-menu .ps,
+.dropdown-menu .perfect-scrollbar,
+.dropdown-menu .scrollbar-container {
+    overflow: visible !important;
+}
+
+.dropdown-menu .ps__rail-x,
+.dropdown-menu .ps__rail-y,
+.dropdown-menu .ps__thumb-x,
+.dropdown-menu .ps__thumb-y {
+    display: none !important;
+}
+
+/* Remove scroll from any custom dropdown implementations */
+.custom-dropdown,
+.custom-dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Ensure no scroll appears on dropdown hover */
+.dropdown:hover .dropdown-menu,
+.dropdown-toggle:hover + .dropdown-menu {
+    overflow: visible !important;
+    max-height: none !important;
+}

@@ -1,7 +1,13 @@
 <?php
-// Include required files
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -25,7 +31,7 @@ $action = $_GET['action'];
 $candidateId = intval($_GET['id']);
 
 // Get candidate details
-$sql = "SELECT c.*, p.title as position_title, e.title as election_title, e.election_id, 
+$sql = "SELECT c.*, p.title as position_title, e.title as election_title, e.election_id,
         u.first_name, u.last_name, u.email, u.user_id
         FROM election_candidates c
         JOIN election_positions p ON c.position_id = p.position_id
@@ -41,81 +47,82 @@ if (!$candidate) {
 }
 
 // Check permissions for different actions
+$isSuperAdmin = isSuperAdmin();
 $isAdmin = isAdmin();
 $isOwner = ($userId == $candidate['user_id']);
 
 switch ($action) {
     case 'approve':
-        // Only admins can approve candidates
-        if (!$isAdmin) {
+        // Only super admins and admins can approve candidates
+        if (!$isSuperAdmin && !$isAdmin) {
             $_SESSION['error'] = "You don't have permission to approve candidates.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();
         }
-        
+
         // Update candidate status to approved
         $sql = "UPDATE election_candidates SET status = 'approved' WHERE candidate_id = ?";
         $result = update($sql, [$candidateId]);
-        
+
         if ($result) {
             $_SESSION['success'] = $candidate['first_name'] . " " . $candidate['last_name'] . " has been approved as a candidate for " . $candidate['position_title'] . ".";
         } else {
             $_SESSION['error'] = "Failed to approve candidate. Please try again.";
         }
-        
+
         header("Location: election_detail.php?id=" . $candidate['election_id']);
         exit();
-        
+
     case 'reject':
-        // Only admins can reject candidates
-        if (!$isAdmin) {
+        // Only super admins and admins can reject candidates
+        if (!$isSuperAdmin && !$isAdmin) {
             $_SESSION['error'] = "You don't have permission to reject candidates.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();
         }
-        
+
         // Update candidate status to rejected
         $sql = "UPDATE election_candidates SET status = 'rejected' WHERE candidate_id = ?";
         $result = update($sql, [$candidateId]);
-        
+
         if ($result) {
             $_SESSION['success'] = "Candidate application has been rejected.";
         } else {
             $_SESSION['error'] = "Failed to reject candidate. Please try again.";
         }
-        
+
         header("Location: election_detail.php?id=" . $candidate['election_id']);
         exit();
-        
+
     case 'withdraw':
         // Only the candidate themselves can withdraw
-        if (!$isOwner && !$isAdmin) {
+        if (!$isOwner && !$isSuperAdmin && !$isAdmin) {
             $_SESSION['error'] = "You don't have permission to withdraw this candidacy.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();
         }
-        
+
         // Update candidate status to withdrawn
         $sql = "UPDATE election_candidates SET status = 'withdrawn' WHERE candidate_id = ?";
         $result = update($sql, [$candidateId]);
-        
+
         if ($result) {
             $_SESSION['success'] = "You have successfully withdrawn your candidacy for " . $candidate['position_title'] . ".";
         } else {
             $_SESSION['error'] = "Failed to withdraw candidacy. Please try again.";
         }
-        
+
         header("Location: election_detail.php?id=" . $candidate['election_id']);
         exit();
-        
+
     case 'view':
         // Redirect to candidate detail page
         header("Location: candidate_detail.php?id=" . $candidateId);
         exit();
-        
+
     default:
         $_SESSION['error'] = "Invalid action.";
         header("Location: election_detail.php?id=" . $candidate['election_id']);
         exit();
 }
-?> 
+?>

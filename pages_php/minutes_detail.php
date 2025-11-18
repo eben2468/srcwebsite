@@ -1,11 +1,31 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
     header("Location: login.php");
+    exit();
+}
+
+// Check for admin or member status (including super admin)
+$isAdmin = isAdmin();
+$isMember = isMember();
+$isSuperAdmin = isSuperAdmin();
+$shouldUseAdminInterface = shouldUseAdminInterface();
+
+// Restrict access to super admin, admins and members only
+if (!$shouldUseAdminInterface && !$isMember) {
+    $_SESSION['error'] = "You do not have permission to access meeting minutes.";
+    header("Location: senate.php");
     exit();
 }
 
@@ -61,19 +81,21 @@ require_once 'includes/header.php';
         </div>
     <?php endif; ?>
 
-    <?php 
-    // Define page title, icon, and actions for the enhanced header
+    <?php
+    // Define page title, icon, and actions for the modern header
+    $pageTitle = "Minutes Detail";
     $pageIcon = "fa-clipboard";
+    $pageDescription = "View detailed meeting minutes and records";
     $actions = [];
-    
-    if (isAdmin() || isMember()) {
+
+    if ($shouldUseAdminInterface || $isMember) {
         $actions[] = [
             'url' => 'minutes_edit.php?id=' . $minutesId,
             'icon' => 'fa-edit',
             'text' => 'Edit Minutes',
             'class' => 'btn-secondary'
         ];
-        
+
         if (!empty($minutes['file_path'])) {
             $actions[] = [
                 'url' => 'minutes_handler.php?action=download&id=' . $minutesId,
@@ -83,18 +105,17 @@ require_once 'includes/header.php';
             ];
         }
     }
-    
-    // Include the enhanced page header
-    include_once 'includes/enhanced_page_header.php';
-    ?>
 
-    <div class="row mb-3">
-        <div class="col-12">
-            <a href="minutes.php" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Back to Minutes
-            </a>
-        </div>
-    </div>
+    $actions[] = [
+        'url' => 'minutes.php',
+        'icon' => 'fa-arrow-left',
+        'text' => 'Back to Minutes',
+        'class' => 'btn-outline-light'
+    ];
+
+    // Include the modern page header
+    include_once 'includes/modern_page_header.php';
+    ?>
 
     <div class="minutes-detail-container">
         <div class="minutes-detail-header">
@@ -249,7 +270,7 @@ require_once 'includes/header.php';
                     </div>
                 </div>
                 
-                <?php if (isAdmin() || isMember()): ?>
+                <?php if ($shouldUseAdminInterface || $isMember): ?>
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">Actions</h5>

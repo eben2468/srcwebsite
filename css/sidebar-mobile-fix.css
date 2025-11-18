@@ -1,0 +1,633 @@
+/**
+ * VVUSRC Sidebar Mobile Responsive Fixes
+ * Mobile sidebar that displays as full-page overlay when toggle button is clicked
+ */
+
+/* Mobile Sidebar Styles - High Specificity */
+@media (max-width: 991px) {
+    body .sidebar,
+    body div.sidebar,
+    body .dashboard-sidebar,
+    html body .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+        color: white !important;
+        z-index: 1060 !important;
+        transform: translateX(0) !important;
+        transition: transform 0.3s ease !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 60px 0 20px 0 !important; /* Reduced bottom padding */
+        box-shadow: none !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-left: 0 !important;
+    }
+
+    /* Override any collapsed state on mobile */
+    body .sidebar.collapsed,
+    body div.sidebar.collapsed,
+    body .dashboard-sidebar.collapsed,
+    html body .sidebar.collapsed {
+        transform: translateX(0) !important;
+        width: 100vw !important;
+        margin-left: 0 !important;
+    }
+
+    /* Force full sidebar content on mobile - override collapsed styles */
+    body .sidebar .nav-link span,
+    body .sidebar.collapsed .nav-link span,
+    body .sidebar .sidebar-link span,
+    body .sidebar.collapsed .sidebar-link span,
+    body .sidebar .nav-item span,
+    body .sidebar.collapsed .nav-item span,
+    body .sidebar .sidebar-link .link-text,
+    body .sidebar.collapsed .sidebar-link .link-text {
+        display: inline !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: auto !important;
+        overflow: visible !important;
+        white-space: normal !important;
+        margin-left: 5px !important;
+    }
+
+    /* Force text content to be visible - target text nodes directly */
+    body .sidebar .sidebar-link,
+    body .sidebar.collapsed .sidebar-link,
+    body .sidebar .nav-link,
+    body .sidebar.collapsed .nav-link {
+        font-size: 0.95rem !important;
+        color: white !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+
+    /* Ensure text after icons is visible */
+    body .sidebar .sidebar-link::after,
+    body .sidebar.collapsed .sidebar-link::after {
+        content: none !important;
+    }
+
+    /* Override collapsed sidebar width and overflow on mobile */
+    body .sidebar.collapsed,
+    body div.sidebar.collapsed,
+    body .dashboard-sidebar.collapsed,
+    html body .sidebar.collapsed {
+        width: 100vw !important;
+        overflow-x: visible !important;
+        overflow-y: auto !important;
+    }
+
+    /* Ensure nav links are full width on mobile - override collapsed styles */
+    body .sidebar .nav-link,
+    body .sidebar.collapsed .nav-link,
+    body .sidebar .sidebar-link,
+    body .sidebar.collapsed .sidebar-link {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        text-align: left !important;
+        justify-content: flex-start !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Ensure icons have proper spacing on mobile - override collapsed styles */
+    body .sidebar .nav-link i,
+    body .sidebar.collapsed .nav-link i,
+    body .sidebar .sidebar-link i,
+    body .sidebar.collapsed .sidebar-link i {
+        margin-right: 12px !important;
+        width: 20px !important;
+        text-align: center !important;
+        flex-shrink: 0 !important;
+        font-size: 1rem !important;
+    }
+
+    /* Force text to be visible even in icon-only mode on mobile */
+    body .sidebar-link.icon-only,
+    body .sidebar.collapsed .sidebar-link.icon-only {
+        padding: 12px 20px !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        font-size: 0.95rem !important;
+        color: white !important;
+        width: 100% !important;
+    }
+
+    body .sidebar-link.icon-only i,
+    body .sidebar.collapsed .sidebar-link.icon-only i {
+        margin-right: 12px !important;
+        font-size: 1rem !important;
+    }
+
+    /* Hide tooltips on mobile since we show full text */
+    body .sidebar-link.icon-only::after,
+    body .sidebar.collapsed .sidebar-link.icon-only::after {
+        display: none !important;
+    }
+
+    /* Remove icon-only class on mobile to force full display */
+    @media (max-width: 991px) {
+        body .sidebar .sidebar-link.icon-only,
+        body .sidebar.collapsed .sidebar-link.icon-only {
+            /* Override icon-only styles completely */
+            width: 100% !important;
+            padding: 12px 20px !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+            font-size: 0.95rem !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* Ultra high specificity override for any collapsed/icon-only state */
+        html body .sidebar.collapsed .sidebar-link,
+        html body .sidebar .sidebar-link.icon-only,
+        html body .sidebar.collapsed .sidebar-link.icon-only,
+        html body .sidebar.collapsed .nav-link,
+        html body .sidebar .nav-link.icon-only {
+            width: 100% !important;
+            padding: 12px 20px !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+            font-size: 0.95rem !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+            white-space: nowrap !important;
+            overflow: visible !important;
+        }
+
+        /* Ensure no collapsed state is applied on mobile */
+        html body .sidebar.collapsed,
+        html body .sidebar.icon-only {
+            width: 100vw !important;
+            overflow-x: visible !important;
+        }
+    }
+
+    /* Force all text content to be visible on mobile */
+    body .sidebar a,
+    body .sidebar.collapsed a,
+    body .sidebar .sidebar-link,
+    body .sidebar.collapsed .sidebar-link {
+        white-space: nowrap !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        width: 100% !important;
+        max-width: none !important;
+        font-size: 0.95rem !important;
+        color: white !important;
+    }
+
+    /* Prevent any font-size: 0 or text hiding tricks */
+    body .sidebar .sidebar-link,
+    body .sidebar.collapsed .sidebar-link,
+    body .sidebar .nav-link,
+    body .sidebar.collapsed .nav-link {
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    /* Force text nodes to be visible */
+    body .sidebar .sidebar-link:not(.icon-only),
+    body .sidebar.collapsed .sidebar-link:not(.icon-only) {
+        font-size: 0.95rem !important;
+        color: white !important;
+    }
+
+    /* Ensure text nodes are visible */
+    body .sidebar .sidebar-link,
+    body .sidebar.collapsed .sidebar-link {
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Force display of any hidden text elements */
+    body .sidebar .sidebar-link *,
+    body .sidebar.collapsed .sidebar-link * {
+        display: inline !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    /* Override any text hiding from collapsed state */
+    body .sidebar.collapsed .sidebar-link {
+        padding: 12px 20px !important;
+        justify-content: flex-start !important;
+        text-align: left !important;
+        width: 100% !important;
+    }
+
+    /* Hidden state when toggle button is clicked */
+    body .sidebar.hide,
+    body div.sidebar.hide,
+    body .dashboard-sidebar.hide,
+    html body .sidebar.hide {
+        transform: translateX(-100%) !important;
+        box-shadow: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1060 !important;
+    }
+
+    /* Ensure proper positioning when shown */
+    body .sidebar.show,
+    body div.sidebar.show,
+    body .dashboard-sidebar.show,
+    html body .sidebar.show {
+        transform: translateX(0) !important;
+        left: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    /* Show state (default visible) - HIGHEST PRIORITY */
+    body .sidebar.show,
+    body div.sidebar.show,
+    body .dashboard-sidebar.show,
+    html body .sidebar.show,
+    body .sidebar.show.collapsed,
+    body div.sidebar.show.collapsed,
+    body .dashboard-sidebar.show.collapsed,
+    html body .sidebar.show.collapsed {
+        transform: translateX(0) !important;
+        box-shadow: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1060 !important;
+        width: 100vw !important;
+        left: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    /* Mobile Close Button */
+    .sidebar .sidebar-header {
+        position: fixed !important;
+        top: 15px !important;
+        right: 15px !important;
+        z-index: 1080 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        width: 50px !important;
+        height: 50px !important;
+        pointer-events: auto !important;
+    }
+
+    .sidebar .sidebar-header #sidebar-close-btn {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border: none !important;
+        border-radius: 50% !important;
+        width: 45px !important;
+        height: 45px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: white !important;
+        font-size: 1.3rem !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        position: relative !important;
+        z-index: 1090 !important;
+    }
+
+    .sidebar .sidebar-header #sidebar-close-btn:hover {
+        background: rgba(255, 255, 255, 0.3) !important;
+        transform: scale(1.05) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .sidebar .sidebar-header #sidebar-close-btn:active {
+        transform: scale(0.95) !important;
+        background: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Ensure close button is always visible and clickable on mobile */
+    .sidebar .sidebar-header {
+        display: block !important;
+        pointer-events: auto !important;
+    }
+
+    /* Ensure the button itself is clickable */
+    .sidebar .sidebar-header #sidebar-close-btn * {
+        pointer-events: none !important;
+    }
+
+    /* Create a larger clickable area around the close button */
+    .sidebar .sidebar-header::before {
+        content: '' !important;
+        position: absolute !important;
+        top: -10px !important;
+        right: -10px !important;
+        width: 70px !important;
+        height: 70px !important;
+        z-index: 1085 !important;
+        pointer-events: none !important;
+    }
+
+    /* Ensure no other elements interfere with the close button area */
+    .sidebar .sidebar-header #sidebar-close-btn {
+        touch-action: manipulation !important;
+        -webkit-touch-callout: none !important;
+        -webkit-user-select: none !important;
+        -khtml-user-select: none !important;
+        -moz-user-select: none !important;
+        -ms-user-select: none !important;
+        user-select: none !important;
+    }
+
+    /* Sidebar Header */
+    .sidebar .user-profile {
+        background: rgba(0, 0, 0, 0.2) !important;
+        padding: 60px 20px 20px !important;
+        text-align: center !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .sidebar .user-profile .profile-picture {
+        width: 80px !important;
+        height: 80px !important;
+        border: 3px solid rgba(255, 255, 255, 0.3) !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .sidebar .user-profile .avatar-initials {
+        width: 80px !important;
+        height: 80px !important;
+        font-size: 2rem !important;
+        border: 3px solid rgba(255, 255, 255, 0.3) !important;
+        margin-bottom: 15px !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .sidebar .user-profile h6 {
+        color: white !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .sidebar .user-profile small {
+        color: rgba(255, 255, 255, 0.8) !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Sidebar Close Button */
+    .sidebar::before {
+        content: '×' !important;
+        position: absolute !important;
+        top: 10px !important;
+        right: 15px !important;
+        font-size: 2.5rem !important;
+        color: white !important;
+        cursor: pointer !important;
+        z-index: 1060 !important;
+        width: 45px !important;
+        height: 45px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        transition: all 0.2s ease !important;
+        font-weight: 300 !important;
+        line-height: 1 !important;
+    }
+
+    .sidebar::before:hover {
+        background: rgba(255, 255, 255, 0.25) !important;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Sidebar Links */
+    .sidebar .sidebar-link {
+        display: flex !important;
+        align-items: center !important;
+        padding: 15px 20px !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-decoration: none !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+    }
+    
+    .sidebar .sidebar-link:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        padding-left: 25px !important;
+    }
+    
+    .sidebar .sidebar-link.active {
+        background: rgba(255, 255, 255, 0.15) !important;
+        color: white !important;
+        border-left: 4px solid #667eea !important;
+    }
+    
+    .sidebar .sidebar-link i {
+        width: 24px !important;
+        text-align: center !important;
+        margin-right: 15px !important;
+        font-size: 1.1rem !important;
+        opacity: 0.9 !important;
+    }
+    
+    .sidebar .sidebar-link:hover i,
+    .sidebar .sidebar-link.active i {
+        opacity: 1 !important;
+    }
+    
+    /* Sidebar Dividers */
+    .sidebar hr {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        margin: 0 !important;
+    }
+    
+    /* Sidebar Headings */
+    .sidebar .sidebar-heading {
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        padding: 20px 20px 10px !important;
+        margin: 0 !important;
+    }
+    
+    /* Sidebar Dropdown */
+    .sidebar .sidebar-dropdown .sidebar-submenu {
+        background: rgba(0, 0, 0, 0.2) !important;
+        margin: 0 !important;
+        border-left: none !important;
+    }
+    
+    .sidebar .sidebar-dropdown .sidebar-sublink {
+        padding: 12px 20px 12px 50px !important;
+        font-size: 0.9rem !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+    }
+    
+    .sidebar .sidebar-dropdown .sidebar-sublink:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+    }
+    
+    /* Mobile Overlay - Hidden since sidebar is full page */
+    .sidebar-overlay {
+        display: none !important;
+    }
+    
+    /* Body scroll lock when sidebar is open */
+    body.sidebar-open {
+        overflow: hidden !important;
+    }
+
+    /* Hide main content when sidebar is open on mobile */
+    body.sidebar-open .main-content {
+        visibility: hidden !important;
+    }
+
+    /* Ensure sidebar is above everything */
+    .sidebar.show {
+        z-index: 1060 !important;
+    }
+    
+    /* Main content adjustments */
+    .main-content {
+        margin-left: 0 !important;
+        padding-top: calc(var(--mobile-header-height, 60px) + 20px) !important;
+        transition: none !important;
+    }
+    
+    /* Ensure content is not affected by sidebar */
+    .content-wrapper {
+        position: relative !important;
+        z-index: 1 !important;
+    }
+}
+
+/* Very Small Phones (320px - 374px) */
+@media (max-width: 374px) {
+    .sidebar .user-profile {
+        padding: 55px 15px 15px !important;
+    }
+    
+    .sidebar .user-profile .profile-picture,
+    .sidebar .user-profile .avatar-initials {
+        width: 60px !important;
+        height: 60px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .sidebar .user-profile .avatar-initials {
+        font-size: 1.5rem !important;
+    }
+    
+    .sidebar .user-profile h6 {
+        font-size: 1rem !important;
+    }
+    
+    .sidebar .user-profile small {
+        font-size: 0.8rem !important;
+    }
+    
+    .sidebar .sidebar-link {
+        padding: 12px 15px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .sidebar .sidebar-link:hover {
+        padding-left: 20px !important;
+    }
+    
+    .sidebar .sidebar-link i {
+        width: 20px !important;
+        margin-right: 12px !important;
+        font-size: 1rem !important;
+    }
+    
+    .sidebar .sidebar-heading {
+        padding: 15px 15px 8px !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .sidebar .sidebar-dropdown .sidebar-sublink {
+        padding: 10px 15px 10px 40px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Medium Phones (375px - 413px) */
+@media (min-width: 375px) and (max-width: 413px) {
+    .sidebar .user-profile {
+        padding: 58px 18px 18px !important;
+    }
+    
+    .sidebar .user-profile .profile-picture,
+    .sidebar .user-profile .avatar-initials {
+        width: 70px !important;
+        height: 70px !important;
+    }
+    
+    .sidebar .user-profile .avatar-initials {
+        font-size: 1.75rem !important;
+    }
+}
+
+/* Landscape Orientation */
+@media (max-width: 991px) and (orientation: landscape) {
+    .sidebar .user-profile {
+        padding: 55px 20px 15px !important;
+    }
+    
+    .sidebar .user-profile .profile-picture,
+    .sidebar .user-profile .avatar-initials {
+        width: 60px !important;
+        height: 60px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .sidebar .user-profile .avatar-initials {
+        font-size: 1.5rem !important;
+    }
+    
+    .sidebar .sidebar-link {
+        padding: 12px 20px !important;
+    }
+    
+    .sidebar .sidebar-heading {
+        padding: 15px 20px 8px !important;
+    }
+}
+
+/* Desktop - Hide mobile-specific elements */
+@media (min-width: 992px) {
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    .sidebar::before {
+        display: none !important;
+    }
+
+    /* Hide close button on desktop */
+    .sidebar .sidebar-header {
+        display: none !important;
+    }
+}

@@ -1,8 +1,16 @@
 <?php
-// Include authentication file and database connection
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -12,7 +20,7 @@ if (!isLoggedIn()) {
 }
 
 // Check if news feature is enabled
-if (!isFeatureEnabled('enable_news', true)) {
+if (!hasFeaturePermission('enable_news')) {
     $_SESSION['error'] = "The news & announcements feature is currently disabled.";
     header("Location: dashboard.php");
     exit();
@@ -20,9 +28,9 @@ if (!isFeatureEnabled('enable_news', true)) {
 
 // Get current user
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$hasAdminInterface = shouldUseAdminInterface();
 $isMember = isMember();
-$canManageNews = $isAdmin || $isMember; // Allow both admins and members to manage news
+$canManageNews = $hasAdminInterface || $isMember; // Allow super admin, admin, and members to manage news
 
 // Check if the user is trying to create a new article and has permission
 if (isset($_GET['action']) && $_GET['action'] === 'new') {
@@ -33,8 +41,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'new') {
     }
 }
 
-// Set page title
+// Set page title and body class
 $pageTitle = "News - SRC Management System";
+$bodyClass = "page-news"; // Add body class for CSS targeting
 
 // Initialize messages
 $successMessage = '';
@@ -118,6 +127,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['news_title'])) {
             
             if ($result) {
                 $successMessage = "News item created successfully!";
+
+                // Send notification to all users about new news
+                $news_id = $result; // The insert function returns the new ID
+                autoNotifyNewsCreated($title, $content, $currentUser['user_id'], $news_id);
             } else {
                 $errorMessage = "Error creating news item. Please try again.";
             }
@@ -204,17 +217,161 @@ require_once 'includes/header.php';
     document.body.classList.add('news-page');
 </script>
 
-<div class="header">
-    <h1 class="page-title">News & Announcements</h1>
-    
-    <div class="header-actions">
+<!-- Custom News Header -->
+<div class="news-header animate__animated animate__fadeInDown">
+    <div class="news-header-content">
+        <div class="news-header-main">
+            <h1 class="news-title">
+                <i class="fas fa-newspaper me-3"></i>
+                News
+            </h1>
+            <p class="news-description">Stay informed with the latest news and announcements</p>
+        </div>
         <?php if ($canManageNews): ?>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createNewsModal">
-            <i class="fas fa-plus me-2"></i> Create News
-        </button>
+        <div class="news-header-actions">
+            <button type="button" class="btn btn-header-action" data-bs-toggle="modal" data-bs-target="#createNewsModal">
+                <i class="fas fa-plus me-2"></i>Create News
+            </button>
+        </div>
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+.news-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.news-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.news-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.news-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    color: white !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.news-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+    color: white !important;
+}
+
+.news-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+    color: white !important;
+}
+
+.news-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .news-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .news-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .news-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+        color: white !important;
+    }
+
+    .news-title i {
+        font-size: 1.8rem;
+        color: white !important;
+    }
+
+    .news-description {
+        font-size: 1.1rem;
+        color: white !important;
+    }
+
+    .news-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
 
 <!-- Notification area -->
 <?php if (!empty($successMessage)): ?>
@@ -233,63 +390,200 @@ require_once 'includes/header.php';
 
 <h3 class="mb-3">All News</h3>
 
-<!-- News Table -->
-<div class="content-card">
-    <div class="content-card-body">
-        <?php if (empty($news)): ?>
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i> No news found.
-        </div>
-        <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>TITLE</th>
-                        <th>DATE</th>
-                        <th>AUTHOR</th>
-                        <th>STATUS</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($news as $item): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($item['title']); ?></td>
-                        <td><?php echo date('M j, Y', strtotime($item['created_at'])); ?></td>
-                        <td><?php echo htmlspecialchars($item['author_name']); ?></td>
-                        <td>
-                            <span class="badge bg-<?php 
-                                echo $item['status'] === 'published' ? 'success' : 'warning'; 
-                            ?>">
-                                <?php echo strtoupper(htmlspecialchars($item['status'])); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="news-detail.php?id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye"></i> View
-                            </a>
-                            <?php if ($canManageNews): ?>
-                            <a href="news-edit.php?id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-info">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="news.php?action=delete&id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-danger" 
-                               onclick="return confirm('Are you sure you want to delete this news item?');">
-                                <i class="fas fa-trash"></i> Delete
-                            </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
+<!-- News Cards Layout -->
+<div class="news-grid">
+    <?php if (empty($news)): ?>
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i> No news found.
     </div>
+    <?php else: ?>
+    <?php foreach ($news as $item): ?>
+    <div class="card news-card">
+        <?php if (!empty($item['image_path'])): ?>
+        <img src="../<?php echo htmlspecialchars($item['image_path']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($item['title']); ?>">
+        <?php endif; ?>
+        <div class="card-body">
+            <h5 class="card-title"><?php echo htmlspecialchars($item['title']); ?></h5>
+            <p class="card-text"><small class="text-muted"><?php echo date('M j, Y', strtotime($item['created_at'])); ?> by <?php echo htmlspecialchars($item['author_name']); ?></small></p>
+            <p class="card-text"><?php echo substr(htmlspecialchars($item['content']), 0, 100); ?>...</p>
+            <span class="badge bg-<?php echo $item['status'] === 'published' ? 'success' : 'warning'; ?>">
+                <?php echo strtoupper(htmlspecialchars($item['status'])); ?>
+            </span>
+        </div>
+        <div class="card-footer">
+            <a href="news-detail.php?id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-primary">
+                <i class="fas fa-eye"></i> View
+            </a>
+            <?php if ($canManageNews): ?>
+            <a href="news-edit.php?id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-info">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="news.php?action=delete&id=<?php echo $item['news_id']; ?>" class="btn btn-sm btn-danger" 
+               onclick="return confirm('Are you sure you want to delete this news item?');">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php endforeach; ?>
+    <?php endif; ?>
 </div>
 
+<style>
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.news-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.news-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.news-card .card-body {
+    padding: 1.25rem;
+}
+
+.news-card .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.news-card .card-text {
+    color: #6c757d;
+}
+
+.news-card .card-footer {
+    background-color: #f8f9fa;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Mobile navbar size increase and spacing adjustments for news page */
+@media (max-width: 768px) {
+    .news-page .navbar {
+        height: 70px !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .news-page .navbar .navbar-brand {
+        font-size: 1.3rem !important;
+    }
+    
+    .news-page .navbar .system-icon {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .news-page .navbar .btn {
+        font-size: 1.1rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    .news-page .navbar .site-name {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .news-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .news-page .header {
+        margin-top: 100px !important; /* 70px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 480px) {
+    .news-page .navbar {
+        height: 65px !important;
+        padding: 0.6rem 0.8rem !important;
+    }
+    
+    .news-page .navbar .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+    
+    .news-page .navbar .system-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .news-page .navbar .btn {
+        font-size: 1rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .news-page .navbar .site-name {
+        font-size: 1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .news-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .news-page .header {
+        margin-top: 95px !important; /* 65px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 375px) {
+    .news-page .navbar {
+        height: 60px !important;
+        padding: 0.5rem 0.7rem !important;
+    }
+    
+    .news-page .navbar .navbar-brand {
+        font-size: 1.1rem !important;
+    }
+    
+    .news-page .navbar .system-icon {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .news-page .navbar .btn {
+        font-size: 0.95rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+    
+    .news-page .navbar .site-name {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .news-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .news-page .header {
+        margin-top: 90px !important; /* 60px navbar + 30px spacing */
+    }
+}
+</style>
+
+
 <!-- Create News Modal -->
-<div class="modal fade" id="createNewsModal" tabindex="-1" aria-labelledby="createNewsModalLabel" aria-hidden="true">
+<div class="modal fade" id="createNewsModal" tabindex="-1" aria-labelledby="createNewsModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -330,5 +624,7 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
+
+</div> <!-- Close main content container -->
 
 <?php require_once 'includes/footer.php'; ?> 

@@ -1,0 +1,122 @@
+/* Z-index fixes for proper layering */
+
+/* Navbar should be on top */
+.navbar {
+    z-index: 1030 !important;
+}
+
+/* Sidebar should be below navbar but above content */
+.sidebar {
+    z-index: 1020 !important;
+}
+
+/* Modals should be on top of everything */
+.modal {
+    z-index: 1050 !important;
+}
+
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+
+/* Dropdowns should be above most content */
+.dropdown-menu {
+    z-index: 1000 !important;
+}
+
+/* Tooltips and popovers */
+.tooltip {
+    z-index: 1070 !important;
+}
+
+.popover {
+    z-index: 1060 !important;
+}
+
+/* Fixed elements */
+.fixed-top {
+    z-index: 1030 !important;
+}
+
+.fixed-bottom {
+    z-index: 1030 !important;
+}
+
+/* Sticky elements */
+.sticky-top {
+    z-index: 1020 !important;
+}
+
+/* Notification dropdowns */
+.notification-dropdown,
+.dropdown-menu[aria-labelledby*="notification"] {
+    z-index: 1050 !important;
+}
+
+/* Profile dropdown */
+.profile-dropdown,
+.dropdown-menu[aria-labelledby*="profile"],
+.dropdown-menu[aria-labelledby*="user"] {
+    z-index: 1050 !important;
+}
+
+/* Mobile sidebar overlay */
+@media (max-width: 768px) {
+    .sidebar-overlay {
+        z-index: 1010 !important;
+    }
+    
+    .sidebar.show {
+        z-index: 1020 !important;
+    }
+}
+
+/* Loading overlays */
+.loading-overlay {
+    z-index: 1080 !important;
+}
+
+/* Alert messages */
+.alert {
+    z-index: 1035 !important;
+}
+
+/* Toast notifications */
+.toast-container {
+    z-index: 1090 !important;
+}
+
+.toast {
+    z-index: 1090 !important;
+}
+
+/* Offcanvas */
+.offcanvas {
+    z-index: 1045 !important;
+}
+
+.offcanvas-backdrop {
+    z-index: 1040 !important;
+}
+
+/* Footer should be below everything */
+.footer {
+    z-index: 1 !important;
+}
+
+/* Ensure content doesn't interfere */
+.main-content {
+    z-index: 1 !important;
+    position: relative;
+}
+
+/* Fix for any conflicting z-index issues */
+.content-card,
+.card {
+    z-index: auto !important;
+}
+
+/* Special case for full-screen elements */
+.fullscreen-element {
+    z-index: 2147483647 !important;
+}

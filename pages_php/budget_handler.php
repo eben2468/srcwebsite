@@ -1,10 +1,15 @@
 <?php
-// Include authentication file and database config
-header('Content-Type: application/json; charset=utf-8');
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../auth_bridge.php'; // Add bridge for admin status consistency
-require_once '../activity_functions.php'; // Include activity functions
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+// Add bridge for admin status consistency
+require_once __DIR__ . '/../includes/activity_functions.php'; // Include activity functions
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -15,9 +20,14 @@ if (!isLoggedIn()) {
 // Get current user info
 $currentUser = getCurrentUser();
 $userId = $currentUser['user_id'] ?? 0;
-$isAdmin = isAdmin() || getBridgedAdminStatus(); // Check both auth system and bridge
+$isSuperAdmin = isSuperAdmin();
+$isAdmin = isAdmin(); // Check both auth system and bridge
 $isMember = isMember(); // Add member check
-$canManageContent = $isAdmin || $isMember; // Allow both admins and members to manage content
+$isFinance = isFinance(); // Add finance check
+$hasAdminPrivileges = hasAdminPrivileges(); // Super admin or admin
+$hasMemberPrivileges = hasMemberPrivileges(); // Super admin, admin, member, or finance
+$canManageContent = $hasMemberPrivileges; // Allow super admin, admin, member, and finance to manage content
+$canManageBudget = $hasMemberPrivileges; // Finance users have full budget CRUD privileges
 
 // Get user profile data including full name
 $userProfile = null;
@@ -47,7 +57,7 @@ try {
     switch ($action) {
         case 'create':
             // Check if user has permission to create budgets
-            if (!$canManageContent) {
+            if (!$canManageBudget) {
                 throw new Exception('You do not have permission to create budgets');
             }
             
@@ -137,8 +147,8 @@ try {
             break;
             
         case 'update_status':
-            // Check if user has admin permission to update status
-            if (!$isAdmin) {
+            // Check if user has permission to update status (admin or finance)
+            if (!$hasAdminPrivileges && !$isFinance) {
                 throw new Exception('You do not have permission to update budget status');
             }
             
@@ -210,8 +220,8 @@ try {
             break;
             
         case 'delete':
-            // Check if user has admin permission to delete
-            if (!$isAdmin) {
+            // Check if user has permission to delete budgets
+            if (!$canManageBudget) {
                 throw new Exception('You do not have permission to delete budgets');
             }
             
@@ -330,10 +340,8 @@ try {
     }
 } catch (Exception $e) {
     // Rollback transaction if active
-    if (mysqli_get_connection_stats($conn)['in_transaction']) {
-        mysqli_rollback($conn);
-    }
-    
+    mysqli_rollback($conn);
+
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
 ?> 

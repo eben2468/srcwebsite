@@ -1,9 +1,13 @@
 <?php
-// User handler file - Processes form submissions for user actions
-require_once '../db_config.php';
-require_once '../functions.php';
-require_once '../auth_functions.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {

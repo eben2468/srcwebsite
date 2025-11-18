@@ -1,0 +1,345 @@
+/**
+ * PROFILE PAGE MOBILE OPTIMIZATION
+ * Ensures the profile page works perfectly with the full-width header system
+ * Provides responsive layout and proper spacing on mobile devices
+ */
+
+/* PROFILE PAGE FULL-WIDTH MOBILE SUPPORT */
+@media screen and (max-width: 768px) {
+    /* Ensure profile header uses full-width system */
+    .profile-header.header {
+        /* Inherits from mobile-header-final-fix.css */
+        margin-top: 71px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 15px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Profile header content centering */
+    .profile-header .profile-header-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        gap: 1.5rem !important;
+        position: static !important;
+        min-height: 160px !important;
+    }
+    
+    /* Profile header main section */
+    .profile-header .profile-header-main {
+        width: 100% !important;
+        text-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex: 0 0 auto !important;
+    }
+    
+    /* Profile title centering */
+    .profile-header .profile-title {
+        text-align: center !important;
+        width: 100% !important;
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Profile description centering */
+    .profile-header .profile-description {
+        text-align: center !important;
+        width: 100% !important;
+        margin: 0.5rem 0 0 0 !important;
+        opacity: 0.9 !important;
+        font-size: 1.1rem !important;
+    }
+    
+    /* Profile header actions centering */
+    .profile-header .profile-header-actions {
+        position: static !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: none !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        align-items: center !important;
+        display: flex !important;
+    }
+    
+    /* Profile content container */
+    .profile-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* FULL-WIDTH ALERTS AND NOTIFICATIONS */
+    .profile-content .alert {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+    }
+    
+    /* FULL-WIDTH ROW AND COLUMN LAYOUT */
+    .profile-content .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .profile-content .col-xl-4,
+    .profile-content .col-xl-8,
+    .profile-content [class*="col-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+    
+    /* FULL-WIDTH CARDS AND PANELS */
+    .profile-content .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        border-left: none !important;
+        border-right: none !important;
+        box-shadow: none !important;
+        border-top: 1px solid #dee2e6 !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    
+    .profile-content .card:first-child {
+        border-top: none !important;
+    }
+    
+    .profile-content .card:last-child {
+        border-bottom: none !important;
+    }
+    
+    .profile-content .card-header {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        padding: 1rem 1.5rem !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    .profile-content .card-body {
+        padding: 1.5rem !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    /* Form elements */
+    .profile-content .form-control {
+        margin-bottom: 0.5rem !important;
+        border-radius: 6px !important;
+        border: 1px solid #ced4da !important;
+        padding: 0.75rem !important;
+    }
+    
+    .profile-content .form-label {
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem !important;
+        color: #495057 !important;
+    }
+    
+    .profile-content .btn {
+        border-radius: 6px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .profile-content .btn-primary {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+    }
+    
+    .profile-content .btn-primary:hover {
+        background-color: #0056b3 !important;
+        border-color: #0056b3 !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    /* Profile picture styling */
+    .profile-content .img-fluid.rounded-circle {
+        border: 4px solid #fff !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        transition: transform 0.3s ease !important;
+    }
+    
+    .profile-content .img-fluid.rounded-circle:hover {
+        transform: scale(1.05) !important;
+    }
+    
+    /* Text centering in profile info card */
+    .profile-content .text-center {
+        text-align: center !important;
+    }
+    
+    .profile-content .text-muted {
+        color: #6c757d !important;
+        font-style: italic !important;
+    }
+    
+    /* Responsive adjustments for smaller screens */
+    @media (max-width: 480px) {
+        .profile-header .profile-title {
+            font-size: 1.6rem !important;
+        }
+        
+        .profile-header .profile-description {
+            font-size: 1rem !important;
+        }
+        
+        .profile-content .card-body {
+            padding: 1rem !important;
+        }
+        
+        .profile-content .btn {
+            width: 100% !important;
+            margin-bottom: 0.5rem !important;
+        }
+    }
+    
+    @media (max-width: 375px) {
+        .profile-header .profile-title {
+            font-size: 1.5rem !important;
+        }
+        
+        .profile-header .profile-description {
+            font-size: 0.95rem !important;
+        }
+        
+        .profile-content .row {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        
+        .profile-content .col-xl-4,
+        .profile-content .col-xl-8 {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+        }
+    }
+    
+    @media (max-width: 320px) {
+        .profile-header .profile-title {
+            font-size: 1.4rem !important;
+        }
+        
+        .profile-header .profile-description {
+            font-size: 0.9rem !important;
+        }
+        
+        .profile-content .card-body {
+            padding: 0.75rem !important;
+        }
+    }
+}
+
+/* DESKTOP SUPPORT - Ensure desktop layout isn't affected */
+@media screen and (min-width: 769px) {
+    .profile-header {
+        /* Let desktop styles handle header layout */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 1200px !important;
+    }
+    
+    .profile-content {
+        /* Let desktop styles handle container layout */
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+/* FALLBACK FOR OLDER BROWSERS */
+@supports not (color: var(--fake-var)) {
+    @media screen and (max-width: 768px) {
+        .profile-header.header {
+            margin-top: 71px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            margin-bottom: 15px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            text-align: center !important;
+        }
+        
+        .profile-content {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        
+        .profile-content .alert {
+            margin-left: 15px !important;
+            margin-right: 15px !important;
+            width: calc(100% - 30px) !important;
+        }
+    }
+}
+
+/* PRINT STYLES */
+@media print {
+    .profile-header {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        background: #f8f9fa !important;
+        color: #333 !important;
+    }
+    
+    .profile-content {
+        padding: 0 !important;
+    }
+}

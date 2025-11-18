@@ -1,0 +1,155 @@
+/**
+ * Portfolio Create Button Fix
+ * Specifically addresses the "Create Portfolio" button clickability issue
+ * Ensures the button is always clickable and properly positioned
+ */
+
+/* Fix Create Portfolio button specifically */
+.header-actions .btn[data-bs-target="#createPortfolioModal"],
+.header-actions button[data-bs-target="#createPortfolioModal"],
+.header-actions .btn[data-bs-toggle="modal"],
+.header-actions button[data-bs-toggle="modal"] {
+    /* Ensure maximum clickability */
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1070 !important; /* Higher than modals */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* Ensure proper visibility */
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    
+    /* Touch-friendly for mobile */
+    touch-action: manipulation !important;
+    user-select: none !important;
+    
+    /* Prevent any interference */
+    transform: none !important;
+    clip: none !important;
+    clip-path: none !important;
+    
+    /* Ensure proper sizing */
+    min-height: 44px !important;
+    min-width: 150px !important;
+    padding: 0.6rem 1.2rem !important;
+    
+    /* Ensure proper styling */
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    
+    /* Create larger click area */
+    margin: 5px !important;
+}
+
+.header-actions .btn[data-bs-target="#createPortfolioModal"]:hover,
+.header-actions button[data-bs-target="#createPortfolioModal"]:hover,
+.header-actions .btn[data-bs-toggle="modal"]:hover,
+.header-actions button[data-bs-toggle="modal"]:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.7) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    text-decoration: none !important;
+}
+
+/* Create larger clickable area with pseudo-element */
+.header-actions .btn[data-bs-target="#createPortfolioModal"]::before,
+.header-actions button[data-bs-target="#createPortfolioModal"]::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -10px !important;
+    left: -10px !important;
+    right: -10px !important;
+    bottom: -10px !important;
+    z-index: -1 !important;
+    pointer-events: auto !important;
+}
+
+/* Ensure header actions container doesn't interfere */
+.header-actions {
+    z-index: 1060 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+}
+
+/* Portfolio page specific fixes */
+.portfolio-page .header-actions .btn,
+.portfolio-page .header-actions button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 1070 !important;
+    position: relative !important;
+}
+
+/* Override any conflicting portfolio styles */
+.portfolio-page .btn-header-action {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    z-index: 1070 !important;
+    position: relative !important;
+}
+
+/* Mobile specific fixes */
+@media (max-width: 768px) {
+    .header-actions .btn[data-bs-target="#createPortfolioModal"],
+    .header-actions button[data-bs-target="#createPortfolioModal"] {
+        min-height: 48px !important;
+        min-width: 200px !important;
+        padding: 0.8rem 1.5rem !important;
+        font-size: 1rem !important;
+        touch-action: manipulation !important;
+    }
+    
+    /* Larger clickable area on mobile */
+    .header-actions .btn[data-bs-target="#createPortfolioModal"]::before,
+    .header-actions button[data-bs-target="#createPortfolioModal"]::before {
+        top: -15px !important;
+        left: -15px !important;
+        right: -15px !important;
+        bottom: -15px !important;
+    }
+}
+
+/* Ensure no other elements can overlay the button */
+.header-actions .btn[data-bs-target="#createPortfolioModal"] ~ *,
+.header-actions button[data-bs-target="#createPortfolioModal"] ~ * {
+    z-index: 1050 !important; /* Lower than the button */
+}
+
+/* Debug styling - remove in production if not needed */
+.debug-portfolio-button {
+    border: 2px solid red !important;
+    background: rgba(255, 0, 0, 0.3) !important;
+}
+
+/* Prevent any animations that might interfere */
+.header-actions .btn[data-bs-target="#createPortfolioModal"],
+.header-actions button[data-bs-target="#createPortfolioModal"] {
+    animation: none !important;
+}
+
+/* Ensure proper event handling */
+.header-actions .btn[data-bs-target="#createPortfolioModal"] *,
+.header-actions button[data-bs-target="#createPortfolioModal"] * {
+    pointer-events: none !important; /* Allow clicks to bubble up to button */
+}
+
+/* Force visibility on all viewport sizes */
+@media screen {
+    .header-actions .btn[data-bs-target="#createPortfolioModal"],
+    .header-actions button[data-bs-target="#createPortfolioModal"] {
+        display: inline-flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}

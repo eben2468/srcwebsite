@@ -1,19 +1,26 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
     $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-    header("Location: register.php");
+    header("Location: login.php");
     exit();
 }
 
 // Get current user
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$isAdmin = shouldUseAdminInterface();
 
 // Check if portfolio ID is provided
 if (!isset($_GET['id'])) {
@@ -49,25 +56,110 @@ $pageTitle = "Portfolio Details: " . $portfolio['title'];
 require_once 'includes/header.php';
 ?>
 
-<div class="container-fluid px-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mt-4"><?php echo $pageTitle; ?></h1>
-        
-        <div>
-            <?php if ($isAdmin): ?>
-            <a href="portfolio_edit.php?id=<?php echo $portfolioId; ?>" class="btn btn-primary me-2">
-                <i class="fas fa-edit me-2"></i> Edit Portfolio
+<!-- Immediate script to disable auto-dismissal for all alerts on this page -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Completely disable auto-dismiss.js functionality for this page
+    window.autoDismissAlerts = function() { 
+        console.log('Auto-dismiss disabled for portfolio-detail.php');
+        return false; 
+    };
+    
+    // Override any existing auto-dismiss functions
+    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+        const originalClose = bootstrap.Alert.prototype.close;
+        bootstrap.Alert.prototype.close = function() {
+            // Only allow manual closing (via click)
+            if (event && event.type === 'click') {
+                originalClose.apply(this, arguments);
+            } else {
+                console.log('Prevented auto-dismiss of alert');
+                return false;
+            }
+        };
+    }
+    
+    // Disable auto-dismiss for all alerts on portfolio-detail.php
+    const disableAutoDismiss = function() {
+        document.querySelectorAll('.alert, .alert-dismissible, .notification, .toast').forEach(alert => {
+            // Mark all alerts as important with multiple attributes for redundancy
+            alert.classList.add('alert-important', 'alert-critical', 'no-auto-dismiss', 'alert-marked-important');
+            alert.dataset.important = 'true';
+            alert.dataset.autoDismiss = 'false';
+            alert.setAttribute('data-no-auto-dismiss', 'true');
+            
+            // Remove any auto-dismissing flags
+            delete alert.dataset.autoDismissing;
+            
+            // Stop any ongoing fade animations
+            alert.style.opacity = '1';
+            alert.style.transition = 'none';
+            
+            // Remove any existing timeout that might dismiss the alert
+            if (alert._dismissTimeout) {
+                clearTimeout(alert._dismissTimeout);
+                delete alert._dismissTimeout;
+            }
+        });
+    };
+    
+    // Run immediately
+    disableAutoDismiss();
+    
+    // Also run after short delays to catch any alerts added dynamically
+    setTimeout(disableAutoDismiss, 100);
+    setTimeout(disableAutoDismiss, 500);
+    setTimeout(disableAutoDismiss, 1000);
+    setTimeout(disableAutoDismiss, 2000);
+    
+    // Set up a MutationObserver to handle alerts that are added dynamically
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                disableAutoDismiss();
+            }
+        });
+    });
+    
+    // Start observing the document body for changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+});
+</script>
+
+<!-- Page Content -->
+<div class="container-fluid" style="margin-top: 60px;">
+    <!-- Modern Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 p-4 text-white rounded shadow-sm" style="min-height: 120px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)!important;">
+        <div class="text-center flex-grow-1">
+            <h1 class="mb-1">
+                <i class="fas fa-user-tie me-2"></i>
+                Portfolio Details
+            </h1>
+            <p class="mb-0 opacity-75"><?php echo htmlspecialchars($portfolio['title']); ?></p>
+        </div>
+
+        <!-- Action Buttons - Vertical Layout -->
+        <div class="d-flex flex-column gap-2">
+            <a href="portfolio.php" class="btn btn-light btn-sm d-flex align-items-center justify-content-center" style="min-width: 120px;">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to List
+            </a>
+
+            <?php if (shouldUseAdminInterface()): ?>
+            <a href="portfolio_edit.php?id=<?php echo $portfolioId; ?>" class="btn btn-outline-light btn-sm d-flex align-items-center justify-content-center" style="min-width: 120px;">
+                <i class="fas fa-edit me-2"></i>
+                Edit Portfolio
             </a>
             <?php endif; ?>
-            <a href="portfolio.php" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left me-2"></i> Back to Portfolios
-                                    </a>
-                                </div>
-                            </div>
-    
+        </div>
+    </div>
+
     <!-- Notification area -->
     <?php if (isset($_SESSION['success'])): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show alert-important no-auto-dismiss mb-4" role="alert" data-important="true" data-auto-dismiss="false" data-no-auto-dismiss="true">
         <i class="fas fa-check-circle me-2"></i> <?php echo $_SESSION['success']; ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -75,14 +167,15 @@ require_once 'includes/header.php';
     <?php endif; ?>
 
     <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show alert-important no-auto-dismiss mb-4" role="alert" data-important="true" data-auto-dismiss="false" data-no-auto-dismiss="true">
         <i class="fas fa-exclamation-circle me-2"></i> <?php echo $_SESSION['error']; ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+    </div>
     <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
-    
-    <div class="row">
+
+    <!-- Main Content -->
+    <div class="row g-4">
         <!-- Portfolio Info Column -->
         <div class="col-md-4">
             <div class="card mb-4">
@@ -112,6 +205,9 @@ require_once 'includes/header.php';
                     <h3 class="card-title">Qualifications</h3>
                         </div>
                         <div class="card-body">
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-info-circle me-2"></i> These qualifications are defined in Article VIII Section 2 of the VVUSRC Constitution.
+                            </div>
                             <ul class="list-group list-group-flush">
                         <?php if (empty($qualifications)): ?>
                         <li class="list-group-item text-muted">No qualifications listed</li>
@@ -142,28 +238,60 @@ require_once 'includes/header.php';
             <div class="card mb-4">
                 <div class="card-header">
                     <h3 class="card-title">Responsibilities</h3>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i> These responsibilities are defined in Article VIII Section 4 of the VVUSRC Constitution.
+                    </div>
+                    <ul class="list-group list-group-flush">
                         <?php if (empty($responsibilities)): ?>
                         <li class="list-group-item text-muted">No responsibilities listed</li>
                         <?php else: ?>
-                            <?php foreach ($responsibilities as $responsibility): ?>
+                            <?php foreach ($responsibilities as $index => $responsibility): ?>
+                            <li class="list-group-item">
+                                <div class="d-flex">
+                                    <div class="responsibility-number me-3">
+                                        <span class="badge bg-primary rounded-circle"><?php echo $index + 1; ?></span>
+                                    </div>
+                                    <div>
+                                        <?php echo htmlspecialchars($responsibility); ?>
+                                    </div>
+                                </div>
+                            </li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Qualifications</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i> These qualifications are defined in Article VIII Section 2 of the VVUSRC Constitution.
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <?php if (empty($qualifications)): ?>
+                        <li class="list-group-item text-muted">No qualifications listed</li>
+                        <?php else: ?>
+                            <?php foreach ($qualifications as $qualification): ?>
                             <li class="list-group-item">
                                 <i class="fas fa-check-circle text-success me-2"></i>
-                                <?php echo htmlspecialchars($responsibility); ?>
-                                </li>
-                                <?php endforeach; ?>
+                                <?php echo htmlspecialchars($qualification); ?>
+                            </li>
+                            <?php endforeach; ?>
                         <?php endif; ?>
-                            </ul>
-                        </div>
-                    </div>
+                    </ul>
+                </div>
+            </div>
                     
             <!-- Initiatives Section -->
             <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title mb-0">Initiatives & Projects</h3>
-                    <?php if ($isAdmin): ?>
+                    <?php if (shouldUseAdminInterface()): ?>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addInitiativeModal">
                         <i class="fas fa-plus me-1"></i> Add Initiative
                     </button>
@@ -193,7 +321,7 @@ require_once 'includes/header.php';
                                     <i class="fas fa-calendar me-1"></i> Added: <?php echo date('M j, Y', strtotime($initiative['created_at'])); ?>
                                 </small>
                                 
-                                <?php if ($isAdmin): ?>
+                                <?php if (shouldUseAdminInterface()): ?>
                                 <div class="mt-2">
                                     <form method="POST" action="portfolio_handler.php" class="d-inline">
                                         <input type="hidden" name="action" value="delete_initiative">
@@ -217,8 +345,8 @@ require_once 'includes/header.php';
                             </div>
 
 <!-- Add Initiative Modal -->
-<?php if ($isAdmin): ?>
-<div class="modal fade" id="addInitiativeModal" tabindex="-1" aria-labelledby="addInitiativeModalLabel" aria-hidden="true">
+<?php if (shouldUseAdminInterface()): ?>
+<div class="modal fade" id="addInitiativeModal" tabindex="-1" aria-labelledby="addInitiativeModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -249,11 +377,14 @@ require_once 'includes/header.php';
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Add Initiative</button>
-            </div>
+                </div>
             </form>
         </div>
     </div>
 </div>
 <?php endif; ?>
+
+</div>
+<!-- End Container -->
 
 <?php require_once 'includes/footer.php'; ?>

@@ -1,0 +1,371 @@
+/**
+ * VVUSRC Components Mobile Responsive Fixes
+ * Optimizes forms, cards, buttons, and other UI components for mobile devices
+ */
+
+/* Mobile Form Components */
+@media (max-width: 991px) {
+    /* Form Groups */
+    .form-group {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    .form-floating {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    /* Input Groups */
+    .input-group {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    .input-group .form-control {
+        margin-bottom: 0 !important;
+    }
+    
+    .input-group-text {
+        padding: 12px !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    /* Textarea */
+    textarea.form-control {
+        min-height: 100px !important;
+        resize: vertical !important;
+    }
+    
+    /* Select Elements */
+    .form-select {
+        background-size: 16px 12px !important;
+        background-position: right 12px center !important;
+    }
+    
+    /* Checkboxes and Radios */
+    .form-check {
+        margin-bottom: var(--mobile-padding-sm, 12px) !important;
+        padding-left: 2rem !important;
+    }
+    
+    .form-check-input {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        margin-top: 0.1rem !important;
+    }
+    
+    .form-check-label {
+        font-size: var(--mobile-font-md, 14px) !important;
+        line-height: 1.4 !important;
+        padding-left: 0.5rem !important;
+    }
+    
+    /* Switch */
+    .form-switch .form-check-input {
+        width: 2.5rem !important;
+        height: 1.3rem !important;
+    }
+    
+    /* Form Validation */
+    .invalid-feedback,
+    .valid-feedback {
+        font-size: var(--mobile-font-sm, 13px) !important;
+        margin-top: 4px !important;
+    }
+    
+    /* File Input */
+    .form-control[type="file"] {
+        padding: 8px 12px !important;
+    }
+    
+    /* Range Input */
+    .form-range {
+        height: 1.5rem !important;
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+}
+
+/* Mobile Column Padding Override */
+@media (max-width: 991px) {
+    /* Remove Bootstrap default column padding on mobile for full-width cards */
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+/* Mobile Card Components */
+@media (max-width: 991px) {
+    /* Card Headers */
+    .card-header {
+        padding: var(--mobile-padding-md, 16px) !important;
+        font-size: var(--mobile-font-lg, 15px) !important;
+        font-weight: 600 !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card-header h1,
+    .card-header h2,
+    .card-header h3,
+    .card-header h4,
+    .card-header h5,
+    .card-header h6 {
+        margin-bottom: 0 !important;
+        font-size: inherit !important;
+    }
+    
+    /* Card Footer */
+    .card-footer {
+        padding: var(--mobile-padding-md, 16px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Card Images */
+    .card-img-top,
+    .card-img-bottom {
+        border-radius: var(--mobile-border-radius, 8px) var(--mobile-border-radius, 8px) 0 0 !important;
+    }
+    
+    .card-img-bottom {
+        border-radius: 0 0 var(--mobile-border-radius, 8px) var(--mobile-border-radius, 8px) !important;
+    }
+    
+    /* Card Groups */
+    .card-group .card {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    /* Card Deck */
+    .card-deck .card {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+}
+
+/* Mobile Button Components */
+@media (max-width: 991px) {
+    /* Button Groups */
+    .btn-group,
+    .btn-group-vertical {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .btn-group .btn,
+    .btn-group-vertical .btn {
+        flex: 1 1 auto !important;
+        margin-bottom: 0 !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    /* Button Toolbar */
+    .btn-toolbar {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    
+    .btn-toolbar .btn-group {
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Floating Action Button */
+    .btn-floating {
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 56px !important;
+        height: 56px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.5rem !important;
+        z-index: 1020 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .btn-floating:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+}
+
+/* Mobile Alert Components */
+@media (max-width: 991px) {
+    .alert {
+        padding: var(--mobile-padding-md, 16px) !important;
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+        line-height: 1.5 !important;
+    }
+    
+    .alert-heading {
+        font-size: var(--mobile-font-lg, 15px) !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .alert .btn-close {
+        padding: 8px !important;
+        font-size: 1rem !important;
+    }
+    
+    .alert .alert-link {
+        font-weight: 600 !important;
+    }
+}
+
+/* Mobile Badge Components */
+@media (max-width: 991px) {
+    .badge {
+        font-size: 0.75rem !important;
+        padding: 4px 8px !important;
+        border-radius: 4px !important;
+    }
+    
+    .badge.rounded-pill {
+        border-radius: 50px !important;
+    }
+}
+
+/* Mobile Progress Components */
+@media (max-width: 991px) {
+    .progress {
+        height: 1rem !important;
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    .progress-bar {
+        font-size: var(--mobile-font-sm, 13px) !important;
+        line-height: 1rem !important;
+    }
+}
+
+/* Mobile Spinner Components */
+@media (max-width: 991px) {
+    .spinner-border,
+    .spinner-grow {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+    
+    .spinner-border-sm,
+    .spinner-grow-sm {
+        width: 1rem !important;
+        height: 1rem !important;
+    }
+}
+
+/* Mobile Toast Components */
+@media (max-width: 991px) {
+    .toast-container {
+        position: fixed !important;
+        top: 70px !important;
+        right: 15px !important;
+        left: 15px !important;
+        z-index: 1055 !important;
+    }
+    
+    .toast {
+        margin-bottom: 8px !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+    }
+    
+    .toast-header {
+        padding: 12px var(--mobile-padding-md, 16px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+    }
+    
+    .toast-body {
+        padding: var(--mobile-padding-md, 16px) !important;
+    }
+}
+
+/* Mobile Tooltip and Popover */
+@media (max-width: 991px) {
+    .tooltip {
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+    
+    .tooltip-inner {
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+    }
+    
+    .popover {
+        font-size: var(--mobile-font-md, 14px) !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    .popover-header {
+        padding: 12px var(--mobile-padding-md, 16px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+    }
+    
+    .popover-body {
+        padding: var(--mobile-padding-md, 16px) !important;
+    }
+}
+
+/* Very Small Phones (320px - 374px) */
+@media (max-width: 374px) {
+    .form-control,
+    .form-select {
+        padding: 10px !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+    
+    .card-header,
+    .card-footer {
+        padding: var(--mobile-padding-sm, 12px) !important;
+    }
+    
+    .alert {
+        padding: var(--mobile-padding-sm, 12px) !important;
+    }
+    
+    .btn-floating {
+        width: 48px !important;
+        height: 48px !important;
+        bottom: 15px !important;
+        right: 15px !important;
+        font-size: 1.3rem !important;
+    }
+    
+    .toast-container {
+        top: 60px !important;
+        right: 10px !important;
+        left: 10px !important;
+    }
+}
+
+/* Landscape Orientation */
+@media (max-width: 991px) and (orientation: landscape) {
+    .form-control,
+    .form-select {
+        padding: 10px !important;
+    }
+    
+    .card {
+        margin-bottom: var(--mobile-padding-sm, 12px) !important;
+    }
+    
+    .alert {
+        padding: var(--mobile-padding-sm, 12px) !important;
+        margin-bottom: var(--mobile-padding-sm, 12px) !important;
+    }
+    
+    .btn-floating {
+        bottom: 15px !important;
+        right: 15px !important;
+    }
+    
+    .toast-container {
+        top: 60px !important;
+    }
+}

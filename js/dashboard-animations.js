@@ -4,6 +4,16 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Only run dashboard animations on dashboard pages
+    const isDashboardPage = document.body.classList.contains('dashboard-page') || 
+                           window.location.pathname.includes('dashboard') ||
+                           document.querySelector('.dashboard-container') ||
+                           document.querySelector('.stat-card');
+    
+    if (!isDashboardPage) {
+        return; // Exit early if not on dashboard
+    }
+    
     // Initialize animations with a slight delay
     setTimeout(initializeAnimations, 100);
     
@@ -79,17 +89,40 @@ function initializeCounters() {
  * Initialize parallax effect for the header
  */
 function initializeParallaxHeader() {
-    const header = document.querySelector('.header');
+    const header = document.querySelector('.dashboard-header, .header');
     if (!header) return;
     
+    // Only apply parallax on larger screens and dashboard pages
+    if (window.innerWidth < 768) return;
+    
+    let isMouseMoving = false;
+    let mouseTimeout;
+    
     window.addEventListener('mousemove', function(e) {
-        const mouseX = e.clientX / window.innerWidth;
-        const mouseY = e.clientY / window.innerHeight;
+        // Throttle the mousemove event
+        if (!isMouseMoving) {
+            isMouseMoving = true;
+            
+            requestAnimationFrame(() => {
+                const mouseX = e.clientX / window.innerWidth;
+                const mouseY = e.clientY / window.innerHeight;
+                
+                const moveX = mouseX * 5 - 2.5; // Reduced movement
+                const moveY = mouseY * 5 - 2.5; // Reduced movement
+                
+                header.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                header.style.transition = 'transform 0.1s ease-out';
+                
+                isMouseMoving = false;
+            });
+        }
         
-        const moveX = mouseX * 10 - 5;
-        const moveY = mouseY * 10 - 5;
-        
-        header.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        // Reset position after mouse stops moving
+        clearTimeout(mouseTimeout);
+        mouseTimeout = setTimeout(() => {
+            header.style.transform = 'translate(0px, 0px)';
+            header.style.transition = 'transform 0.3s ease-out';
+        }, 1000);
     });
 }
 

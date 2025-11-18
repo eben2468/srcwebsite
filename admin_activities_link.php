@@ -5,7 +5,7 @@
  */
 
 // Check if user is logged in and is admin
-require_once 'auth_functions.php';
+require_once __DIR__ . '/includes/simple_auth.php';
 if (!isLoggedIn() || !isAdmin()) {
     header("Location: pages_php/dashboard.php");
     exit();

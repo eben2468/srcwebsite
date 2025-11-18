@@ -1,13 +1,14 @@
 <?php
-/**
- * Settings Backup Script
- * Generates a JSON file with all system settings
- */
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../settings_functions.php';
-require_once '../db_config.php';
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in and is admin
 if (!isLoggedIn() || !isAdmin()) {

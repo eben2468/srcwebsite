@@ -1,8 +1,15 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -11,14 +18,21 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Check if about page feature is enabled
+if (!hasFeaturePermission('enable_about')) {
+    $_SESSION['error'] = "The about page feature is currently disabled.";
+    header("Location: dashboard.php");
+    exit();
+}
+
 // Fetch executive portfolios from database
 try {
     $executivePortfolios = [];
-    $portfolioQuery = "SELECT * FROM portfolios WHERE title IN ('President', 'Vice President', 'Secretary General', 'Senate President') ORDER BY FIELD(title, 'President', 'Vice President', 'Secretary General', 'Senate President')";
+    $portfolioQuery = "SELECT * FROM portfolios WHERE title IN ('President', 'Vice President', 'Executive Secretary', 'Finance Officer', 'Senate President') ORDER BY FIELD(title, 'President', 'Vice President', 'Executive Secretary', 'Finance Officer', 'Senate President')";
     $executivePortfolios = fetchAll($portfolioQuery);
-    
+
     // Fetch department portfolios
-    $departmentQuery = "SELECT * FROM portfolios WHERE title NOT IN ('President', 'Vice President', 'Secretary General', 'Senate President') ORDER BY title";
+    $departmentQuery = "SELECT * FROM portfolios WHERE title NOT IN ('President', 'Vice President', 'Executive Secretary', 'Finance Officer', 'Senate President') ORDER BY title";
     $departmentPortfolios = fetchAll($departmentQuery);
 } catch (Exception $e) {
     // Silent error handling - will just show static content if database fetch fails
@@ -33,14 +47,24 @@ $pageTitle = "About SRC - SRC Management System";
 require_once 'includes/header.php';
 ?>
 
-<div class="header animate__animated animate__fadeInDown">
-    <h1 class="page-title">About SRC</h1>
-    <div class="header-actions">
-        <a href="#mission" class="btn btn-primary btn-sm">Our Mission</a>
-        <a href="#vision" class="btn btn-primary btn-sm">Our Vision</a>
-        <a href="#structure" class="btn btn-primary btn-sm">Structure</a>
-    </div>
-</div>
+<script>
+    document.body.classList.add('about-page');
+</script>
+
+<?php
+// Set up modern page header variables
+$pageTitle = "About VVU SRC";
+$pageIcon = "fa-info-circle";
+$pageDescription = "Learn about our mission, vision, and organizational structure";
+$actions = [
+    ['url' => '#mission', 'icon' => 'fa-bullseye', 'text' => 'Our Mission', 'class' => 'btn-primary'],
+    ['url' => '#vision', 'icon' => 'fa-eye', 'text' => 'Our Vision', 'class' => 'btn-primary'],
+    ['url' => '#structure', 'icon' => 'fa-sitemap', 'text' => 'Structure', 'class' => 'btn-primary']
+];
+
+// Include the modern page header
+include 'includes/modern_page_header.php';
+?>
 
 <div class="dashboard-section animate-fadeIn" id="mission">
     <div class="content-card">
@@ -173,8 +197,11 @@ require_once 'includes/header.php';
                                         case 'Vice President':
                                             echo 'fas fa-user-shield';
                                             break;
-                                        case 'Secretary General':
+                                        case 'Executive Secretary':
                                             echo 'fas fa-user-edit';
+                                            break;
+                                        case 'Finance Officer':
+                                            echo 'fas fa-dollar-sign';
                                             break;
                                         case 'Senate President':
                                             echo 'fas fa-user-graduate';
@@ -191,7 +218,7 @@ require_once 'includes/header.php';
                             <div class="executive-position org-box">
                                 <i class="fas fa-user-tie"></i>
                                 <h5>President</h5>
-                                <p class="executive-name">Courage Amedzormeku</p>
+                                <p class="executive-name">Courage Amedzorneku</p>
                             </div>
                             <div class="executive-position org-box">
                                 <i class="fas fa-user-shield"></i>
@@ -199,14 +226,19 @@ require_once 'includes/header.php';
                                 <p class="executive-name">Mariam Adams</p>
                             </div>
                             <div class="executive-position org-box">
+                                <i class="fas fa-user-graduate"></i>
+                                <h5>Senate President</h5>
+                                <p class="executive-name">Bright Kweku Nimo</p>
+                            </div>
+                            <div class="executive-position org-box">
                                 <i class="fas fa-user-edit"></i>
-                                <h5>Secretary General</h5>
+                                <h5>Executive Secretary</h5>
                                 <p class="executive-name">Nimafo Olivia</p>
                             </div>
                             <div class="executive-position org-box">
-                                <i class="fas fa-user-graduate"></i>
-                                <h5>Senate President</h5>
-                                <p class="executive-name">Kweku Nimo Bright</p>
+                                <i class="fas fa-dollar-sign"></i>
+                                <h5>Finance Officer</h5>
+                                <p class="executive-name">Yeboah Bright Peprah</p>
                             </div>
                         <?php } ?>
                         
@@ -214,13 +246,13 @@ require_once 'includes/header.php';
                         <?php 
                         // Define default departments with their icons and names
                         $defaultDepartments = [
-                            'Chaplain' => ['icon' => 'fas fa-pray', 'name' => 'Solomon Kofi Boakye'],
                             'Editor' => ['icon' => 'fas fa-edit', 'name' => 'Owusu Ebenezer'],
-                            'Finance Officer' => ['icon' => 'fas fa-dollar-sign', 'name' => 'Yeboah Bright Peprah'],
-                            'Public Relations Officer (P.R.O)' => ['icon' => 'fas fa-bullhorn', 'name' => 'Aguda Espoir Atwiefaa Abla'],
+                            'Organizing Secretary' => ['icon' => 'fas fa-calendar-alt', 'name' => 'Doku Richard Addo'],
+                            'Welfare Officer' => ['icon' => 'fas fa-heart', 'name' => 'Asenso Boamah Mary'],
+                            'Women\'s Commissioner' => ['icon' => 'fas fa-female', 'name' => 'Angela Korkoi Sampa'],
                             'Sports Commissioner' => ['icon' => 'fas fa-futbol', 'name' => 'Oppong Elisha'],
-                            'Welfare Officer' => ['icon' => 'fas fa-heart', 'name' => 'Aenso Boamah Mary'],
-                            'Womens\' Commissioner' => ['icon' => 'fas fa-female', 'name' => 'Angela Korkoi Sampa']
+                            'Chaplain' => ['icon' => 'fas fa-pray', 'name' => 'Solomon Kofi Boakye'],
+                            'Public Relations Officer' => ['icon' => 'fas fa-bullhorn', 'name' => 'Aguda Espoir Ahwiefa Abla']
                         ];
                         
                         // Use actual departments if available, otherwise use defaults
@@ -292,7 +324,8 @@ require_once 'includes/header.php';
                         $executiveDescriptions = [
                             'President' => 'The President serves as the head of the SRC, providing leadership, representing students to administration, and overseeing all SRC operations and initiatives.',
                             'Vice President' => 'The Vice President supports the President in leadership duties, coordinates internal operations, and ensures effective implementation of SRC policies and programs.',
-                            'Secretary General' => 'The Secretary General manages all administrative matters, maintains records and documentation, and facilitates communication within the SRC structure.',
+                            'Executive Secretary' => 'The Executive Secretary manages all administrative matters, maintains records and documentation, and facilitates communication within the SRC structure.',
+                            'Finance Officer' => 'The Finance Officer supervises the collection and disbursement of funds, maintains all financial accounts, and ensures proper financial accountability of the SRC.',
                             'Senate President' => 'The Senate President leads the chief legislative authority of the SRC, empowered to enact laws within Valley View University regulations that serve the best interest of the Council and the Institution.'
                         ];
                         
@@ -312,8 +345,11 @@ require_once 'includes/header.php';
                                         case 'Vice President':
                                             echo 'fas fa-user-shield';
                                             break;
-                                        case 'Secretary General':
+                                        case 'Executive Secretary':
                                             echo 'fas fa-user-edit';
+                                            break;
+                                        case 'Finance Officer':
+                                            echo 'fas fa-dollar-sign';
                                             break;
                                         case 'Senate President':
                                             echo 'fas fa-user-graduate';
@@ -341,13 +377,13 @@ require_once 'includes/header.php';
                         <?php 
                         // Define department descriptions
                         $departmentDescriptions = [
-                            'Chaplain' => 'The Chaplain provides spiritual guidance and pastoral care to students. They organize religious activities, interfaith dialogues, and offer counseling services to support the spiritual wellbeing of the student community.',
-                            'Editor' => 'The Editor manages all SRC media and publications. They oversee the creation and distribution of newsletters, social media content, and other information resources to keep students informed about SRC activities and initiatives.',
-                            'Finance Officer' => 'The Finance Officer manages all financial affairs of the SRC, including budgeting, expenditure tracking, and financial reporting. They ensure transparent and responsible use of SRC funds.',
-                            'Public Relations Officer (P.R.O)' => 'The Public Relations Officer is responsible for managing the public image of the SRC. They handle external communications, media relations, and promote SRC activities to the broader community.',
-                            'Sports Commissioner' => 'The Sports Commissioner promotes sports and recreational activities on campus, coordinates sporting events, and represents the interests of student athletes. They work to enhance sports facilities and programs.',
-                            'Welfare Officer' => 'The Welfare Officer focuses on student well-being, health, and safety. They address accommodation issues, mental health support, and general welfare concerns to ensure a positive student experience.',
-                            'Womens\' Commissioner' => 'The Women\'s Commissioner advocates for gender equality and women\'s rights on campus. They address issues affecting female students and create awareness programs to promote gender equality.'
+                            'Editor' => 'The Editor manages all SRC media and publications, oversees content creation and distribution, and ensures effective communication with the student body through newsletters, social media, and digital platforms.',
+                            'Organizing Secretary' => 'The Organizing Secretary coordinates and manages all SRC events, activities, and programs to ensure successful implementation and student engagement, handling logistics and resource allocation.',
+                            'Welfare Officer' => 'The Welfare Officer focuses on student well-being, health, and safety, addressing accommodation issues, mental health support, and general welfare concerns to ensure a positive student experience.',
+                            'Women\'s Commissioner' => 'The Women\'s Commissioner advocates for gender equality and women\'s rights on campus, addresses issues affecting female students and creates awareness programs to promote gender equality and women\'s empowerment.',
+                            'Sports Commissioner' => 'The Sports Commissioner promotes sports and recreational activities on campus, coordinates sporting events and tournaments, and represents the interests of student athletes while advocating for improved sports facilities.',
+                            'Chaplain' => 'The Chaplain provides spiritual guidance and pastoral care to students, organizes religious activities and interfaith dialogues, and offers counseling services to support the spiritual wellbeing of the student community.',
+                            'Public Relations Officer' => 'The Public Relations Officer manages the public image of the SRC, handles external communications and media relations, and promotes SRC activities to the broader community while building stakeholder relationships.'
                         ];
                         
                         // Animation delay counter
@@ -570,6 +606,8 @@ require_once 'includes/header.php';
 .org-chart-container {
     margin: 40px 0;
     overflow-x: auto;
+    overflow-y: visible;
+    min-height: 500px;
 }
 
 .org-chart {
@@ -578,6 +616,8 @@ require_once 'includes/header.php';
     text-align: center;
     position: relative;
     padding: 20px 0;
+    min-height: 450px;
+    overflow: visible;
 }
 
 .org-box {
@@ -589,7 +629,8 @@ require_once 'includes/header.php';
     transition: all 0.3s;
     border: 2px solid rgba(var(--primary-color-rgb), 0.2);
     position: relative;
-    z-index: 2;
+    z-index: 10;
+    overflow: visible;
 }
 
 .org-box:hover {
@@ -691,18 +732,24 @@ require_once 'includes/header.php';
     flex-wrap: wrap;
     position: relative;
     z-index: 2;
-    gap: 15px;
-    max-width: 1100px;
+    gap: 20px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 60px 20px 40px 20px;
+    min-height: 500px;
 }
 
 .executive-position, .department {
     width: 200px;
-    height: 170px;
+    height: 180px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 10;
+    margin: 20px 15px;
+    flex-shrink: 0;
 }
 
 .org-chart-main-connector {
@@ -751,6 +798,7 @@ require_once 'includes/header.php';
     top: -40px;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 1;
 }
 
 /* Department Cards Styling */
@@ -959,6 +1007,112 @@ require_once 'includes/header.php';
     color: var(--primary-color);
     font-weight: 500;
     margin-bottom: 10px;
+}
+
+/* Mobile navbar size increase and spacing adjustments for about page */
+@media (max-width: 768px) {
+    .about-page .navbar {
+        height: 70px !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .about-page .navbar .navbar-brand {
+        font-size: 1.3rem !important;
+    }
+    
+    .about-page .navbar .system-icon {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .about-page .navbar .btn {
+        font-size: 1.1rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    .about-page .navbar .site-name {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .about-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .about-page .header {
+        margin-top: 10px !important; /* 70px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 480px) {
+    .about-page .navbar {
+        height: 65px !important;
+        padding: 0.6rem 0.8rem !important;
+    }
+    
+    .about-page .navbar .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+    
+    .about-page .navbar .system-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .about-page .navbar .btn {
+        font-size: 1rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .about-page .navbar .site-name {
+        font-size: 1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .about-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .about-page .header {
+        margin-top: 15px !important; /* 65px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 375px) {
+    .about-page .navbar {
+        height: 60px !important;
+        padding: 0.5rem 0.7rem !important;
+    }
+    
+    .about-page .navbar .navbar-brand {
+        font-size: 1.1rem !important;
+    }
+    
+    .about-page .navbar .system-icon {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .about-page .navbar .btn {
+        font-size: 0.95rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+    
+    .about-page .navbar .site-name {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .about-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .about-page .header {
+        margin-top: 90px !important; /* 60px navbar + 30px spacing */
+    }
 }
 </style>
 

@@ -1,7 +1,17 @@
 <?php
-// Include required files
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -122,6 +132,9 @@ if (isset($_POST['add_minutes'])) {
     
     if ($insertId) {
         $_SESSION['success'] = "Meeting minutes added successfully.";
+
+        // Send notification to members and admins about new meeting minutes
+        autoNotifyMinutesCreated($title, $date, $createdBy, $insertId);
     } else {
         // Delete the file if database insert failed
         if ($filePath && file_exists($uploadsDir . '/' . $filePath)) {
@@ -281,8 +294,8 @@ if (isset($_POST['edit_minutes'])) {
 if (isset($_GET['action']) && $_GET['action'] === 'download' && isset($_GET['id'])) {
     $minutesId = intval($_GET['id']);
     
-    // Check permission
-    if (!hasPermission('read', 'minutes')) {
+    // Check permission (include super admin)
+    if (!(shouldUseAdminInterface() || isMember())) {
         $_SESSION['error'] = "You don't have permission to download minutes.";
         header("Location: minutes.php");
         exit();
@@ -328,8 +341,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'download' && isset($_GET['id'
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $minutesId = intval($_GET['id']);
     
-    // Check permission
-    if (!hasPermission('delete', 'minutes')) {
+    // Check permission (include super admin)
+    if (!shouldUseAdminInterface()) {
         $_SESSION['error'] = "You don't have permission to delete minutes.";
         header("Location: minutes.php");
         exit();

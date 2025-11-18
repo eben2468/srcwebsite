@@ -1,9 +1,36 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../db_functions.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/profile_picture_helpers.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_functions.php';
+/**
+ * Helper function to check if a profile picture file exists and is valid
+ * @param string $filename The profile picture filename
+ * @return string|null Path to the profile picture if it exists, null otherwise
+ */
+// Legacy function - now using profile_picture_helpers.php
+function getValidProfilePicturePath($filename) {
+    if (empty($filename)) {
+        return null;
+    }
+    
+    // Check in the primary location
+    if (file_exists("../images/profiles/" . $filename)) {
+        return "../images/profiles/" . $filename;
+    }
+    
+    // Check in the legacy location
+    if (file_exists("../../uploads/profile_pictures/" . $filename)) {
+        return "../../uploads/profile_pictures/" . $filename;
+    }
+    
+    return null;
+}
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -12,8 +39,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Check if user is admin
-if (!isAdmin()) {
+// Check if user is super admin (only super admins can access users page)
+if (!isSuperAdmin()) {
     header("Location: dashboard.php");
     exit();
 }
@@ -30,6 +57,9 @@ $pageTitle = "Users - SRC Management System";
 // Include header
 require_once 'includes/header.php';
 
+// Add mobile optimization CSS for users page
+echo '<link rel="stylesheet" href="../css/users-mobile-optimization.css">';
+
 // Track page view
 if (function_exists('trackPageView')) {
     trackPageView($pageTitle);
@@ -37,7 +67,7 @@ if (function_exists('trackPageView')) {
 
 // Get current user info
 $user = getCurrentUser();
-$isAdmin = isAdmin();
+$isSuperAdmin = isSuperAdmin();
 
 // Process actions
 $message = '';
@@ -96,15 +126,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Get form data
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
-    $username = trim($_POST['username']);
     $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
     $password = $_POST['password'];
     $confirmPassword = $_POST['confirm_password'];
     $role = $_POST['role'];
     $status = $_POST['status'];
     
     // Validate required fields
-    if (empty($firstName) || empty($lastName) || empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
+    if (empty($firstName) || empty($lastName) || empty($email) || empty($phone) || empty($password) || empty($confirmPassword)) {
         $message = "All fields are required.";
         $messageType = "danger";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -117,38 +147,55 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = "Password must be at least 8 characters long.";
         $messageType = "danger";
     } else {
-        // Check if username already exists
-        $checkUsernameSql = "SELECT COUNT(*) as count FROM users WHERE username = ?";
-        $result = fetchOne($checkUsernameSql, [$username]);
+        // Check if email already exists
+        $checkEmailSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
+        $result = fetchOne($checkEmailSql, [$email]);
         
         if ($result && $result['count'] > 0) {
-            $message = "Username already exists. Please choose a different username.";
+            $message = "Email already exists. Please use a different email address.";
             $messageType = "danger";
         } else {
-            // Check if email already exists
-            $checkEmailSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
-            $result = fetchOne($checkEmailSql, [$email]);
-            
-            if ($result && $result['count'] > 0) {
-                $message = "Email already exists. Please use a different email address.";
-                $messageType = "danger";
-            } else {
-                // Hash password
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                
-                // Insert new user
-                $insertSql = "INSERT INTO users (username, password, email, first_name, last_name, role, status, created_at, updated_at) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-                
-                $params = [$username, $hashedPassword, $email, $firstName, $lastName, $role, $status];
-                
-                if (executeQuery($insertSql, $params)) {
-                    $message = "User created successfully.";
-                    $messageType = "success";
-                } else {
-                    $message = "Failed to create user. Please try again.";
-                    $messageType = "danger";
+            // Hash password
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+            // Generate username from email (part before @)
+            $username = strtolower(explode('@', $email)[0]);
+
+            // Check if username already exists and make it unique if needed
+            $originalUsername = $username;
+            $counter = 1;
+            while (true) {
+                $checkUsernameSql = "SELECT COUNT(*) as count FROM users WHERE username = ?";
+                $result = fetchOne($checkUsernameSql, [$username]);
+
+                if (!$result || $result['count'] == 0) {
+                    break; // Username is available
                 }
+
+                // Username exists, try with a number suffix
+                $username = $originalUsername . $counter;
+                $counter++;
+            }
+
+            // Insert new user
+            $insertSql = "INSERT INTO users (username, email, password, first_name, last_name, phone, role, status, created_at, updated_at)
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+
+            $params = [$username, $email, $hashedPassword, $firstName, $lastName, $phone, $role, $status];
+            
+            if (executeQuery($insertSql, $params)) {
+                // Get the new user ID
+                $userId = mysqli_insert_id($conn);
+                
+                // Create user profile
+                $profileSql = "INSERT INTO user_profiles (user_id, full_name, phone, created_at) VALUES (?, ?, ?, NOW())";
+                insert($profileSql, [$userId, $firstName . ' ' . $lastName, $phone]);
+                
+                $message = "User created successfully.";
+                $messageType = "success";
+            } else {
+                $message = "Failed to create user. Please try again.";
+                $messageType = "danger";
             }
         }
     }
@@ -160,26 +207,26 @@ $roleFilter = isset($_GET['role']) ? trim($_GET['role']) : '';
 $statusFilter = isset($_GET['status']) ? trim($_GET['status']) : '';
 
 // Build query
-$sql = "SELECT * FROM users WHERE 1=1";
+$sql = "SELECT u.*, p.phone FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE 1=1";
 $params = [];
 
 if (!empty($search)) {
-    $sql .= " AND (first_name LIKE ? OR last_name LIKE ? OR username LIKE ? OR email LIKE ?)";
+    $sql .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)";
     $searchTerm = "%$search%";
     $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
 }
 
 if (!empty($roleFilter)) {
-    $sql .= " AND role = ?";
+    $sql .= " AND u.role = ?";
     $params[] = $roleFilter;
 }
 
 if (!empty($statusFilter)) {
-    $sql .= " AND status = ?";
+    $sql .= " AND u.status = ?";
     $params[] = $statusFilter;
 }
 
-$sql .= " ORDER BY created_at DESC";
+$sql .= " ORDER BY u.created_at DESC";
 
 // Get users from database
 $users = fetchAll($sql, $params);
@@ -187,64 +234,115 @@ $users = fetchAll($sql, $params);
 
 <!-- Page Content -->
 <div class="container-fluid">
-<?php if (!empty($message)): ?>
-<div class="alert alert-<?php echo $messageType; ?> alert-dismissible fade show" role="alert">
-    <?php echo $message; ?>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-<?php endif; ?>
+    <script>
+        document.body.classList.add('users-page');
+    </script>
 
-    <?php 
-    // Define page title, icon, and actions for the enhanced header
-    $pageTitle = "Users";
-    $pageIcon = "fa-users";
-    $actions = [];
-    
-    if ($isAdmin || $isMember || isset($canManageUsers)) {
-        $actions[] = [
-            'url' => '#',
-            'icon' => 'fa-plus',
-            'text' => 'Add New',
-            'class' => 'btn-primary',
-            'attributes' => 'data-bs-toggle="modal" data-bs-target="#createUserModal"'
-        ];
-    }
-    
-    // Include the enhanced page header
-    include_once 'includes/enhanced_page_header.php';
-    ?>
+    <!-- Custom Users Header -->
+    <div class="users-header animate__animated animate__fadeInDown">
+        <div class="users-header-content">
+            <div class="users-header-main">
+                <h1 class="users-title">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </h1>
+                <p class="users-description">Manage system users, roles, and permissions</p>
+            </div>
+            <!-- User Management Actions - Only for Super Admin -->
+            <?php if ($isSuperAdmin): ?>
+            <div class="users-header-actions">
+                <a href="create_user.php" class="btn btn-header-action" title="Add New User">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add User</span>
+                </a>
+                <a href="bulk-users.php" class="btn btn-header-action" title="Bulk User Actions">
+                    <i class="fas fa-tasks"></i>
+                    <span>Bulk Actions</span>
+                </a>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+
+
+    <?php if (!empty($message)): ?>
+    <div class="alert alert-<?php echo $messageType; ?> alert-dismissible fade show" role="alert">
+        <?php echo $message; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php endif; ?>
+
 
 <!-- Filters and Search -->
-<div class="content-card animate-fadeIn mb-4">
+<div class="content-card filter-card animate-fadeIn mb-4">
+    <div class="content-card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>Search & Filter Users
+        </h5>
+    </div>
     <div class="content-card-body">
-        <form method="GET" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-            <div class="row g-3">
-                <div class="col-md-4">
+        <form method="GET" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="users-filter-form">
+            <div class="row g-3 align-items-end">
+                <!-- Search Input -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <label for="search" class="form-label d-none d-md-block">Search</label>
                     <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" name="search" placeholder="Search users..." value="<?php echo htmlspecialchars($search); ?>">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="search"
+                            name="search" 
+                            placeholder="Search users by name, email, or phone..." 
+                            value="<?php echo htmlspecialchars($search); ?>"
+                            aria-label="Search users"
+                        >
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="role">
+
+                <!-- Role Filter -->
+                <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+                    <label for="role" class="form-label d-none d-md-block">Role</label>
+                    <select class="form-select" id="role" name="role" aria-label="Filter by role">
                         <option value="">All Roles</option>
-                        <option value="admin" <?php echo $roleFilter === 'admin' ? 'selected' : ''; ?>>Administrator</option>
+                        <option value="super_admin" <?php echo $roleFilter === 'super_admin' ? 'selected' : ''; ?>>Super Admin</option>
+                        <option value="admin" <?php echo $roleFilter === 'admin' ? 'selected' : ''; ?>>Admin</option>
                         <option value="member" <?php echo $roleFilter === 'member' ? 'selected' : ''; ?>>Member</option>
+                        <option value="finance" <?php echo $roleFilter === 'finance' ? 'selected' : ''; ?>>Finance</option>
                         <option value="student" <?php echo $roleFilter === 'student' ? 'selected' : ''; ?>>Student</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <select class="form-select" name="status">
+
+                <!-- Status Filter -->
+                <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+                    <label for="status" class="form-label d-none d-md-block">Status</label>
+                    <select class="form-select" id="status" name="status" aria-label="Filter by status">
                         <option value="">All Statuses</option>
                         <option value="Active" <?php echo $statusFilter === 'Active' ? 'selected' : ''; ?>>Active</option>
                         <option value="Inactive" <?php echo $statusFilter === 'Inactive' ? 'selected' : ''; ?>>Inactive</option>
                         <option value="Suspended" <?php echo $statusFilter === 'Suspended' ? 'selected' : ''; ?>>Suspended</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-secondary w-100">
-                        <i class="fas fa-filter me-1"></i> Filter
+
+                <!-- Filter Button -->
+                <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+                    <button type="submit" class="btn btn-outline-secondary w-100" aria-label="Apply filters">
+                        <i class="fas fa-filter me-1"></i>
+                        <span class="d-none d-md-inline">Filter</span>
+                        <span class="d-inline d-md-none">Apply</span>
                     </button>
+                </div>
+
+                <!-- Clear Button -->
+                <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+                    <a href="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="btn btn-outline-secondary w-100" aria-label="Clear all filters">
+                        <i class="fas fa-times me-1"></i>
+                        <span class="d-none d-md-inline">Clear</span>
+                        <span class="d-inline d-md-none">Reset</span>
+                    </a>
                 </div>
             </div>
         </form>
@@ -252,198 +350,389 @@ $users = fetchAll($sql, $params);
 </div>
 
 <!-- Users Table -->
-<div class="content-card animate-fadeIn">
+<div class="content-card animate-fadeIn" role="region" aria-label="Users list">
     <div class="content-card-header">
-        <h5 class="mb-0">All Users</h5>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>All Users
+            </h5>
+            <span class="badge bg-secondary">
+                <?php echo count($users); ?> Users
+            </span>
+        </div>
     </div>
-    <div class="content-card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
+    <div class="content-card-body p-0">
+        <!-- Desktop Table View -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-striped table-hover align-middle mb-0" id="usersTable" role="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Actions</th>
+                        <th scope="col" class="ps-4">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col" class="d-none d-lg-table-cell">Phone</th>
+                        <th scope="col">Role</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="d-none d-xl-table-cell">Created</th>
+                        <th scope="col" class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if ($users && count($users) > 0): ?>
-                        <?php foreach ($users as $user_item): ?>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <?php if (!empty($user_item['profile_picture']) && file_exists('../images/profiles/' . $user_item['profile_picture'])): ?>
-                                        <img src="../images/profiles/<?php echo htmlspecialchars($user_item['profile_picture']); ?>" 
-                                             class="rounded-circle me-2" 
-                                             style="width: 32px; height: 32px; object-fit: cover;" 
-                                             alt="Profile Picture">
-                                    <?php else: ?>
-                                        <i class="fas fa-user-circle me-2 text-secondary" style="font-size: 1.2rem;"></i>
-                                    <?php endif; ?>
-                                    <?php echo htmlspecialchars($user_item['first_name'] . ' ' . $user_item['last_name']); ?>
+                    <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <?php
+                                // Display profile picture using helper function
+                                echo displayProfilePicture($user, 'pages_php', [
+                                    'width' => 40,
+                                    'height' => 40,
+                                    'class' => 'rounded-circle'
+                                ]);
+                                ?>
+                                <div>
+                                    <strong><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></strong>
+                                    <br>
+                                    <small class="text-muted">ID: <?php echo $user['user_id']; ?></small>
                                 </div>
-                            </td>
-                            <td><?php echo htmlspecialchars($user_item['username']); ?></td>
-                            <td><?php echo htmlspecialchars($user_item['email']); ?></td>
-                            <td>
-                                <span class="badge bg-<?php 
-                                    echo $user_item['role'] === 'admin' ? 'danger' : 
-                                        ($user_item['role'] === 'member' ? 'primary' : 'info'); 
-                                ?>">
-                                    <?php echo $user_item['role'] === 'admin' ? 'Administrator' : 
-                                        ($user_item['role'] === 'member' ? 'Member' : 'Student'); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-<?php 
-                                    echo $user_item['status'] === 'Active' ? 'success' : 
-                                        ($user_item['status'] === 'Inactive' ? 'secondary' : 'warning'); 
-                                ?>">
-                                    <?php echo htmlspecialchars($user_item['status']); ?>
-                                </span>
-                            </td>
-                            <td><?php echo date('Y-m-d', strtotime($user_item['created_at'])); ?></td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton<?php echo $user_item['user_id']; ?>" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Actions
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton<?php echo $user_item['user_id']; ?>">
-                                        <li><a class="dropdown-item" href="user-edit.php?id=<?php echo $user_item['user_id']; ?>"><i class="fas fa-edit me-2"></i>Edit</a></li>
-                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#resetPasswordModal" data-user-id="<?php echo $user_item['user_id']; ?>" data-user-name="<?php echo htmlspecialchars($user_item['first_name'] . ' ' . $user_item['last_name']); ?>"><i class="fas fa-key me-2"></i>Reset Password</a></li>
-                                        
-                                        <?php if ($user_item['status'] === 'Active'): ?>
-                                            <li><a class="dropdown-item" href="users.php?id=<?php echo $user_item['user_id']; ?>&status=Inactive" onclick="return confirm('Are you sure you want to deactivate this user?')"><i class="fas fa-user-slash me-2"></i>Deactivate</a></li>
-                                        <?php elseif ($user_item['status'] === 'Inactive'): ?>
-                                            <li><a class="dropdown-item" href="users.php?id=<?php echo $user_item['user_id']; ?>&status=Active" onclick="return confirm('Are you sure you want to activate this user?')"><i class="fas fa-user-check me-2"></i>Activate</a></li>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($user_item['status'] !== 'Suspended'): ?>
-                                            <li><a class="dropdown-item" href="users.php?id=<?php echo $user_item['user_id']; ?>&status=Suspended" onclick="return confirm('Are you sure you want to suspend this user?')"><i class="fas fa-ban me-2"></i>Suspend</a></li>
-                                        <?php else: ?>
-                                            <li><a class="dropdown-item" href="users.php?id=<?php echo $user_item['user_id']; ?>&status=Active" onclick="return confirm('Are you sure you want to unsuspend this user?')"><i class="fas fa-user-check me-2"></i>Unsuspend</a></li>
-                                        <?php endif; ?>
-                                        
-                                        <?php if ($user['user_id'] != $user_item['user_id']): ?>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item text-danger" href="users.php?delete=<?php echo $user_item['user_id']; ?>" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')"><i class="fas fa-trash me-2"></i>Delete</a></li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="7" class="text-center py-4">No users found</td>
-                        </tr>
-                    <?php endif; ?>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:<?php echo htmlspecialchars($user['email']); ?>" class="text-decoration-none">
+                                <?php echo htmlspecialchars($user['email']); ?>
+                            </a>
+                        </td>
+                        <td class="d-none d-lg-table-cell">
+                            <small><?php echo htmlspecialchars($user['phone'] ?? 'Not provided'); ?></small>
+                        </td>
+                        <td>
+                            <span class="badge bg-<?php
+                                echo $user['role'] === 'super_admin' ? 'dark' :
+                                    ($user['role'] === 'admin' ? 'danger' :
+                                    ($user['role'] === 'member' ? 'primary' :
+                                    ($user['role'] === 'finance' ? 'success' : 'secondary')));
+                            ?>">
+                                <?php echo $user['role'] === 'super_admin' ? 'ADMIN' : strtoupper($user['role']); ?>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-<?php 
+                                echo $user['status'] === 'Active' || $user['status'] === 'active' ? 'success' : 
+                                    ($user['status'] === 'Inactive' || $user['status'] === 'inactive' ? 'warning' : 'danger'); 
+                            ?>">
+                                <?php echo ucfirst($user['status']); ?>
+                            </span>
+                        </td>
+                        <td class="d-none d-xl-table-cell">
+                            <small class="text-muted"><?php echo date('M j, Y', strtotime($user['created_at'])); ?></small>
+                        </td>
+                        <td class="text-center">
+                            <!-- User Actions - Only for Super Admin -->
+                            <?php if ($isSuperAdmin): ?>
+                            <div class="btn-group" role="group" aria-label="User actions">
+                                <a href="user-edit.php?id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit User" aria-label="Edit <?php echo htmlspecialchars($user['first_name']); ?>">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+
+                                <?php if ($user['status'] === 'Active' || $user['status'] === 'active'): ?>
+                                <a href="?status=Inactive&id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-warning" title="Deactivate User" aria-label="Deactivate user" onclick="return confirm('Are you sure you want to deactivate this user?')">
+                                    <i class="fas fa-ban"></i>
+                                </a>
+                                <?php else: ?>
+                                <a href="?status=Active&id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-success" title="Activate User" aria-label="Activate user" onclick="return confirm('Are you sure you want to activate this user?')">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                                <?php endif; ?>
+
+                                <?php if ($user['user_id'] != $currentUser['user_id']): ?>
+                                <a href="?delete=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-danger" title="Delete User" aria-label="Delete user" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php else: ?>
+                            <div class="text-muted">
+                                <small><i class="fas fa-lock me-1"></i>Super Admin Only</small>
+                            </div>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="d-block d-md-none">
+            <?php if (empty($users)): ?>
+            <div class="text-center py-5 px-3">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem; display: block;"></i>
+                <h5 class="text-muted">No Users Found</h5>
+                <p class="text-muted">Try adjusting your search or filter criteria.</p>
+            </div>
+            <?php else: ?>
+            <?php foreach ($users as $user): ?>
+            <div class="user-card">
+                <div class="user-card-header">
+                    <div class="d-flex align-items-center gap-3" style="flex: 1; min-width: 0;">
+                        <!-- Profile Picture -->
+                        <div style="flex-shrink: 0; width: 50px; height: 50px;">
+                            <?php
+                            // Display profile picture using helper function
+                            echo displayProfilePicture($user, 'pages_php', [
+                                'width' => 50,
+                                'height' => 50,
+                                'class' => 'rounded-circle'
+                            ]);
+                            ?>
+                        </div>
+                        <!-- User Info -->
+                        <div style="flex: 1; min-width: 0;">
+                            <h6 class="mb-1" style="font-size: 1.1rem; font-weight: 600; color: #2c3e50; margin: 0; word-break: break-word;">
+                                <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
+                            </h6>
+                            <small class="text-muted" style="display: block; margin: 0;">
+                                <i class="fas fa-id-card me-1"></i>ID: <?php echo $user['user_id']; ?>
+                            </small>
+                        </div>
+                    </div>
+                    <!-- Badges -->
+                    <div class="user-badges" style="flex-shrink: 0; text-align: right;">
+                        <span class="badge bg-<?php
+                            echo $user['role'] === 'super_admin' ? 'dark' :
+                                ($user['role'] === 'admin' ? 'danger' :
+                                ($user['role'] === 'member' ? 'primary' :
+                                ($user['role'] === 'finance' ? 'success' : 'secondary')));
+                        ?>" style="white-space: nowrap; display: inline-block;">
+                            <?php echo $user['role'] === 'super_admin' ? 'ADMIN' : strtoupper($user['role']); ?>
+                        </span>
+                        <br>
+                        <span class="badge bg-<?php 
+                            echo $user['status'] === 'Active' || $user['status'] === 'active' ? 'success' : 
+                                ($user['status'] === 'Inactive' || $user['status'] === 'inactive' ? 'warning' : 'danger'); 
+                        ?>" style="white-space: nowrap; display: inline-block;">
+                            <?php echo strtoupper($user['status']); ?>
+                        </span>
+                    </div>
+                </div>
+                <div class="user-card-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <strong>
+                                <i class="fas fa-envelope me-2" style="color: #667eea;"></i>Email
+                            </strong>
+                            <br>
+                            <small>
+                                <a href="mailto:<?php echo htmlspecialchars($user['email']); ?>" class="text-decoration-none">
+                                    <?php echo htmlspecialchars($user['email']); ?>
+                                </a>
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <strong>
+                                <i class="fas fa-phone me-2" style="color: #667eea;"></i>Phone
+                            </strong>
+                            <br>
+                            <small><?php echo htmlspecialchars($user['phone'] ?? 'Not provided'); ?></small>
+                        </div>
+                        <div class="col-6">
+                            <strong>
+                                <i class="fas fa-calendar me-2" style="color: #667eea;"></i>Created
+                            </strong>
+                            <br>
+                            <small><?php echo date('M j, Y', strtotime($user['created_at'])); ?></small>
+                        </div>
+                    </div>
+                </div>
+                <?php if ($isSuperAdmin): ?>
+                <div class="user-card-actions">
+                    <a href="user-edit.php?id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit User" aria-label="Edit user">
+                        <i class="fas fa-edit"></i>
+                        <span class="d-none d-sm-inline ms-1">Edit</span>
+                    </a>
+                    <?php if ($user['status'] === 'Active' || $user['status'] === 'active'): ?>
+                    <a href="?status=Inactive&id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-warning" aria-label="Deactivate user" onclick="return confirm('Are you sure you want to deactivate this user?')">
+                        <i class="fas fa-ban"></i>
+                        <span class="d-none d-sm-inline ms-1">Deactivate</span>
+                    </a>
+                    <?php else: ?>
+                    <a href="?status=Active&id=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-success" aria-label="Activate user" onclick="return confirm('Are you sure you want to activate this user?')">
+                        <i class="fas fa-check"></i>
+                        <span class="d-none d-sm-inline ms-1">Activate</span>
+                    </a>
+                    <?php endif; ?>
+                    <?php if ($user['user_id'] != $currentUser['user_id']): ?>
+                    <a href="?delete=<?php echo $user['user_id']; ?>" class="btn btn-sm btn-outline-danger" aria-label="Delete user" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                        <i class="fas fa-trash"></i>
+                        <span class="d-none d-sm-inline ms-1">Delete</span>
+                    </a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <!-- Create User Modal -->
-<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="createUserModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Create New User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="createUserForm" class="needs-validation">
+                    <!-- First & Last Name Row -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">
+                                <i class="fas fa-user me-1" style="color: #667eea;"></i>First Name
+                            </label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required aria-required="true">
+                            <div class="invalid-feedback">First name is required.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">
+                                <i class="fas fa-user me-1" style="color: #667eea;"></i>Last Name
+                            </label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required aria-required="true">
+                            <div class="invalid-feedback">Last name is required.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-1" style="color: #667eea;"></i>Email Address
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required aria-required="true">
+                        <div class="invalid-feedback">Please provide a valid email address.</div>
+                    </div>
+                    
+                    <!-- Phone -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone me-1" style="color: #667eea;"></i>Phone Number
+                        </label>
+                        <input type="tel" class="form-control" id="phone" name="phone" required aria-required="true" placeholder="0241234567 or +233241234567">
+                        <small class="text-muted">Format: 0241234567 or +233241234567</small>
+                        <div class="invalid-feedback">Phone number is required.</div>
+                    </div>
+                    
+                    <!-- Password Row -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1" style="color: #667eea;"></i>Password
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required aria-required="true" minlength="8">
+                            <div class="form-text">Must be at least 8 characters long.</div>
+                            <div class="invalid-feedback">Password is required.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="confirm_password" class="form-label">
+                                <i class="fas fa-lock me-1" style="color: #667eea;"></i>Confirm Password
+                            </label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required aria-required="true" minlength="8">
+                            <div class="invalid-feedback">Please confirm your password.</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Role & Status Row -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-user-shield me-1" style="color: #667eea;"></i>Role
+                            </label>
+                            <select class="form-select" id="role" name="role" required aria-required="true">
+                                <option value="">Select a role</option>
+                                <option value="super_admin">Super Admin</option>
+                                <option value="admin">Admin</option>
+                                <option value="member">Member</option>
+                                <option value="finance">Finance</option>
+                                <option value="student" selected>Student</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a role.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">
+                                <i class="fas fa-toggle-on me-1" style="color: #667eea;"></i>Status
+                            </label>
+                            <select class="form-select" id="status" name="status" required aria-required="true">
+                                <option value="">Select a status</option>
+                                <option value="Active" selected>Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Suspended">Suspended</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a status.</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="createUserForm" class="btn btn-primary">
+                    <i class="fas fa-check me-2"></i>Create User
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel">Add New User</h5>
+                <h5 class="modal-title" id="resetPasswordModalLabel">
+                    <i class="fas fa-key me-2" style="color: #667eea;"></i>Reset Password
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <form method="POST" action="user_handler.php" id="resetPasswordForm" class="needs-validation">
+                <input type="hidden" name="action" value="reset_password">
+                <input type="hidden" name="user_id" id="reset_user_id">
                 <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="first_name" class="form-label">First Name</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="last_name" class="form-label">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required>
-                        </div>
+                    <p class="mb-3">
+                        You are about to reset the password for <strong id="reset_user_name" style="color: #667eea;"></strong>.
+                    </p>
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        The new password must be at least 8 characters long.
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="new_password" class="form-label">
+                            <i class="fas fa-lock me-1" style="color: #667eea;"></i>New Password
+                        </label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required aria-required="true" minlength="8">
+                        <div class="invalid-feedback">Password must be at least 8 characters.</div>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required minlength="8">
-                            <div class="form-text">At least 8 characters</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="role" class="form-label">Role</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="student">Student</option>
-                                <option value="member">Member</option>
-                                <option value="admin">Administrator</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="Active">Active</option>
-                                <option value="Inactive">Inactive</option>
-                            </select>
-                        </div>
+                        <label for="confirm_new_password" class="form-label">
+                            <i class="fas fa-lock me-1" style="color: #667eea;"></i>Confirm New Password
+                        </label>
+                        <input type="password" class="form-control" id="confirm_new_password" name="confirm_password" required aria-required="true" minlength="8">
+                        <div class="invalid-feedback">Please confirm your password.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>Reset Password
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Reset Password Modal -->
-<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resetPasswordModalLabel">Reset Password</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="user_handler.php">
-                <input type="hidden" name="action" value="reset_password">
-                <input type="hidden" name="user_id" id="reset_user_id">
-                <div class="modal-body">
-                    <p>You are about to reset the password for <strong id="reset_user_name"></strong>.</p>
-                    <div class="mb-3">
-                        <label for="new_password" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="new_password" name="new_password" required minlength="8">
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirm_new_password" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirm_new_password" name="confirm_password" required minlength="8">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Reset Password</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+<!-- Mobile optimization script -->
+<script src="../js/users-mobile-test.js"></script>
 
 <!-- Add this before the closing body tag -->
 <script>

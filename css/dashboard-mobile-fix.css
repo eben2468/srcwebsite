@@ -1,0 +1,464 @@
+/**
+ * VVUSRC Dashboard Mobile Responsive Fixes
+ * Optimizes dashboard layout for mobile devices, especially iPhone SE (375x667)
+ */
+
+/* Base Mobile Dashboard Styles */
+@media (max-width: 991px) {
+    /* Dashboard page specific adjustments */
+    .page-dashboard {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .page-dashboard .main-content {
+        padding: 16px 12px !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-height: calc(100vh - 60px) !important;
+    }
+    
+    .page-dashboard .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Dashboard header mobile optimization */
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        padding: 2rem 1.5rem !important;
+        border-radius: 10px !important;
+        margin-top: 20px !important;
+        margin-bottom: 1.5rem !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+        text-align: center !important;
+    }
+    
+    .dashboard-header-content {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem !important;
+        font-weight: 700 !important;
+        margin: 0 0 0.75rem 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.6rem !important;
+    }
+    
+    .dashboard-title i {
+        font-size: 1.8rem !important;
+        opacity: 0.9 !important;
+    }
+    
+    .dashboard-description {
+        margin: 0 !important;
+        opacity: 0.95 !important;
+        font-size: 1.1rem !important;
+        font-weight: 400 !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Stats cards mobile optimization */
+    .dashboard-stats {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem !important;
+        padding: 0 !important;
+    }
+    
+    .stat-card {
+        background: white !important;
+        border-radius: 10px !important;
+        padding: 1.5rem !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e9ecef !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        text-align: center !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    .stat-card-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .stat-card-title {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+        margin: 0 !important;
+    }
+    
+    .stat-card-icon {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.2rem !important;
+    }
+    
+    .stat-card-icon.primary { background: rgba(13, 110, 253, 0.1) !important; color: #0d6efd !important; }
+    .stat-card-icon.success { background: rgba(25, 135, 84, 0.1) !important; color: #198754 !important; }
+    .stat-card-icon.warning { background: rgba(255, 193, 7, 0.1) !important; color: #ffc107 !important; }
+    .stat-card-icon.info { background: rgba(13, 202, 240, 0.1) !important; color: #0dcaf0 !important; }
+    .stat-card-icon.danger { background: rgba(220, 53, 69, 0.1) !important; color: #dc3545 !important; }
+    
+    .stat-card-value {
+        font-size: 2rem !important;
+        font-weight: 700 !important;
+        color: #212529 !important;
+        margin: 0.5rem 0 !important;
+        line-height: 1 !important;
+    }
+    
+    .stat-card-link {
+        color: #6c757d !important;
+        text-decoration: none !important;
+        font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        transition: color 0.2s ease !important;
+    }
+    
+    .stat-card-link:hover {
+        color: #0d6efd !important;
+        text-decoration: none !important;
+    }
+    
+    /* Dashboard sections mobile optimization */
+    .dashboard-section {
+        margin-bottom: 1.5rem !important;
+        padding: 0 !important;
+    }
+    
+    .dashboard-section .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .dashboard-section .col,
+    .dashboard-section [class*="col-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Content cards mobile optimization */
+    .content-card {
+        background: white !important;
+        border-radius: 10px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e9ecef !important;
+        margin-bottom: 1.5rem !important;
+        overflow: hidden !important;
+    }
+    
+    .content-card-header {
+        background: #f8f9fa !important;
+        border-bottom: 1px solid #e9ecef !important;
+        padding: 1.25rem !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    
+    .content-card-title {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: #212529 !important;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+    
+    .content-card-title i {
+        color: #6c757d !important;
+        font-size: 1rem !important;
+    }
+    
+    .content-card-body {
+        padding: 1.25rem !important;
+    }
+    
+    .content-card-actions {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+    }
+    
+    /* Quick actions mobile optimization */
+    .quick-action-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 1rem 0.75rem !important;
+        text-decoration: none !important;
+        color: #495057 !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
+        background: #f8f9fa !important;
+        border: 1px solid #e9ecef !important;
+        margin-bottom: 0.75rem !important;
+        min-height: 80px !important;
+        text-align: center !important;
+    }
+    
+    .quick-action-btn:hover {
+        background: #e9ecef !important;
+        color: #0d6efd !important;
+        text-decoration: none !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .quick-action-btn i {
+        margin-bottom: 0.5rem !important;
+        transition: color 0.2s ease !important;
+    }
+    
+    .quick-action-btn div {
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Feature status cards mobile optimization */
+    .feature-status-card {
+        display: flex !important;
+        align-items: center !important;
+        padding: 1rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
+        transition: all 0.3s ease !important;
+        height: auto !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .feature-status-icon {
+        font-size: 1.2rem !important;
+        margin-right: 0.75rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .feature-status-info h4 {
+        margin: 0 0 0.25rem 0 !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+    }
+    
+    .status-badge {
+        display: inline-block !important;
+        padding: 2px 6px !important;
+        border-radius: 10px !important;
+        font-size: 0.7rem !important;
+        font-weight: 500 !important;
+    }
+}
+
+/* iPhone SE Specific Dashboard Optimizations (375x667) */
+@media (max-width: 375px) and (max-height: 667px) {
+    .page-dashboard .main-content {
+        padding: 12px 8px !important;
+    }
+
+    /* Dashboard header for iPhone SE */
+    .dashboard-header {
+        margin-top: 10px !important;
+        margin-bottom: 1rem !important;
+        padding: 1.5rem 1rem !important;
+        border-radius: 8px !important;
+    }
+
+    .dashboard-title {
+        font-size: 1.75rem !important;
+        margin-bottom: 0.5rem !important;
+        gap: 0.5rem !important;
+    }
+
+    .dashboard-title i {
+        font-size: 1.5rem !important;
+    }
+
+    .dashboard-description {
+        font-size: 1rem !important;
+    }
+
+    /* Stats cards for iPhone SE */
+    .dashboard-stats {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .stat-card {
+        padding: 1.25rem !important;
+        margin-bottom: 0 !important;
+    }
+
+    .stat-card-title {
+        font-size: 0.9rem !important;
+    }
+
+    .stat-card-value {
+        font-size: 1.75rem !important;
+    }
+
+    .stat-card-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.1rem !important;
+    }
+
+    /* Content sections for iPhone SE */
+    .dashboard-section {
+        margin-bottom: 1rem !important;
+    }
+
+    .content-card {
+        margin-bottom: 1rem !important;
+        border-radius: 8px !important;
+    }
+
+    .content-card-header {
+        padding: 1rem !important;
+    }
+
+    .content-card-title {
+        font-size: 1rem !important;
+    }
+
+    .content-card-body {
+        padding: 1rem !important;
+    }
+
+    /* Quick actions for iPhone SE */
+    .quick-action-btn {
+        padding: 0.75rem 0.5rem !important;
+        min-height: 70px !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .quick-action-btn i {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    .quick-action-btn div {
+        font-size: 0.8rem !important;
+    }
+
+    /* Feature status for iPhone SE */
+    .feature-status-card {
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .feature-status-icon {
+        font-size: 1.1rem !important;
+        margin-right: 0.5rem !important;
+    }
+
+    .feature-status-info h4 {
+        font-size: 0.85rem !important;
+    }
+
+    .status-badge {
+        font-size: 0.65rem !important;
+        padding: 1px 4px !important;
+    }
+}
+
+/* Very Small Phones (320px and below) */
+@media (max-width: 320px) {
+    .page-dashboard .main-content {
+        padding: 8px 6px !important;
+    }
+
+    .dashboard-header {
+        margin-top: 8px !important;
+        padding: 1rem 0.75rem !important;
+    }
+
+    .dashboard-title {
+        font-size: 1.5rem !important;
+        gap: 0.4rem !important;
+    }
+
+    .dashboard-title i {
+        font-size: 1.3rem !important;
+    }
+
+    .dashboard-description {
+        font-size: 0.9rem !important;
+    }
+
+    .dashboard-stats {
+        gap: 0.5rem !important;
+    }
+
+    .stat-card {
+        padding: 1rem !important;
+    }
+
+    .stat-card-title {
+        font-size: 0.85rem !important;
+    }
+
+    .stat-card-value {
+        font-size: 1.5rem !important;
+    }
+
+    .stat-card-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+    }
+
+    .content-card-header,
+    .content-card-body {
+        padding: 0.75rem !important;
+    }
+
+    .content-card-title {
+        font-size: 0.9rem !important;
+    }
+
+    .quick-action-btn {
+        padding: 0.5rem 0.4rem !important;
+        min-height: 60px !important;
+    }
+
+    .quick-action-btn i {
+        font-size: 1.3rem !important;
+    }
+
+    .quick-action-btn div {
+        font-size: 0.75rem !important;
+    }
+}

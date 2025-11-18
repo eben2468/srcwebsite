@@ -1,10 +1,9 @@
 <?php
-// Initialize session
-session_start();
-
-// Include authentication functions
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // If user is already logged in, redirect to dashboard
 if (isLoggedIn()) {
@@ -103,23 +102,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $headers .= "Reply-To: noreply@srcmanagementsystem.com\r\n";
                 $headers .= "X-Mailer: PHP/" . phpversion();
                 
-                // Try to send the email
-                $mailSent = mail($to, $subject, $htmlMessage, $headers);
-                
-                if ($mailSent) {
-                    $success_message = "A password reset link has been sent to your email address. The link will expire in 1 hour.";
-                } else {
-                    // If mail sending fails, still show success but also show the link in debug mode
-                    $success_message = "A password reset link has been generated. Please check your email.";
-                    error_log("Failed to send password reset email to: $email");
-                }
-                
-                // For development/testing, always display the link in debug mode
-                if (isset($_GET['debug']) && $_GET['debug'] === 'true') {
-                    $success_message .= "<br><br>Debug: <a href='" . htmlspecialchars($resetLink) . "'>Reset Link</a>";
-                    $success_message .= "<br><br>Note: If you didn't receive an email, you can use this link directly to reset your password.";
-                    $success_message .= "<br>Alternatively, ask an administrator to generate a reset link for you.";
-                }
+                // Since email server is not configured, provide alternative reset methods
+                $success_message = "Password reset request created successfully!<br><br>";
+                $success_message .= "<strong>Reset Options:</strong><br>";
+                $success_message .= "1. <strong>Direct Reset Link:</strong><br>";
+                $success_message .= "<a href='" . htmlspecialchars($resetLink) . "' class='btn btn-primary btn-sm mt-2'>Reset Password Now</a><br><br>";
+                $success_message .= "2. <strong>Contact Administrator:</strong><br>";
+                $success_message .= "Reset code: <code>" . substr($token, 0, 8) . "</code> | ";
+                $success_message .= "<a href='contact_admin_reset.php' class='btn btn-outline-warning btn-sm'>Submit Admin Request</a><br><br>";
+                $success_message .= "3. <strong>Security Questions:</strong><br>";
+                $success_message .= "<a href='security_reset.php?email=" . urlencode($email) . "' class='btn btn-outline-primary btn-sm'>Answer Security Questions</a><br><br>";
+                $success_message .= "4. <strong>Direct Reset:</strong><br>";
+                $success_message .= "<a href='direct_reset.php' class='btn btn-outline-success btn-sm'>Direct Password Reset</a><br><br>";
+                $success_message .= "<small class='text-muted'>This link will expire in 1 hour for security.</small>";
+
+                // Log the reset request for admin reference
+                error_log("Password reset requested for: $email - Token: " . substr($token, 0, 8));
             } else {
                 $error_message = "An error occurred. Please try again later.";
             }
@@ -205,50 +203,43 @@ mysqli_query($conn, $createTableSQL);
                     <div class="card-body p-5">
                         <div class="text-center mb-4">
                             <i class="fas fa-key text-primary mb-3" style="font-size: 2.5rem;"></i>
-                            <h2 class="fw-bold">Forgot Password</h2>
-                            <p class="text-muted">Enter your email to receive a password reset link</p>
+                            <h2 class="fw-bold">Password Reset Options</h2>
+                            <p class="text-muted">Choose an alternative method to reset your password</p>
                         </div>
                         
                         <?php if (!empty($success_message)): ?>
-                        <div class="alert alert-success mb-4">
+                        <div class="alert alert-success persistent-alert mb-4" role="alert">
                             <?php echo $success_message; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <?php endif; ?>
-                        
+
                         <?php if (!empty($error_message)): ?>
-                        <div class="alert alert-danger mb-4">
+                        <div class="alert alert-danger persistent-alert mb-4" role="alert">
                             <?php echo $error_message; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                         <?php endif; ?>
                         
-                        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . (isset($_GET['debug']) ? '?debug=true' : '')); ?>" novalidate>
-                            <div class="mb-4">
-                                <label for="email" class="form-label d-flex align-items-center">
-                                    <i class="fas fa-envelope me-2"></i> Email Address
-                                </label>
-                                <input 
-                                    type="email" 
-                                    class="form-control" 
-                                    id="email" 
-                                    name="email"
-                                    placeholder="Enter your registered email" 
-                                    required
-                                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
-                                >
-                                <div class="invalid-feedback">
-                                    Please enter a valid email address.
-                                </div>
+                        <!-- Email reset option removed for security reasons -->
+
+                        <!-- Alternative Reset Options -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-lightbulb me-2"></i>Alternative Reset Options:
+                            </h6>
+                            <div class="d-grid gap-2">
+                                <a href="direct_reset.php" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-unlock-alt me-2"></i>Direct Reset (No Email Required)
+                                </a>
+                                <a href="contact_admin_reset.php" class="btn btn-outline-warning btn-sm">
+                                    <i class="fas fa-user-shield me-2"></i>Contact Administrator
+                                </a>
                             </div>
-                            
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane me-2"></i> Send Reset Link
-                                </button>
-                            </div>
-                        </form>
-                        
+                        </div>
+
                         <div class="back-to-login mt-4">
-                            <a href="register.php">
+                            <a href="login.php">
                                 <i class="fas fa-arrow-left me-2"></i> Back to Login
                             </a>
                         </div>
@@ -282,5 +273,148 @@ mysqli_query($conn, $createTableSQL);
                 })
         })()
     </script>
+
+    <script>
+    // Prevent auto-dismissal of persistent alerts with multiple protection layers
+    document.addEventListener('DOMContentLoaded', function() {
+        // Protection Layer 1: Override global dismissAllAlerts function
+        const originalDismissAllAlerts = window.dismissAllAlerts;
+        window.dismissAllAlerts = function() {
+            // Only dismiss non-persistent alerts
+            const alerts = document.querySelectorAll('.alert:not(.persistent-alert), .alert-dismissible:not(.persistent-alert), .notification:not(.persistent-alert), .toast:not(.persistent-alert)');
+            alerts.forEach(alert => {
+                try {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                        const bsAlert = bootstrap.Alert.getInstance(alert) || new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    } else {
+                        const closeButton = alert.querySelector('.btn-close, .close, [data-dismiss="alert"], [data-bs-dismiss="alert"]');
+                        if (closeButton) {
+                            closeButton.click();
+                        } else {
+                            alert.style.display = 'none';
+                        }
+                    }
+                } catch (e) {
+                    console.log('Error dismissing alert:', e);
+                }
+            });
+        };
+
+        // Protection Layer 2: Disable Bootstrap Alert functionality on persistent alerts
+        document.querySelectorAll('.persistent-alert').forEach(alert => {
+            // Remove any existing Bootstrap Alert instances
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = bootstrap.Alert.getInstance(alert);
+                if (bsAlert) {
+                    bsAlert.dispose();
+                }
+            }
+
+            // Prevent new Bootstrap Alert instances from being created
+            alert.setAttribute('data-bs-dismiss-disabled', 'true');
+        });
+
+        // Protection Layer 3: Monitor and restore persistent alerts
+        const persistentAlerts = document.querySelectorAll('.persistent-alert');
+        persistentAlerts.forEach(alert => {
+            // Store original display and visibility
+            const originalDisplay = alert.style.display || 'block';
+            const originalVisibility = alert.style.visibility || 'visible';
+            const originalOpacity = alert.style.opacity || '1';
+
+            // Create a MutationObserver to watch for changes
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes') {
+                        // Restore visibility if changed
+                        if (alert.style.display === 'none') {
+                            alert.style.display = originalDisplay;
+                        }
+                        if (alert.style.visibility === 'hidden') {
+                            alert.style.visibility = originalVisibility;
+                        }
+                        if (alert.style.opacity === '0') {
+                            alert.style.opacity = originalOpacity;
+                        }
+                    }
+                });
+            });
+
+            // Start observing
+            observer.observe(alert, {
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+        });
+
+        // Protection Layer 4: Manual close functionality
+        document.querySelectorAll('.persistent-alert .btn-close').forEach(button => {
+            button.addEventListener('click', function() {
+                const alert = this.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+
+        // Protection Layer 5: Override setTimeout and setInterval for this page
+        const originalSetTimeout = window.setTimeout;
+        const originalSetInterval = window.setInterval;
+
+        window.setTimeout = function(callback, delay) {
+            if (callback.toString().includes('dismissAllAlerts') || callback.toString().includes('alert')) {
+                // Don't execute auto-dismiss timeouts
+                return;
+            }
+            return originalSetTimeout.apply(this, arguments);
+        };
+
+        window.setInterval = function(callback, delay) {
+            if (callback.toString().includes('dismissAllAlerts') || callback.toString().includes('alert')) {
+                // Don't execute auto-dismiss intervals
+                return;
+            }
+            return originalSetInterval.apply(this, arguments);
+        };
+    });
+    </script>
+
+    <style>
+        /* Persistent alert styling */
+        .persistent-alert {
+            position: relative;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid transparent;
+        }
+
+        .persistent-alert.alert-success {
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+            color: #0f5132;
+        }
+
+        .persistent-alert.alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+            color: #842029;
+        }
+
+        .persistent-alert .btn-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 2;
+            padding: 0.375rem;
+        }
+
+        /* Ensure alerts are visible and not affected by auto-dismiss */
+        .persistent-alert {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    </style>
 </body>
-</html> 
+</html>

@@ -1,11 +1,16 @@
 <?php
-// Include authentication file and database config
-header('Content-Type: text/html; charset=utf-8');
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../auth_bridge.php'; // Add bridge for admin status consistency
-require_once '../activity_functions.php'; // Include activity functions
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+// Add bridge for admin status consistency
+require_once __DIR__ . '/../includes/activity_functions.php'; // Include activity functions
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -19,12 +24,17 @@ $siteName = getSetting('site_name', 'SRC Management System');
 
 // Get current user info
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin() || getBridgedAdminStatus(); // Check both auth system and bridge
+$isSuperAdmin = isSuperAdmin();
+$isAdmin = isAdmin(); // Check both auth system and bridge
 $isMember = isMember(); // Add member check
-$canManageContent = $isAdmin || $isMember; // Allow both admins and members to manage content
+$isFinance = isFinance(); // Add finance check
+$hasAdminPrivileges = hasAdminPrivileges(); // Super admin or admin
+$hasMemberPrivileges = hasMemberPrivileges(); // Super admin, admin, member, or finance
+$canManageContent = $hasMemberPrivileges; // Allow super admin, admin, member, and finance to manage content
+$canManageBudget = $hasMemberPrivileges; // Finance users have full budget CRUD privileges
 
 // Redirect if user doesn't have permission
-if (!$canManageContent) {
+if (!$canManageBudget) {
     header("Location: budget.php");
     exit();
 }
@@ -54,6 +64,9 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $budgetId = (int) $_GET['id'];
 
+// Determine if this is edit mode (always true for this page since ID is required)
+$isEditMode = true;
+
 // Get budget details
 $budget = null;
 $budgetItems = [];
@@ -74,7 +87,7 @@ try {
     }
     
     // Check if user has permission to edit this budget
-    if (!$isAdmin && $budget['created_by'] != $userId) {
+    if (!$hasAdminPrivileges && !$isFinance && $budget['created_by'] != $userId) {
         header("Location: budget-detail.php?id=" . $budgetId);
         exit();
     }
@@ -224,12 +237,162 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <!-- Include header/navbar -->
     <?php include_once 'includes/header.php'; ?>
-    
+
+    <!-- Custom Budget Edit Header -->
+    <div class="budget-edit-header animate__animated animate__fadeInDown">
+        <div class="budget-edit-header-content">
+            <div class="budget-edit-header-main">
+                <h1 class="budget-edit-title">
+                    <i class="fas fa-edit me-3"></i>
+                    Edit Budget
+                </h1>
+                <p class="budget-edit-description">Modify budget details and financial allocations</p>
+            </div>
+            <div class="budget-edit-header-actions">
+                <a href="budget.php" class="btn btn-header-action">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Budgets
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .budget-edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        margin-top: 60px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .budget-edit-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .budget-edit-header-main {
+        flex: 1;
+        text-align: center;
+    }
+
+    .budget-edit-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .budget-edit-title i {
+        font-size: 2.2rem;
+        opacity: 0.9;
+    }
+
+    .budget-edit-description {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .budget-edit-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-header-action {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .btn-header-action:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .budget-edit-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .budget-edit-header-content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .budget-edit-title {
+            font-size: 2rem;
+            gap: 0.6rem;
+        }
+
+        .budget-edit-title i {
+            font-size: 1.8rem;
+        }
+
+        .budget-edit-description {
+            font-size: 1.1rem;
+        }
+
+        .budget-edit-header-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-header-action {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    /* Animation classes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .animate__animated {
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .animate__fadeInDown {
+        animation-name: fadeInDown;
+    }
+    </style>
+
     <div class="container-fluid px-0">
         <div class="row g-0">
             <!-- Include sidebar -->
             <?php include_once 'includes/sidebar.php'; ?>
-            
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
@@ -378,12 +541,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <a href="budget.php" class="btn btn-primary">Back to Budgets</a>
                 <?php endif; ?>
-                
-                <!-- Include footer -->
-                <?php include_once 'includes/footer.php'; ?>
+
             </main>
         </div>
     </div>
+
+    <!-- Include footer -->
+    <?php include_once 'includes/footer.php'; ?>
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

@@ -1,7 +1,13 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -37,9 +43,9 @@ if (!$position) {
     exit();
 }
 
-// Check if the election is in a valid state for registration (upcoming or active)
-if ($position['election_status'] !== 'upcoming' && $position['election_status'] !== 'active') {
-    $_SESSION['error'] = "Registration is only allowed for upcoming or active elections.";
+// Check if the election is in a valid state for registration (nomination status)
+if ($position['election_status'] !== 'nomination') {
+    $_SESSION['error'] = "Candidate registration is only allowed when nominations are open.";
     header("Location: election_detail.php?id=" . $electionId);
     exit();
 }
@@ -56,9 +62,66 @@ if ($existingCandidate) {
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $manifesto = $_POST['manifesto'] ?? '';
+    $manifestoType = $_POST['manifesto_type'] ?? 'text';
+    $manifesto = '';
+    $manifestoFilePath = null;
     
-    // Handle file upload if present
+    // Handle manifesto based on type
+    if ($manifestoType === 'text') {
+        $manifesto = $_POST['manifesto'] ?? '';
+        
+        // Validate manifesto text
+        if (strlen($manifesto) < 100) {
+            $_SESSION['error'] = "Your manifesto must be at least 100 characters long.";
+            header("Location: candidate_registration.php?position_id=" . $positionId . "&election_id=" . $electionId);
+            exit();
+        }
+    } else {
+        // Handle manifesto file upload
+        if (isset($_FILES['manifesto_file']) && $_FILES['manifesto_file']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = '../uploads/manifestos/';
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+            
+            $fileName = time() . '_' . basename($_FILES['manifesto_file']['name']);
+            $targetFilePath = $uploadDir . $fileName;
+            
+            // Check file size (limit to 5MB)
+            if ($_FILES['manifesto_file']['size'] > 5000000) {
+                $_SESSION['error'] = "Sorry, your manifesto file is too large. Maximum size is 5MB.";
+                header("Location: candidate_registration.php?position_id=" . $positionId . "&election_id=" . $electionId);
+                exit();
+            }
+            
+            // Allow certain file formats
+            $fileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+            if ($fileType != "pdf" && $fileType != "doc" && $fileType != "docx") {
+                $_SESSION['error'] = "Sorry, only PDF, DOC & DOCX files are allowed for manifestos.";
+                header("Location: candidate_registration.php?position_id=" . $positionId . "&election_id=" . $electionId);
+                exit();
+            }
+            
+            // Upload file
+            if (move_uploaded_file($_FILES['manifesto_file']['tmp_name'], $targetFilePath)) {
+                $manifestoFilePath = $fileName;
+                // Set a placeholder for the manifesto text field
+                $manifesto = "[Manifesto uploaded as file: " . $fileName . "]";
+            } else {
+                $_SESSION['error'] = "Sorry, there was an error uploading your manifesto file.";
+                header("Location: candidate_registration.php?position_id=" . $positionId . "&election_id=" . $electionId);
+                exit();
+            }
+        } else {
+            $_SESSION['error'] = "Manifesto file is required when choosing file upload option.";
+            header("Location: candidate_registration.php?position_id=" . $positionId . "&election_id=" . $electionId);
+            exit();
+        }
+    }
+    
+    // Handle photo upload if present
     $photoPath = null;
     if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
         $uploadDir = '../uploads/candidates/';
@@ -120,13 +183,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = insert($sql, $params);
         
         if ($result) {
-            // If photo was uploaded and insert was successful, update the record with photo
+            $candidateId = $result; // Assuming insert() returns the last insert ID
+            
+            // If photo was uploaded, update the record with photo
             if ($photoPath !== null) {
-                $candidateId = $result; // Assuming insert() returns the last insert ID
-                
                 // Update the photo separately using a different column name
                 $updateSql = "UPDATE election_candidates SET candidate_photo = ? WHERE candidate_id = ?";
                 $updateParams = [$photoPath, $candidateId];
+                
+                // Try to update, but don't throw error if it fails
+                update($updateSql, $updateParams);
+            }
+            
+            // If manifesto file was uploaded, update the record with file path
+            if ($manifestoFilePath !== null) {
+                // Update the manifesto file path
+                $updateSql = "UPDATE election_candidates SET manifesto_file = ? WHERE candidate_id = ?";
+                $updateParams = [$manifestoFilePath, $candidateId];
                 
                 // Try to update, but don't throw error if it fails
                 update($updateSql, $updateParams);
@@ -148,10 +221,42 @@ $pageTitle = "Candidate Registration - " . $position['title'] . " - SRC Manageme
 
 // Include header
 require_once 'includes/header.php';
+
+// Add mobile fix CSS for candidate cards
+echo '<link rel="stylesheet" href="../css/candidate-card-mobile-fix.css">';
+echo '<link rel="stylesheet" href="../css/election-mobile-fix.css">';
 ?>
 
 <!-- Page Content -->
-<div class="container-fluid">
+<div class="container-fluid" style="margin-top: 60px;">
+    <?php
+    // Set up modern page header variables
+    $pageTitle = "Candidate Registration";
+    $pageIcon = "fa-user-plus";
+    $pageDescription = "Register as a candidate for " . $position['title'] . " - " . $position['election_title'];
+    $actions = [];
+
+    // Back button
+    $actions[] = [
+        'url' => 'election_detail.php?id=' . $electionId,
+        'icon' => 'fa-arrow-left',
+        'text' => 'Back to Election',
+        'class' => 'btn-outline-light'
+    ];
+
+    // Admin actions
+    if (isAdmin()) {
+        $actions[] = [
+            'url' => '#',
+            'icon' => 'fa-cog',
+            'text' => 'Admin Settings',
+            'class' => 'btn-outline-light'
+        ];
+    }
+
+    // Include the modern page header
+    include_once 'includes/modern_page_header.php';
+    ?>
     <!-- Display success/error messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -173,30 +278,15 @@ require_once 'includes/header.php';
         </div>
     <?php endif; ?>
 
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">Register as Candidate</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="elections.php">Elections</a></li>
-                    <li class="breadcrumb-item"><a href="election_detail.php?id=<?php echo $electionId; ?>"><?php echo htmlspecialchars($position['election_title']); ?></a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Register as Candidate</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
-
-    <!-- Registration Form -->
+    <!-- Registration Form - Now full width -->
     <div class="row">
-        <div class="col-md-8 mx-auto">
+        <div class="col-12">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Registration Form for <?php echo htmlspecialchars($position['title']); ?></h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?position_id=" . $positionId . "&election_id=" . $electionId); ?>" enctype="multipart/form-data">
+                    <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"] . "?position_id=" . $positionId . "&election_id=" . $electionId); ?>" enctype="multipart/form-data" id="candidateForm">
                         <div class="mb-3">
                             <label for="candidate-name" class="form-label">Your Name</label>
                             <input type="text" class="form-control" id="candidate-name" value="<?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>" readonly>
@@ -204,15 +294,83 @@ require_once 'includes/header.php';
                         </div>
                         
                         <div class="mb-3">
-                            <label for="manifesto" class="form-label">Manifesto/Campaign Statement</label>
-                            <textarea class="form-control" id="manifesto" name="manifesto" rows="6" required></textarea>
-                            <div class="form-text">Describe your vision, goals, and why students should vote for you.</div>
+                            <label class="form-label">Manifesto/Campaign Statement <span class="text-danger">*</span></label>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="form-check form-check-inline mb-3">
+                                        <input class="form-check-input" type="radio" name="manifesto_type" id="manifesto-type-text" value="text" checked>
+                                        <label class="form-check-label" for="manifesto-type-text">Type my manifesto</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="manifesto_type" id="manifesto-type-file" value="file">
+                                        <label class="form-check-label" for="manifesto-type-file">Upload manifesto document</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="manifesto-text-container">
+                                <textarea class="form-control" id="manifesto" name="manifesto" rows="6" minlength="100"></textarea>
+                                <div class="form-text">
+                                    <p>Your manifesto should include:</p>
+                                    <ul>
+                                        <li>Your vision and goals for the position</li>
+                                        <li>Relevant experience and qualifications</li>
+                                        <li>Key initiatives you plan to implement</li>
+                                        <li>Why students should vote for you</li>
+                                    </ul>
+                                    <p>Minimum 100 characters. Keep it concise but informative.</p>
+                                    <div id="character-count" class="mt-2">0 characters (minimum 100 required)</div>
+                                </div>
+                            </div>
+                            
+                            <div id="manifesto-file-container" style="display:none;">
+                                <input type="file" class="form-control" id="manifesto_file" name="manifesto_file" accept=".pdf,.doc,.docx">
+                                <div class="form-text">
+                                    <p>Upload your manifesto as a document. Please ensure it includes:</p>
+                                    <ul>
+                                        <li>Your vision and goals for the position</li>
+                                        <li>Relevant experience and qualifications</li>
+                                        <li>Key initiatives you plan to implement</li>
+                                        <li>Why students should vote for you</li>
+                                    </ul>
+                                    <p>Allowed formats: PDF, DOC, DOCX. Maximum size: 5MB</p>
+                                </div>
+                                <div class="mt-2" id="file-name-display"></div>
+                            </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="photo" class="form-label">Profile Photo (Optional)</label>
-                            <input type="file" class="form-control" id="photo" name="photo">
-                            <div class="form-text">Upload a professional photo. Maximum size: 5MB. Allowed formats: JPG, JPEG, PNG.</div>
+                            <label for="photo" class="form-label">Profile Photo</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/jpeg,image/png,image/jpg">
+                            <div class="form-text">
+                                <p>Upload a professional headshot photo. This will be displayed on your candidate profile and ballot.</p>
+                                <ul>
+                                    <li>Maximum size: 5MB</li>
+                                    <li>Allowed formats: JPG, JPEG, PNG</li>
+                                    <li>Recommended dimensions: Square (1:1 ratio)</li>
+                                </ul>
+                            </div>
+                            <div class="mt-3">
+                                <div id="photo-preview-container" style="display: none;">
+                                    <p>Photo Preview:</p>
+                                    <img id="photo-preview" src="" alt="Preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title">Candidate Code of Conduct</h5>
+                                    <p>By submitting this form, you agree to:</p>
+                                    <ul>
+                                        <li>Conduct your campaign with honesty, integrity, and respect for all</li>
+                                        <li>Refrain from making false statements or personal attacks against other candidates</li>
+                                        <li>Comply with all election rules and guidelines</li>
+                                        <li>Accept the final election results as determined by the election committee</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mb-3 form-check">
@@ -233,4 +391,140 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php require_once 'includes/footer.php'; ?> 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manifesto character count
+    const manifestoTextarea = document.getElementById('manifesto');
+    const characterCount = document.getElementById('character-count');
+    const manifestoTypeText = document.getElementById('manifesto-type-text');
+    const manifestoTypeFile = document.getElementById('manifesto-type-file');
+    const manifestoTextContainer = document.getElementById('manifesto-text-container');
+    const manifestoFileContainer = document.getElementById('manifesto-file-container');
+    const manifestoFileInput = document.getElementById('manifesto_file');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    
+    // Toggle between text and file upload
+    manifestoTypeText.addEventListener('change', function() {
+        if (this.checked) {
+            manifestoTextContainer.style.display = 'block';
+            manifestoFileContainer.style.display = 'none';
+            manifestoTextarea.setAttribute('required', 'required');
+            manifestoFileInput.removeAttribute('required');
+        }
+    });
+    
+    manifestoTypeFile.addEventListener('change', function() {
+        if (this.checked) {
+            manifestoTextContainer.style.display = 'none';
+            manifestoFileContainer.style.display = 'block';
+            manifestoTextarea.removeAttribute('required');
+            manifestoFileInput.setAttribute('required', 'required');
+        }
+    });
+    
+    // Manifesto file display
+    manifestoFileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit. Please choose a smaller file.');
+                this.value = '';
+                fileNameDisplay.textContent = '';
+                return;
+            }
+            
+            // Validate file type
+            const fileType = file.type.toLowerCase();
+            if (fileType !== 'application/pdf' && 
+                fileType !== 'application/msword' && 
+                fileType !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                alert('Only PDF, DOC & DOCX files are allowed.');
+                this.value = '';
+                fileNameDisplay.textContent = '';
+                return;
+            }
+            
+            fileNameDisplay.textContent = 'Selected file: ' + file.name;
+            fileNameDisplay.classList.add('text-success');
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+    });
+    
+    manifestoTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        characterCount.textContent = count + ' characters' + (count < 100 ? ' (minimum 100 required)' : '');
+        
+        if (count < 100) {
+            characterCount.classList.add('text-danger');
+            characterCount.classList.remove('text-success');
+        } else {
+            characterCount.classList.remove('text-danger');
+            characterCount.classList.add('text-success');
+        }
+    });
+    
+    // Photo preview
+    const photoInput = document.getElementById('photo');
+    const photoPreview = document.getElementById('photo-preview');
+    const photoPreviewContainer = document.getElementById('photo-preview-container');
+    
+    photoInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            
+            // Validate file size
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size exceeds 5MB limit. Please choose a smaller file.');
+                this.value = '';
+                photoPreviewContainer.style.display = 'none';
+                return;
+            }
+            
+            // Validate file type
+            const fileType = file.type.toLowerCase();
+            if (fileType !== 'image/jpeg' && fileType !== 'image/jpg' && fileType !== 'image/png') {
+                alert('Only JPG, JPEG & PNG files are allowed.');
+                this.value = '';
+                photoPreviewContainer.style.display = 'none';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                photoPreview.src = e.target.result;
+                photoPreviewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            photoPreviewContainer.style.display = 'none';
+        }
+    });
+    
+    // Form validation
+    const candidateForm = document.getElementById('candidateForm');
+    
+    candidateForm.addEventListener('submit', function(e) {
+        if (manifestoTypeText.checked) {
+            const manifesto = manifestoTextarea.value;
+            if (manifesto.length < 100) {
+                e.preventDefault();
+                alert('Your manifesto must be at least 100 characters long.');
+                manifestoTextarea.focus();
+            }
+        } else if (manifestoTypeFile.checked) {
+            if (!manifestoFileInput.value) {
+                e.preventDefault();
+                alert('Please upload your manifesto document.');
+                manifestoFileInput.focus();
+            }
+        }
+    });
+});
+</script>
+
+</div>
+
+<?php require_once 'includes/footer.php'; ?>

@@ -1,10 +1,9 @@
 <?php
-// Initialize session
-session_start();
-
-// Include authentication functions
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // If user is already logged in, redirect to dashboard
 if (isLoggedIn()) {
@@ -162,7 +161,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $token_valid) {
                         <div class="alert alert-success mb-4">
                             <?php echo $success_message; ?>
                             <div class="mt-3">
-                                <a href="register.php" class="btn btn-primary">
+                                <a href="login.php" class="btn btn-primary">
                                     <i class="fas fa-sign-in-alt me-2"></i> Go to Login
                                 </a>
                             </div>
@@ -231,7 +230,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $token_valid) {
                         
                         <?php if (empty($success_message)): ?>
                         <div class="back-to-login mt-4">
-                            <a href="register.php">
+                            <a href="login.php">
                                 <i class="fas fa-arrow-left me-2"></i> Back to Login
                             </a>
                         </div>

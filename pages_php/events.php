@@ -1,8 +1,19 @@
 <?php
-// Include authentication file and database connection
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php'; // Include the functions file directly
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php'; // Include the functions file directly
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Define the function locally in case it's not found from the include
 if (!function_exists('getAllPortfolios')) {
@@ -53,9 +64,16 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Check if events feature is enabled
+if (!hasFeaturePermission('enable_events')) {
+    $_SESSION['error'] = "The events feature is currently disabled.";
+    header("Location: dashboard.php");
+    exit();
+}
+
 // Get current user
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$isAdmin = shouldUseAdminInterface(); // Use unified admin interface check for super admin users
 $isMember = isMember();
 $canManageEvents = $isAdmin || $isMember; // Allow both admins and members to manage events
 
@@ -66,8 +84,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'new' && !$canManageEvents) {
     exit();
 }
 
-// Set page title
+// Set page title and body class
 $pageTitle = "Events - SRC Management System";
+$bodyClass = "page-events"; // Add body class for CSS targeting
 
 // Initialize messages
 $successMessage = '';
@@ -178,14 +197,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['event_name'])) {
                 if ($result) {
                     // Get the inserted event ID
                     $eventId = mysqli_insert_id($conn);
-                    
+
                     // Store portfolio info in event metadata table if you have one
                     // For now, we'll just update the existing record with the portfolio info in the description
                     $updatedDescription = $description . "\n\nPortfolio: " . $portfolioInfo;
                     $updateSql = "UPDATE events SET description = ? WHERE event_id = ?";
                     update($updateSql, [$updatedDescription, $eventId]);
-                    
+
                     $successMessage = "Event created successfully!";
+
+                    // Send notification to all users about new event
+                    autoNotifyEventCreated($eventName, $description, $currentUser['user_id'], $eventId);
                 } else {
                     $errorMessage = "Error creating event. Please try again.";
                 }
@@ -209,6 +231,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['event_name'])) {
                 
                 if ($result) {
                     $successMessage = "Event created successfully!";
+
+                    // Send notification to all users about new event
+                    $eventId = mysqli_insert_id($conn);
+                    autoNotifyEventCreated($eventName, $description, $currentUser['user_id'], $eventId);
                 } else {
                     $errorMessage = "Error creating event. Please try again.";
                 }
@@ -293,23 +319,182 @@ $events = fetchAll($sql, $params, $types);
 
 // Include header
 require_once 'includes/header.php';
+
+// Add direct fixing script immediately after include header
+if (isset($createEventModal) && $createEventModal === true) {
+    echo '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Fix event modal positioning
+        var eventModal = document.getElementById("createEventModal");
+        if (eventModal) {
+            eventModal.setAttribute("data-bs-backdrop", "false");
+            
+            // Adjust the modal position below the header
+            var header = document.querySelector(".navbar");
+            var headerHeight = header ? header.offsetHeight : 60;
+            var modalDialog = eventModal.querySelector(".modal-dialog");
+            if (modalDialog) {
+                modalDialog.style.marginTop = (headerHeight + 10) + "px";
+            }
+        }
+    });
+    </script>';
+}
 ?>
 
 <script>
     document.body.classList.add('events-page');
 </script>
 
-<div class="header">
-    <h1 class="page-title">Events</h1>
-    
-    <div class="header-actions">
+<!-- Custom Events Header -->
+<div class="events-header animate__animated animate__fadeInDown">
+    <div class="events-header-content">
+        <div class="events-header-main">
+            <h1 class="events-title">
+                <i class="fas fa-calendar-alt me-3"></i>
+                Events
+            </h1>
+            <p class="events-description">Manage and organize university events and activities</p>
+        </div>
         <?php if ($canManageEvents): ?>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
-            <i class="fas fa-plus me-2"></i> Create Event
-        </button>
+        <div class="events-header-actions">
+            <button type="button" class="btn btn-header-action" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                <i class="fas fa-plus me-2"></i>Create Event
+            </button>
+        </div>
         <?php endif; ?>
     </div>
 </div>
+
+<style>
+.events-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.events-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.events-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.events-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.events-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.events-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.events-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+    .events-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .events-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .events-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+    }
+
+    .events-title i {
+        font-size: 1.8rem;
+    }
+
+    .events-description {
+        font-size: 1.1rem;
+    }
+
+    .events-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
 
 <!-- Notification area -->
 <?php if (!empty($successMessage)): ?>
@@ -329,64 +514,213 @@ require_once 'includes/header.php';
 <h3 class="mb-3">All Events</h3>
 
 <!-- All Events Table -->
-<div class="content-card">
-    <div class="content-card-body">
-        <?php if (empty($events)): ?>
+<div class="event-grid">
+    <?php if (empty($events)): ?>
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i> No events found.
         </div>
-        <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>EVENT NAME</th>
-                        <th>DATE</th>
-                        <th>LOCATION</th>
-                        <th>STATUS</th>
-                        <th>ACTIONS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($events as $event): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($event['title']); ?></td>
-                        <td>
-                            <?php echo date('M j, Y', strtotime($event['date'])); ?>
-                        </td>
-                        <td><?php echo htmlspecialchars($event['location']); ?></td>
-                        <td>
-                            <span class="badge bg-<?php 
-                                echo $event['status'] === 'upcoming' ? 'success' : 
-                                    ($event['status'] === 'planning' ? 'warning' : 
-                                    ($event['status'] === 'ongoing' ? 'primary' :
-                                    ($event['status'] === 'cancelled' ? 'danger' : 'secondary'))); 
-                            ?>">
-                                <?php echo strtoupper(htmlspecialchars($event['status'])); ?>
-                            </span>
-                        </td>
-                        <td>
-                            <a href="event-detail.php?id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye"></i> View
-                            </a>
-                            <?php if ($canManageEvents): ?>
-                            <a href="event-edit.php?id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-info">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="events.php?action=delete&id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-danger" 
-                               onclick="return confirm('Are you sure you want to delete this event?');">
-                                <i class="fas fa-trash"></i> Delete
-                            </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php endif; ?>
-    </div>
+    <?php else: ?>
+        <?php foreach ($events as $event): ?>
+            <div class="card event-card">
+                <?php if (!empty($event['image_path'])): ?>
+                    <img src="../<?php echo htmlspecialchars($event['image_path']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($event['title']); ?>">
+                <?php else: ?>
+                    <img src="../assets/images/default_event.jpg" class="card-img-top" alt="Default Event Image">
+                <?php endif; ?>
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo htmlspecialchars($event['title']); ?></h5>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i> <?php echo date('M j, Y', strtotime($event['date'])); ?>
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i> <?php echo htmlspecialchars($event['location']); ?>
+                        </small>
+                    </p>
+                    <span class="badge bg-<?php 
+                        echo $event['status'] === 'upcoming' ? 'success' : 
+                            ($event['status'] === 'planning' ? 'warning' : 
+                            ($event['status'] === 'ongoing' ? 'primary' :
+                            ($event['status'] === 'cancelled' ? 'danger' : 'secondary'))); 
+                    ?>">
+                        <?php echo strtoupper(htmlspecialchars($event['status'])); ?>
+                    </span>
+                </div>
+                <div class="card-footer">
+                    <a href="event-detail.php?id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <?php if ($canManageEvents): ?>
+                    <a href="event-edit.php?id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-info">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="events.php?action=delete&id=<?php echo $event['event_id']; ?>" class="btn btn-sm btn-danger" 
+                       onclick="return confirm('Are you sure you want to delete this event?');">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php endif; ?>
 </div>
+
+<style>
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.event-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.event-card .card-img-top {
+    height: 180px;
+    object-fit: cover;
+}
+
+.event-card .card-body {
+    padding: 1.25rem;
+}
+
+.event-card .card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.event-card .card-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.event-card .card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Mobile navbar size increase and spacing adjustments for events page */
+@media (max-width: 768px) {
+    .events-page .navbar {
+        height: 70px !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    .events-page .navbar .navbar-brand {
+        font-size: 1.3rem !important;
+    }
+    
+    .events-page .navbar .system-icon {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .events-page .navbar .btn {
+        font-size: 1.1rem !important;
+        padding: 0.5rem 0.75rem !important;
+    }
+    
+    .events-page .navbar .site-name {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .events-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .events-page .header {
+        margin-top: 100px !important; /* 70px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 480px) {
+    .events-page .navbar {
+        height: 65px !important;
+        padding: 0.6rem 0.8rem !important;
+    }
+    
+    .events-page .navbar .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+    
+    .events-page .navbar .system-icon {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .events-page .navbar .btn {
+        font-size: 1rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+    
+    .events-page .navbar .site-name {
+        font-size: 1rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .events-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .events-page .header {
+        margin-top: 25px !important; /* 65px navbar + 30px spacing */
+    }
+}
+
+@media (max-width: 375px) {
+    .events-page .navbar {
+        height: 60px !important;
+        padding: 0.5rem 0.7rem !important;
+    }
+    
+    .events-page .navbar .navbar-brand {
+        font-size: 1.1rem !important;
+    }
+    
+    .events-page .navbar .system-icon {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .events-page .navbar .btn {
+        font-size: 0.95rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+    
+    .events-page .navbar .site-name {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Remove main-content padding-top to prevent double spacing */
+    .events-page .main-content {
+        padding-top: 0 !important;
+    }
+    
+    /* Adjust margin between navbar and page header to 30px */
+    .events-page .header {
+        margin-top: 30px !important; /* 60px navbar + 30px spacing */
+    }
+}
+</style>
 
 <!-- Create Event Modal -->
 <div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
@@ -503,5 +837,52 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
+
+<!-- Upload Document Modal -->
+<div class="modal fade" id="uploadDocumentModal" tabindex="-1" aria-labelledby="uploadDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadDocumentModalLabel">Upload Document</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="document_handler.php" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload">
+                    <div class="mb-3">
+                        <label for="document_title" class="form-label">Document Title</label>
+                        <input type="text" class="form-control" id="document_title" name="document_title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="document_category" class="form-label">Category</label>
+                        <select class="form-select" id="document_category" name="document_category" required>
+                            <option value="">Select Category</option>
+                            <option value="legal">Legal</option>
+                            <option value="general">General</option>
+                            <option value="financial">Financial</option>
+                            <option value="elections">Elections</option>
+                            <option value="events">Events</option>
+                            <option value="reports">Reports</option>
+                            <option value="minutes">Minutes</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="document_file" class="form-label">File</label>
+                        <input type="file" class="form-control" id="document_file" name="document_file" required>
+                        <div class="form-text">Accepted file types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT (Max size: 5MB)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="document_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="document_description" name="document_description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div> <!-- Close main content container -->
 
 <?php require_once 'includes/footer.php'; ?> 

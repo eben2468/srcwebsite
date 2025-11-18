@@ -1,11 +1,16 @@
 <?php
-// Include authentication file and database config
-header('Content-Type: text/html; charset=utf-8');
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../auth_bridge.php'; // Add bridge for admin status consistency
-require_once '../activity_functions.php'; // Include activity functions
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+// Add bridge for admin status consistency
+require_once __DIR__ . '/../includes/activity_functions.php'; // Include activity functions
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -19,9 +24,14 @@ $siteName = getSetting('site_name', 'SRC Management System');
 
 // Get current user info
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin() || getBridgedAdminStatus(); // Check both auth system and bridge
+$isSuperAdmin = isSuperAdmin();
+$isAdmin = isAdmin(); // Check both auth system and bridge
 $isMember = isMember(); // Add member check
-$canManageContent = $isAdmin || $isMember; // Allow both admins and members to manage content
+$isFinance = isFinance(); // Add finance check
+$hasAdminPrivileges = hasAdminPrivileges(); // Super admin or admin
+$hasMemberPrivileges = hasMemberPrivileges(); // Super admin, admin, member, or finance
+$canManageContent = $hasMemberPrivileges; // Allow super admin, admin, member, and finance to manage content
+$canManageBudget = $hasMemberPrivileges; // Finance users have full budget CRUD privileges
 
 // Get user profile data including full name
 $userId = $currentUser['user_id'] ?? 0;
@@ -132,12 +142,184 @@ try {
 <body>
     <!-- Include header/navbar -->
     <?php include_once 'includes/header.php'; ?>
-    
+
+    <!-- Custom Budget Detail Header -->
+    <div class="budget-detail-header animate__animated animate__fadeInDown">
+        <div class="budget-detail-header-content">
+            <div class="budget-detail-header-main">
+                <h1 class="budget-detail-title">
+                    <i class="fas fa-chart-line me-3"></i>
+                    Budget Details
+                </h1>
+                <p class="budget-detail-description">View detailed budget information and financial breakdown</p>
+            </div>
+            <div class="budget-detail-header-actions">
+                <a href="budget.php" class="btn btn-header-action">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Budgets
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .budget-detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        margin-top: 60px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .budget-detail-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .budget-detail-header-main {
+        flex: 1;
+        text-align: center;
+        color: white !important;
+    }
+
+    .budget-detail-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        color: white !important;
+    }
+
+    .budget-detail-title i {
+        font-size: 2.2rem;
+        opacity: 0.9;
+        color: white !important;
+    }
+
+    .budget-detail-description {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.4;
+        color: white !important;
+        text-align: center;
+    }
+
+    .budget-detail-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding-left: 2rem;
+    }
+
+    .btn-header-action {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .btn-header-action:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .budget-detail-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .budget-detail-header-content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .budget-detail-header-main {
+            margin-bottom: 1rem;
+            color: white !important;
+        }
+
+        .budget-detail-title {
+            font-size: 2rem;
+            gap: 0.6rem;
+            color: white !important;
+        }
+
+        .budget-detail-title i {
+            font-size: 1.8rem;
+            color: white !important;
+        }
+
+        .budget-detail-description {
+            font-size: 1.1rem;
+            color: white !important;
+        }
+
+        .budget-detail-header-actions {
+            width: 100%;
+            justify-content: center;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .btn-header-action {
+            font-size: 0.9rem;
+            padding: 0.7rem 1.3rem;
+            margin-right: 0;
+        }
+    }
+
+    /* Animation classes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .animate__animated {
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .animate__fadeInDown {
+        animation-name: fadeInDown;
+    }
+    </style>
+
     <div class="container-fluid px-0">
         <div class="row g-0">
             <!-- Include sidebar -->
             <?php include_once 'includes/sidebar.php'; ?>
-            
+
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
@@ -159,29 +341,29 @@ try {
                             <h1 class="budget-detail-title"><?php echo htmlspecialchars($budget['title']); ?></h1>
                             
                             <div class="d-flex gap-2">
-                                <?php if ($canManageContent): ?>
+                                <?php if ($canManageBudget): ?>
                                 <a href="budget-edit.php?id=<?php echo $budget['budget_id']; ?>" class="btn btn-outline-primary">
                                     <i class="fas fa-edit me-1"></i> Edit
                                 </a>
                                 <?php endif; ?>
-                                
-                                <?php if ($isAdmin && $budget['status'] === 'pending'): ?>
-                                <button type="button" class="btn btn-success status-change-btn" 
-                                        data-budget-id="<?php echo $budget['budget_id']; ?>" 
+
+                                <?php if (($hasAdminPrivileges || $isFinance) && $budget['status'] === 'pending'): ?>
+                                <button type="button" class="btn btn-success status-change-btn"
+                                        data-budget-id="<?php echo $budget['budget_id']; ?>"
                                         data-status="approved">
                                     <i class="fas fa-check me-1"></i> Approve
                                 </button>
-                                
-                                <button type="button" class="btn btn-danger status-change-btn" 
-                                        data-budget-id="<?php echo $budget['budget_id']; ?>" 
+
+                                <button type="button" class="btn btn-danger status-change-btn"
+                                        data-budget-id="<?php echo $budget['budget_id']; ?>"
                                         data-status="declined">
                                     <i class="fas fa-times me-1"></i> Decline
                                 </button>
                                 <?php endif; ?>
-                                
-                                <?php if ($isAdmin): ?>
-                                <button type="button" class="btn btn-outline-danger delete-budget-btn" 
-                                        data-budget-id="<?php echo $budget['budget_id']; ?>" 
+
+                                <?php if ($canManageBudget): ?>
+                                <button type="button" class="btn btn-outline-danger delete-budget-btn"
+                                        data-budget-id="<?php echo $budget['budget_id']; ?>"
                                         data-title="<?php echo htmlspecialchars($budget['title']); ?>">
                                     <i class="fas fa-trash me-1"></i> Delete
                                 </button>
@@ -376,12 +558,13 @@ try {
                     Budget not found. <a href="budget.php" class="alert-link">Return to budgets list</a>.
                 </div>
                 <?php endif; ?>
-                
-                <!-- Include footer -->
-                <?php include_once 'includes/footer.php'; ?>
+
             </main>
         </div>
     </div>
+
+    <!-- Include footer -->
+    <?php include_once 'includes/footer.php'; ?>
     
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

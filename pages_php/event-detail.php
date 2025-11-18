@@ -1,7 +1,14 @@
 <?php
-// Include authentication file and database connection
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -15,7 +22,7 @@ $pageTitle = "Event Details - SRC Management System";
 
 // Get current user info
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$isAdmin = shouldUseAdminInterface(); // Use unified admin interface check for super admin users
 $isMember = isMember();
 $canManageEvents = $isAdmin || $isMember; // Allow both admins and members to manage events
 
@@ -32,29 +39,7 @@ $event = fetchOne("SELECT * FROM events WHERE event_id = ?", [$eventId]);
 // Check if user can edit this specific event (admin or event organizer)
 $canEditEvent = $isAdmin || ($isMember && $event && $event['organizer_id'] == $currentUser['user_id']);
 
-// Calculate registration percentage if event exists
-$registrationPercentage = 0;
-$registrations = 0; // Default value since there's no registrations column
-
-if ($event) {
-    if ($event['capacity'] > 0) {
-        $registrationPercentage = round(($registrations / $event['capacity']) * 100);
-    } else {
-        // If capacity is 0 (unlimited), set percentage to 0
-        $registrationPercentage = 0;
-    }
-    
-    // Determine progress bar color based on percentage
-    if ($registrationPercentage > 90) {
-        $progressBarClass = 'bg-danger';
-    } elseif ($registrationPercentage > 75) {
-        $progressBarClass = 'bg-warning';
-    } else {
-        $progressBarClass = 'bg-success';
-    }
-}
-
-// Handle delete action
+// Handle delete action - MUST be before any output
 if (isset($_GET['delete']) && $_GET['delete'] == 'confirm') {
     if ($event) {
         // Check if user is admin or the event organizer
@@ -73,19 +58,7 @@ if (isset($_GET['delete']) && $_GET['delete'] == 'confirm') {
     }
 }
 
-// Handle event registration (if implemented)
-if (isset($_POST['register']) && $event) {
-    // In a real application, this would add a registration to the database
-    // For now, just update the registrations count
-    if ($event['capacity'] == 0 || $registrations < $event['capacity']) {
-        $successMessage = "You have successfully registered for this event!";
-        $registrations++; // Increment local count for display
-    } else {
-        $errorMessage = "This event has reached its capacity. Registration is closed.";
-    }
-}
-
-// Handle image and document deletion
+// Handle image and document deletion - MUST be before any output
 if ($canEditEvent) {
     // Handle image deletion
     if (isset($_GET['delete_image']) && $_GET['delete_image'] == 1 && !empty($event['image_path'])) {
@@ -160,6 +133,124 @@ if ($canEditEvent) {
     }
 }
 
+// Calculate registration percentage if event exists
+$registrationPercentage = 0;
+$registrations = 0; // Default value
+
+if ($event) {
+    // Check if event_attendees table exists
+    $tableExists = false;
+    try {
+        $result = $conn->query("SHOW TABLES LIKE 'event_attendees'");
+        $tableExists = $result->num_rows > 0;
+    } catch (Exception $e) {
+        // Table doesn't exist, use default value of 0
+    }
+    
+    // If table exists, count attendees
+    if ($tableExists) {
+        $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
+        if ($attendeeCount) {
+            $registrations = $attendeeCount['count'];
+        }
+    }
+    
+    if ($event['capacity'] > 0) {
+        $registrationPercentage = round(($registrations / $event['capacity']) * 100);
+    } else {
+        // If capacity is 0 (unlimited), set percentage to 0
+        $registrationPercentage = 0;
+    }
+    
+    // Determine progress bar color based on percentage
+    if ($registrationPercentage > 90) {
+        $progressBarClass = 'bg-danger';
+    } elseif ($registrationPercentage > 75) {
+        $progressBarClass = 'bg-warning';
+    } else {
+        $progressBarClass = 'bg-success';
+    }
+}
+
+// Handle event registration (if implemented)
+if (isset($_POST['register']) && $event) {
+    // Check if event_attendees table exists, create if it doesn't
+    try {
+        $createTableSql = "CREATE TABLE IF NOT EXISTS event_attendees (
+            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            event_id INT(11) NOT NULL,
+            user_id INT(11) DEFAULT NULL,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
+            phone VARCHAR(50) DEFAULT NULL,
+            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status ENUM('registered', 'attended', 'cancelled', 'no_show') DEFAULT 'registered',
+            notes TEXT,
+            FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        
+        $conn->query($createTableSql);
+        
+        // Check if user is already registered
+        $existingRegistration = fetchOne(
+            "SELECT * FROM event_attendees WHERE event_id = ? AND user_id = ?", 
+            [$eventId, $currentUser['user_id']]
+        );
+        
+        if ($existingRegistration) {
+            $errorMessage = "You are already registered for this event.";
+        } else if ($event['capacity'] == 0 || $registrations < $event['capacity']) {
+            // Register the user
+            $insertSql = "INSERT INTO event_attendees (event_id, user_id, name, email, phone, status) 
+                         VALUES (?, ?, ?, ?, ?, 'registered')";
+            
+            $name = $currentUser['first_name'] . ' ' . $currentUser['last_name'];
+            $email = $currentUser['email'];
+            $phone = $currentUser['phone'] ?? '';
+            
+            $result = insert($insertSql, [$eventId, $currentUser['user_id'], $name, $email, $phone]);
+            
+            if ($result) {
+                $successMessage = "You have successfully registered for this event!";
+                // Refresh registration count
+                $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
+                if ($attendeeCount) {
+                    $registrations = $attendeeCount['count'];
+                }
+            } else {
+                $errorMessage = "Error registering for the event. Please try again.";
+            }
+        } else {
+            $errorMessage = "This event has reached its capacity. Registration is closed.";
+        }
+    } catch (Exception $e) {
+        $errorMessage = "Error: " . $e->getMessage();
+    }
+}
+
+// Handle event cancellation - MUST be before any output
+if (isset($_POST['cancel']) && isset($_POST['cancel_registration']) && $event) {
+    try {
+        // Update registration to cancelled
+        $updateSql = "UPDATE event_attendees SET status = 'cancelled' WHERE event_id = ? AND user_id = ?";
+        $result = update($updateSql, [$eventId, $currentUser['user_id']]);
+        
+        if ($result) {
+            $successMessage = "Your registration has been cancelled.";
+            // Refresh registration count
+            $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
+            if ($attendeeCount) {
+                $registrations = $attendeeCount['count'];
+            }
+        } else {
+            $errorMessage = "Error cancelling your registration. Please try again.";
+        }
+    } catch (Exception $e) {
+        $errorMessage = "Error: " . $e->getMessage();
+    }
+}
+
 // Set success message if action was successful
 if (isset($_GET['success'])) {
     if ($_GET['success'] == 'image_deleted') {
@@ -184,6 +275,175 @@ require_once 'includes/header.php';
         </a>
     </div>
     <?php else: ?>
+
+    <!-- Custom Event Detail Header -->
+    <div class="event-detail-header animate__animated animate__fadeInDown">
+        <div class="event-detail-header-content">
+            <div class="event-detail-header-main">
+                <h1 class="event-detail-title">
+                    <i class="fas fa-calendar-check me-3"></i>
+                    <?php echo htmlspecialchars($event['title']); ?>
+                </h1>
+                <p class="event-detail-description">Event Details and Information</p>
+            </div>
+            <div class="event-detail-header-actions">
+                <a href="events.php" class="btn btn-header-action">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Events
+                </a>
+                <?php if ($canEditEvent): ?>
+                <a href="event-edit.php?id=<?php echo $event['event_id']; ?>" class="btn btn-header-action">
+                    <i class="fas fa-edit me-2"></i>Edit Event
+                </a>
+                <button type="button" class="btn btn-header-action btn-header-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
+                    <i class="fas fa-trash me-2"></i>Delete Event
+                </button>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    .event-detail-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 12px;
+        margin-top: 60px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .event-detail-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .event-detail-header-main {
+        flex: 1;
+        text-align: center;
+    }
+
+    .event-detail-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+    }
+
+    .event-detail-title i {
+        font-size: 2.2rem;
+        opacity: 0.9;
+    }
+
+    .event-detail-description {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.2rem;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    .event-detail-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-header-action {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .btn-header-action:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-decoration: none;
+    }
+
+    .btn-header-danger {
+        background: rgba(220, 53, 69, 0.3);
+        border-color: rgba(220, 53, 69, 0.5);
+    }
+
+    .btn-header-danger:hover {
+        background: rgba(220, 53, 69, 0.5);
+        border-color: rgba(220, 53, 69, 0.7);
+    }
+
+    @media (max-width: 768px) {
+        .event-detail-header {
+            padding: 2rem 1.5rem;
+        }
+
+        .event-detail-header-content {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .event-detail-title {
+            font-size: 2rem;
+            gap: 0.6rem;
+        }
+
+        .event-detail-title i {
+            font-size: 1.8rem;
+        }
+
+        .event-detail-description {
+            font-size: 1.1rem;
+        }
+
+        .event-detail-header-actions {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-header-action {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    /* Animation classes */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translate3d(0, -100%, 0);
+        }
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+    .animate__animated {
+        animation-duration: 0.6s;
+        animation-fill-mode: both;
+    }
+
+    .animate__fadeInDown {
+        animation-name: fadeInDown;
+    }
+    </style>
+    </div>
     
     <!-- Notification area -->
     <?php if (!empty($successMessage)): ?>
@@ -199,24 +459,6 @@ require_once 'includes/header.php';
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     <?php endif; ?>
-    
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="events.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i> Back to Events
-        </a>
-        <?php if ($canManageEvents): ?>
-        <div>
-            <?php if ($canEditEvent): ?>
-            <a href="event-edit.php?id=<?php echo $event['event_id']; ?>" class="btn btn-outline-secondary me-2">
-                <i class="fas fa-edit me-2"></i> Edit Event
-            </a>
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                <i class="fas fa-trash me-2"></i> Delete Event
-            </button>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-    </div>
 
     <!-- Event Details -->
     <div class="card border-0 shadow-sm mb-4">
@@ -326,7 +568,34 @@ require_once 'includes/header.php';
                             
                             <?php if ($event['status'] === 'upcoming' || $event['status'] === 'ongoing'): ?>
                             <div class="mt-3">
-                                <?php if ($event['capacity'] == 0 || $registrations < $event['capacity']): ?>
+                                <?php
+                                // Check if user is already registered
+                                $existingRegistration = null;
+                                $tableExists = false;
+                                
+                                try {
+                                    $result = $conn->query("SHOW TABLES LIKE 'event_attendees'");
+                                    $tableExists = $result->num_rows > 0;
+                                    
+                                    if ($tableExists) {
+                                        $existingRegistration = fetchOne(
+                                            "SELECT * FROM event_attendees WHERE event_id = ? AND user_id = ? AND status != 'cancelled'", 
+                                            [$eventId, $currentUser['user_id']]
+                                        );
+                                    }
+                                } catch (Exception $e) {
+                                    // Ignore errors, treat as not registered
+                                }
+                                
+                                if ($existingRegistration): 
+                                ?>
+                                <form method="post" action="">
+                                    <input type="hidden" name="cancel_registration" value="1">
+                                    <button type="submit" name="cancel" class="btn btn-warning w-100">
+                                        <i class="fas fa-calendar-times me-2"></i> Cancel Registration
+                                    </button>
+                                </form>
+                                <?php elseif ($event['capacity'] == 0 || $registrations < $event['capacity']): ?>
                                 <form method="post" action="">
                                     <button type="submit" name="register" class="btn btn-primary w-100">
                                         <i class="fas fa-user-plus me-2"></i> Register for Event
@@ -376,12 +645,12 @@ require_once 'includes/header.php';
 
             <?php if ($isAdmin): ?>
             <div class="d-flex gap-2">
-                <button class="btn btn-primary">
+                <a href="event_attendees.php?event_id=<?php echo $event['event_id']; ?>" class="btn btn-primary">
                     <i class="fas fa-users me-2"></i> Manage Attendees
-                </button>
-                <button class="btn btn-outline-secondary">
+                </a>
+                <a href="export_attendees.php?event_id=<?php echo $event['event_id']; ?>" class="btn btn-outline-secondary">
                     <i class="fas fa-file-export me-2"></i> Export Attendee List
-                </button>
+                </a>
             </div>
             <?php endif; ?>
         </div>

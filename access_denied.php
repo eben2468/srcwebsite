@@ -1,6 +1,6 @@
 <?php
 // Include necessary files
-require_once 'auth_functions.php';
+require_once __DIR__ . '/includes/simple_auth.php';
 
 // Get the current user, if logged in
 $currentUser = getCurrentUser();

@@ -1,7 +1,16 @@
 <?php
-// Include authentication file and database config
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in - redirect to login if not
 if (!isLoggedIn()) {
@@ -10,11 +19,19 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Check if feedback feature is enabled
+if (!hasFeaturePermission('enable_feedback')) {
+    $_SESSION['error'] = "Feedback feature is currently disabled.";
+    header("Location: dashboard.php");
+    exit();
+}
+
 // Get current user info
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$isAdmin = shouldUseAdminInterface();
 $isMember = isMember();
-$canRespondToFeedback = $isAdmin || $isMember; // Allow both admins and members to respond to feedback
+$isSuperAdmin = isSuperAdmin();
+$canRespondToFeedback = shouldUseAdminInterface(); // Allow super admin, admin, and members to respond to feedback
 
 // Page content
 $pageTitle = "Feedback & Suggestions";
@@ -138,10 +155,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
                     $result = insert($sql, [$userId, $submitterName, $submitterEmail, $submitterPhone, $portfolio, $message, 'suggestion']);
                     
                     if ($result) {
-                        $successMessage = "Thank you for your feedback! " . 
-                                        ($isAnonymous ? "Your anonymous feedback" : "Your feedback") . 
+                        $successMessage = "Thank you for your feedback! " .
+                                        ($isAnonymous ? "Your anonymous feedback" : "Your feedback") .
                                         " has been submitted successfully and will be reviewed by our team.";
-                        
+
+                        // Send notification to members and admins about new feedback
+                        autoNotifyFeedbackSubmitted($portfolio, 'suggestion', $userId, $result);
+
                         // Clear form data after successful submission
                         $_POST = [];
                     } else {
@@ -170,21 +190,35 @@ if ($canRespondToFeedback && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
     if (hasPermission('update', 'feedback')) {
         $feedbackId = $_POST['feedback_id'] ?? 0;
         $newStatus = $_POST['new_status'] ?? '';
-        $assignedTo = $_POST['assigned_to'] ?? '';
+        $assignedToName = $_POST['assigned_to'] ?? '';
         $response = $_POST['response'] ?? '';
         $sendEmail = isset($_POST['email_response']) && $_POST['email_response'] === 'on';
-        
-        // Update feedback in database
-        $sql = "UPDATE feedback SET 
-                status = ?, 
-                assigned_to = ?, 
-                resolution = ?,
-                updated_at = CURRENT_TIMESTAMP 
-                WHERE feedback_id = ?";
-        
-        $result = update($sql, [$newStatus, $assignedTo, $response, $feedbackId]);
-        
-        if ($result) {
+
+        // Convert assigned user name to user ID
+        $assignedToUserId = null;
+        if (!empty($assignedToName) && $assignedToName !== 'unassigned') {
+            $userSql = "SELECT user_id FROM users WHERE CONCAT(first_name, ' ', last_name) = ? LIMIT 1";
+            $userResult = fetchOne($userSql, [$assignedToName]);
+            if ($userResult) {
+                $assignedToUserId = $userResult['user_id'];
+            } else {
+                $errorMessage = "Selected user not found. Please try again.";
+            }
+        }
+
+        // Only proceed if we have a valid user ID or it's being unassigned
+        if (!isset($errorMessage)) {
+            // Update feedback in database
+            $sql = "UPDATE feedback SET
+                    status = ?,
+                    assigned_to = ?,
+                    resolution = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                    WHERE feedback_id = ?";
+
+            $result = update($sql, [$newStatus, $assignedToUserId, $response, $feedbackId]);
+
+            if ($result) {
             $successMessage = "Feedback #$feedbackId has been updated successfully.";
             
             // Send email notification if requested
@@ -290,8 +324,11 @@ if ($canRespondToFeedback && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_PO
                     }
                 }
             }
+            } else {
+                $errorMessage = "An error occurred while updating the feedback. Please try again.";
+            }
         } else {
-            $errorMessage = "An error occurred while updating the feedback. Please try again.";
+            $errorMessage = "User assignment failed. " . ($errorMessage ?? "Please try again.");
         }
     } else {
         $errorMessage = "You do not have permission to update feedback.";
@@ -366,10 +403,12 @@ if (isset($_GET['search']) && !empty($_GET['search'])) {
 
 // Build the query
 if ($canRespondToFeedback) {
-    // Admin and Members can see all feedback
-    $sql = "SELECT f.*, u.first_name, u.last_name, u.email 
-            FROM feedback f 
-            LEFT JOIN users u ON f.user_id = u.user_id";
+    // Super Admin, Admin and Members can see all feedback
+    $sql = "SELECT f.*, u.first_name, u.last_name, u.email,
+                   a.first_name as assigned_first_name, a.last_name as assigned_last_name
+            FROM feedback f
+            LEFT JOIN users u ON f.user_id = u.user_id
+            LEFT JOIN users a ON f.assigned_to = a.user_id";
     
     // Add where clause if there are filter conditions
     if (!empty($filterConditions)) {
@@ -381,28 +420,32 @@ if ($canRespondToFeedback) {
     
     $feedbackSubmissions = fetchAll($sql, $filterParams, $filterTypes);
 } else {
-    // Regular users can only see their own feedback
-    if (hasPermission('read', 'feedback')) {
-        $sql = "SELECT f.*, u.first_name, u.last_name, u.email 
-                FROM feedback f 
-                LEFT JOIN users u ON f.user_id = u.user_id 
-                WHERE f.user_id = ?";
-        
-        // Add additional filter conditions if there are any
-        if (!empty($filterConditions)) {
-            $sql .= " AND " . implode(" AND ", $filterConditions);
-        }
-        
-        // Add order by
-        $sql .= " ORDER BY f.created_at DESC";
-        
-        // Add user_id as the first parameter
-        array_unshift($filterParams, $currentUser['user_id']);
-        $filterTypes = 'i' . $filterTypes;
-        
-        $feedbackSubmissions = fetchAll($sql, $filterParams, $filterTypes);
+    // Regular users (students) can only see their own feedback
+    $sql = "SELECT f.*, u.first_name, u.last_name, u.email,
+                   a.first_name as assigned_first_name, a.last_name as assigned_last_name
+            FROM feedback f
+            LEFT JOIN users u ON f.user_id = u.user_id
+            LEFT JOIN users a ON f.assigned_to = a.user_id
+            WHERE f.user_id = ?";
+    
+    // Add additional filter conditions if there are any
+    if (!empty($filterConditions)) {
+        $sql .= " AND " . implode(" AND ", $filterConditions);
     }
+    
+    // Add order by
+    $sql .= " ORDER BY f.created_at DESC";
+    
+    // Add user_id as the first parameter
+    array_unshift($filterParams, $currentUser['user_id']);
+    $filterTypes = 'i' . $filterTypes;
+    
+    $feedbackSubmissions = fetchAll($sql, $filterParams, $filterTypes);
 }
+
+// Get all members and admins for assignment dropdown
+$membersSql = "SELECT user_id, first_name, last_name FROM users WHERE role IN ('admin', 'member') ORDER BY first_name, last_name";
+$members = fetchAll($membersSql);
 
 // Format feedback data for display
 foreach ($feedbackSubmissions as &$feedback) {
@@ -438,7 +481,269 @@ $captchaQuestion = "$num1 + $num2 = ?";
 require_once 'includes/header.php';
 ?>
 
+
+<!-- Custom Feedback Header -->
+<div class="feedback-header animate__animated animate__fadeInDown">
+    <div class="feedback-header-content">
+        <div class="feedback-header-main">
+            <h1 class="feedback-title">
+                <i class="fas fa-comments me-3"></i>
+                Feedback & Suggestions
+            </h1>
+            <p class="feedback-description">Share your thoughts and help us improve the SRC experience</p>
+        </div>
+        <div class="feedback-header-actions">
+            <?php if (!shouldUseAdminInterface()): ?>
+            <!-- View Responses button for students only -->
+            <a href="feedback-response.php" class="btn btn-header-action">
+                <i class="fas fa-reply me-2"></i>View Responses
+            </a>
+            <?php endif; ?>
+            <?php if ($canRespondToFeedback): ?>
+            <!-- Manage Feedback button for admins/members only -->
+            <a href="manage-feedback.php" class="btn btn-header-action">
+                <i class="fas fa-cogs me-2"></i>Manage Feedback
+            </a>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
 <style>
+.feedback-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 80px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.feedback-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.feedback-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.feedback-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.feedback-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.feedback-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+/* Tablet and Below (< 992px) */
+@media (max-width: 991px) {
+    .feedback-header {
+        margin-top: 60px;
+        padding: 2rem 1.75rem;
+        border-radius: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .feedback-header {
+        padding: 1.5rem 1rem;
+        margin-top: 45px;
+        margin-bottom: 1rem;
+    }
+
+    .feedback-header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .feedback-title {
+        font-size: 1.8rem;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .feedback-title i {
+        font-size: 1.6rem;
+    }
+
+    .feedback-description {
+        font-size: 1rem;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-header-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-header-action {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+        margin: 0.2rem;
+        min-width: 120px;
+    }
+}
+
+/* Mobile (< 576px) */
+@media (max-width: 575px) {
+    .feedback-header {
+        padding: 1.25rem 1rem;
+        margin-top: 32px;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .feedback-header {
+        padding: 1rem 0.8rem;
+        margin-top: 35px;
+    }
+
+    .feedback-title {
+        font-size: 1.5rem;
+        gap: 0.4rem;
+    }
+
+    .feedback-title i {
+        font-size: 1.4rem;
+    }
+
+    .feedback-description {
+        font-size: 0.9rem;
+    }
+
+    .btn-header-action {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.7rem;
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 375px) {
+    .feedback-header {
+        padding: 0.8rem 0.6rem;
+        margin-top: 28px;
+    }
+
+    .feedback-title {
+        font-size: 1.3rem;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .feedback-title i {
+        font-size: 1.2rem;
+    }
+
+    .feedback-description {
+        font-size: 0.85rem;
+        line-height: 1.3;
+    }
+
+    .btn-header-action {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        min-width: 100px;
+    }
+}
+
+/* Extra Small Mobile (< 320px) */
+@media (max-width: 319px) {
+    .feedback-header {
+        padding: 0.75rem 0.5rem;
+        margin-top: 24px;
+        border-radius: 8px;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
+
+<style>
+/* Critical Mobile Viewport Fix */
+html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+* {
+    box-sizing: border-box;
+}
+
     .status-badge-pending {
         background-color: #dc3545;
     }
@@ -475,6 +780,71 @@ require_once 'includes/header.php';
         margin-bottom: 10px;
         display: inline-block;
     }
+
+    /* Enhanced Anonymous Submission Button Styling */
+    .form-group.p-3.border.rounded {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%) !important;
+        border: 2px solid #2196f3 !important;
+        border-radius: 12px !important;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-group.p-3.border.rounded::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.5s;
+    }
+
+    .form-group.p-3.border.rounded:hover::before {
+        left: 100%;
+    }
+
+    .form-group.p-3.border.rounded:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
+        border-color: #1976d2 !important;
+    }
+
+    .form-check-label.fw-bold {
+        color: #1565c0 !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        transition: color 0.3s ease;
+    }
+
+    .form-check-label.fw-bold:hover {
+        color: #0d47a1 !important;
+    }
+
+    .form-check-input {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+        border: 2px solid #2196f3 !important;
+        border-radius: 4px !important;
+        transition: all 0.3s ease;
+    }
+
+    .form-check-input:checked {
+        background-color: #2196f3 !important;
+        border-color: #2196f3 !important;
+        box-shadow: 0 0 10px rgba(33, 150, 243, 0.5) !important;
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(33, 150, 243, 0.25) !important;
+        border-color: #1976d2 !important;
+    }
+
+    .text-info {
+        color: #1976d2 !important;
+    }
     
     .why-feedback-matters li {
         margin-bottom: 8px;
@@ -486,20 +856,20 @@ require_once 'includes/header.php';
         gap: 8px;
         margin-top: 12px;
     }
-    
+
     .contact-btn {
         transition: all 0.2s ease;
     }
-    
+
     .contact-btn:hover {
         transform: translateY(-2px);
     }
-    
+
     .email-btn {
         background-color: #007bff;
         border-color: #007bff;
     }
-    
+
     .call-btn {
         background-color: #28a745;
         border-color: #28a745;
@@ -511,18 +881,1121 @@ require_once 'includes/header.php';
         display: block;
         margin-top: 8px;
     }
-    
+
     /* Make contact info cards more distinctive */
     .contact-info-card {
         border-left: 4px solid #007bff;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+
+/* Mobile Layout Optimizations */
+@media (max-width: 991px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+        position: relative;
+    }
+
+    .container-fluid {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        max-width: 100%;
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Two-column layout becomes single column on mobile */
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .row .col-md-5,
+    .row .col-md-7,
+    .row .col-md-12 {
+        margin-bottom: 1.5rem;
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        overflow-x: hidden;
+    }
+
+    /* Card spacing optimization */
+    .card {
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .card-body {
+        padding: 1rem;
+        overflow-x: hidden;
+    }
+
+    .card-header {
+        padding: 0.75rem 1rem;
+    }
+
+    /* Form optimizations */
+    .form-control,
+    .form-select,
+    textarea {
+        padding: 0.75rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Button optimizations */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* Statistics cards mobile layout */
+    .row .col-md-3 {
+        margin-bottom: 1rem;
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .row .col-md-3 .card {
+        margin-bottom: 0;
+    }
+}
+
+/* Tablet Optimizations (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .container-fluid {
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+    }
+
+    .feedback-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .btn {
+        padding: 0.8rem 1.6rem;
+        font-size: 1rem;
+    }
+
+    /* Statistics cards in 2x2 grid on tablets */
+    .row .col-md-3:nth-child(1),
+    .row .col-md-3:nth-child(2) {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Mobile Phone Optimizations (max-width: 767px) */
+@media (max-width: 767px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+        position: relative;
+    }
+
+    .container-fluid {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        max-width: 100%;
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Form specific optimizations */
+    .feedback-form-card {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .feedback-form-card .card-body {
+        padding: 0.7rem;
+        overflow-x: hidden;
+    }
+
+    .feedback-form-card form {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .form-group.p-3.border.rounded {
+        padding: 0.5rem !important;
+        margin-bottom: 0.8rem !important;
+        overflow-x: hidden;
+    }
+
+    .form-check-label {
+        font-size: 0.9rem !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .form-check-input {
+        width: 1rem !important;
+        height: 1rem !important;
+        flex-shrink: 0;
+    }
+
+    .form-control,
+    .form-select,
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    textarea {
+        font-size: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.6rem !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden;
+    }
+
+    .form-label {
+        font-size: 0.85rem !important;
+        word-break: break-word;
+        margin-bottom: 0.4rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 0.8rem !important;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Anonymous submission section mobile styling */
+    .form-group.p-3.border.rounded {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 6px !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* CAPTCHA mobile styling */
+    .captcha-container {
+        padding: 0.6rem 0.8rem;
+        font-size: 1rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        word-break: break-word;
+        overflow-x: hidden;
+    }
+
+    /* Information cards mobile styling */
+    .why-feedback-matters li {
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .card {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .card-body {
+        overflow-x: hidden;
+        word-break: break-word;
+    }
+
+    /* Statistics cards stack vertically */
+    .row .col-md-3 {
+        margin-bottom: 0.8rem;
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .row .col-md-3:last-child {
+        margin-bottom: 0;
+    }
+
+    .row .col-md-3 .card .card-body {
+        padding: 0.8rem;
+        text-align: center;
+        overflow-x: hidden;
+    }
+
+    .row .col-md-3 .card h6 {
+        font-size: 0.8rem;
+        margin-bottom: 0.4rem;
+        word-break: break-word;
+    }
+
+    .row .col-md-3 .card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0;
+    }
+
+    /* Button mobile styling */
+    .btn {
+        width: auto;
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+        overflow-x: hidden;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .btn.w-100 {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Input group and prepend/append */
+    .input-group {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .input-group > * {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+}
+
+/* Small Phone Optimizations (max-width: 480px) */
+@media (max-width: 480px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+        position: relative;
+    }
+
+    .container-fluid {
+        padding-left: 0.4rem !important;
+        padding-right: 0.4rem !important;
+        max-width: 100%;
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow-x: hidden;
+    }
+
+    .card-body {
+        padding: 0.6rem;
+        overflow-x: hidden;
+        word-break: break-word;
+    }
+
+    .card-header {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .card-header h5 {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    .form-control,
+    .form-select {
+        padding: 0.5rem;
+        font-size: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    textarea {
+        font-size: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.5rem !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    .btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .btn.w-100 {
+        width: 100% !important;
+        padding: 0.6rem;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+    /* Form labels and text smaller */
+    .form-label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .form-text {
+        font-size: 0.7rem;
+    }
+
+    /* Anonymous submission section */
+    .form-group.p-3.border.rounded {
+        padding: 0.4rem !important;
+        overflow-x: hidden;
+    }
+
+    .form-check-label {
+        font-size: 0.8rem !important;
+        word-break: break-word;
+    }
+
+    .form-check-input {
+        width: 0.95rem !important;
+        height: 0.95rem !important;
+        flex-shrink: 0;
+    }
+
+    .form-group.p-3.border.rounded .form-check {
+        margin: 0;
+    }
+
+    .form-group.p-3.border.rounded small {
+        display: block;
+        margin-top: 0.2rem;
+        word-break: break-word;
+        font-size: 0.7rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 0.6rem !important;
+    }
+
+    .row .col-md-3 {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-bottom: 0.6rem;
+    }
+
+    /* Statistics cards smaller on small phones */
+    .row .col-md-3 .card h6 {
+        font-size: 0.7rem;
+    }
+
+    .row .col-md-3 .card h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Very Small Phone Optimizations (max-width: 375px) */
+@media (max-width: 375px) {
+    html, body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden !important;
+        position: relative;
+    }
+
+    .container-fluid {
+        padding-left: 0.3rem !important;
+        padding-right: 0.3rem !important;
+        max-width: 100%;
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .card {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 !important;
+        border-radius: 6px;
+        overflow-x: hidden;
+    }
+
+    .card-body {
+        padding: 0.5rem;
+        overflow-x: hidden;
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .card-header {
+        padding: 0.4rem 0.5rem;
+    }
+
+    .card-header h5 {
+        font-size: 0.9rem;
+        word-break: break-word;
+    }
+
+    .form-control,
+    .form-select {
+        padding: 0.45rem;
+        font-size: 16px !important;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    textarea {
+        font-size: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0.45rem !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    .btn {
+        padding: 0.45rem 0.8rem;
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    .btn.w-100 {
+        width: 100% !important;
+        padding: 0.6rem;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+    .form-label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+
+    .form-text {
+        font-size: 0.7rem;
+        word-break: break-word;
+    }
+
+    .form-group.p-3.border.rounded {
+        padding: 0.4rem !important;
+        margin-bottom: 0.6rem !important;
+        overflow-x: hidden;
+    }
+
+    .form-check-label {
+        font-size: 0.8rem !important;
+        word-break: break-word;
+        margin-left: 0.3rem;
+    }
+
+    .form-check-input {
+        width: 0.95rem !important;
+        height: 0.95rem !important;
+        margin-right: 0.2rem;
+        flex-shrink: 0;
+    }
+
+    .captcha-container {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.95rem;
+        word-break: break-word;
+        overflow-x: hidden;
+    }
+
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+        overflow-x: hidden;
+    }
+
+    .row > [class*="col-"] {
+        padding-left: 0;
+        padding-right: 0;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.6rem;
+        overflow-x: hidden;
+    }
+
+    .mb-3 {
+        margin-bottom: 0.6rem !important;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Statistics cards extremely compact */
+    .row .col-md-3 {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 0.6rem;
+    }
+
+    .row .col-md-3 .card .card-body {
+        padding: 0.5rem;
+    }
+
+    .row .col-md-3 .card h6 {
+        font-size: 0.7rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .row .col-md-3 .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .feedback-form-card {
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* Filter buttons stack */
+    .row .col-12.text-end {
+        text-align: center !important;
+    }
+
+    .row .col-12.text-end .btn {
+        display: block;
+        width: 100%;
+        margin: 0.15rem 0;
+        min-width: auto;
+        box-sizing: border-box;
+    }
+
+    /* Feedback header responsive */
+    .feedback-header {
+        padding: 0.7rem 0.5rem;
+    }
+
+    .feedback-title {
+        font-size: 1.2rem;
+    }
+
+    .feedback-description {
+        font-size: 0.8rem;
+    }
+}
+
+/* Table Mobile Optimizations */
+@media (max-width: 991px) {
+    .table-responsive {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        margin-bottom: 0;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.6rem 0.4rem;
+        vertical-align: middle;
+    }
+
+    .table th {
+        font-size: 0.85rem;
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    /* Action buttons in table */
+    .table .btn {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.8rem;
+        margin: 0.1rem;
+    }
+
+    .table .d-flex {
+        flex-wrap: wrap;
+        gap: 0.2rem;
+    }
+
+    /* Status badges */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+    }
+
+    /* Truncated text in table */
+    .text-truncate {
+        max-width: 150px !important;
+    }
+}
+
+/* Card-Style Tables for Small Screens */
+@media (max-width: 576px) {
+    .table-responsive {
+        overflow-x: visible;
+    }
+
+    .table,
+    .table thead,
+    .table tbody,
+    .table th,
+    .table td,
+    .table tr {
+        display: block;
+    }
+
+    .table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .table tr {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table td {
+        border: none;
+        padding: 0.5rem 0;
+        position: relative;
+        padding-left: 35%;
+        white-space: normal;
+    }
+
+    .table td:before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 30%;
+        padding-right: 10px;
+        white-space: nowrap;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.85rem;
+    }
+
+    /* Add data labels for mobile table */
+    .table td:nth-child(1):before { content: "ID:"; }
+    .table td:nth-child(2):before { content: "Submitter:"; }
+    .table td:nth-child(3):before { content: "Category:"; }
+    .table td:nth-child(4):before { content: "Message:"; }
+    .table td:nth-child(5):before { content: "Status:"; }
+    .table td:nth-child(6):before { content: "Date:"; }
+    .table td:nth-child(7):before { content: "Actions:"; }
+
+    /* Action buttons mobile layout - Keep horizontal */
+    .table td:nth-child(7) .d-flex {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .table td:nth-child(7) .btn {
+        width: auto;
+        min-width: 36px;
+        height: 36px;
+        justify-content: center;
+        padding: 0.4rem;
+        font-size: 0.8rem;
+        margin: 0.1rem;
+    }
+
+    .text-truncate {
+        max-width: none !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+    }
+}
+
+/* Modal Mobile Optimizations */
+@media (max-width: 991px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-dialog.modal-lg,
+    .modal-dialog.modal-xl {
+        max-width: calc(100% - 1rem);
+    }
+
+    .modal-content {
+        border-radius: 8px;
+    }
+
+    .modal-header {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 1rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 0.8rem 1rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    /* Modal form elements */
+    .modal .form-control,
+    .modal .form-select {
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+
+    .modal .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    /* Modal cards */
+    .modal .card {
+        margin-bottom: 1rem;
+    }
+
+    .modal .card-body {
+        padding: 0.8rem;
+    }
+
+    .modal .card-header {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+    }
+
+    /* Contact buttons in modals */
+    .modal .contact-btn-group .btn {
+        flex: 1;
+        margin: 0.2rem;
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.25rem;
+        max-width: calc(100% - 0.5rem);
+    }
+
+    .modal-header {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+    }
+
+    .modal-body {
+        padding: 0.8rem;
+        max-height: 75vh;
+    }
+
+    .modal-footer {
+        padding: 0.6rem 0.8rem;
+    }
+
+    .modal .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    /* Modal two-column layout becomes single column */
+    .modal .row .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .modal .contact-btn-group {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .modal .contact-btn-group .btn {
+        flex: 1;
+        min-width: 100px;
+        margin: 0.2rem;
+    }
+}
+
+/* Grid View Mobile Optimizations */
+@media (max-width: 991px) {
+    #gridView .col-md-6,
+    #gridView .col-lg-4 {
+        margin-bottom: 1rem;
+    }
+
+    #gridView .feedback-card {
+        height: auto;
+    }
+
+    #gridView .card-body {
+        padding: 1rem;
+    }
+
+    #gridView .action-buttons .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        margin: 0.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #gridView .col-md-6,
+    #gridView .col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    #gridView .action-buttons .d-flex {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        justify-content: flex-start;
+    }
+
+    #gridView .action-buttons .btn {
+        width: auto;
+        min-width: 36px;
+        height: 36px;
+        justify-content: center;
+        padding: 0.4rem;
+        font-size: 0.8rem;
+        margin: 0.1rem;
+    }
+}
+
+/* Alert Mobile Optimizations */
+@media (max-width: 576px) {
+    .alert {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .alert .btn-close {
+        padding: 0.5rem;
+    }
+}
+
+/* Utility Classes for Mobile */
+@media (max-width: 576px) {
+    .d-mobile-block {
+        display: block !important;
+    }
+
+    .d-mobile-none {
+        display: none !important;
+    }
+
+    .text-mobile-center {
+        text-align: center !important;
+    }
+
+    .w-mobile-100 {
+        width: 100% !important;
+    }
+
+    .mb-mobile-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    .p-mobile-2 {
+        padding: 0.5rem !important;
+    }
+}
+
+/* Force Action Buttons to Display Horizontally on All Devices */
+@media (max-width: 991px) {
+    .d-flex.align-items-center {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        justify-content: flex-start;
+    }
+
+    .action-buttons .d-flex,
+    .table .d-flex {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .action-buttons .btn,
+    .table .btn {
+        width: auto !important;
+        min-width: 36px;
+        height: 36px;
+        margin: 0.1rem;
+        padding: 0.4rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Override Global Mobile Header Spacing Fix for Feedback Header */
+@media (max-width: 768px) {
+    /* High specificity override for feedback header */
+    .feedback-header.animate__animated.animate__fadeInDown {
+        margin-top: 18px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    /* Additional specificity for feedback header */
+    div.feedback-header {
+        margin-top: 18px !important;
+        margin-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .feedback-header.animate__animated.animate__fadeInDown {
+        margin-top: 15px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    div.feedback-header {
+        margin-top: 15px !important;
+        margin-bottom: 1rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .feedback-header.animate__animated.animate__fadeInDown {
+        margin-top: 12px !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    div.feedback-header {
+        margin-top: 12px !important;
+        margin-bottom: 0.8rem !important;
+    }
+}
+
+@media (max-width: 320px) {
+    .feedback-header.animate__animated.animate__fadeInDown {
+        margin-top: 10px !important;
+        margin-bottom: 0.8rem !important;
+    }
+
+    div.feedback-header {
+        margin-top: 10px !important;
+        margin-bottom: 0.8rem !important;
+    }
+}
+
+/* Desktop override to ensure proper spacing */
+@media (min-width: 769px) {
+    .feedback-header.animate__animated.animate__fadeInDown,
+    div.feedback-header {
+        margin-top: 75px !important;
+        margin-bottom: 1.5rem !important;
+    }
+}
 </style>
 
 <div class="container-fluid">
-    <div class="header mb-4">
-        <h1 class="page-title"><?php echo $pageTitle; ?></h1>
-    </div>
     
     <?php if ($successMessage): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
@@ -576,8 +2049,8 @@ require_once 'includes/header.php';
     </script>
     
     <div class="row">
-        <!-- Show feedback form only if user has permission to create feedback -->
-        <?php if (hasPermission('create', 'feedback') && !$canRespondToFeedback): ?>
+        <!-- Show feedback form only if user has permission to create feedback and should not use admin interface -->
+        <?php if (hasPermission('create', 'feedback') && !shouldUseAdminInterface()): ?>
         <div class="col-md-5">
             <!-- Feedback Form -->
             <div class="card feedback-form-card">
@@ -589,17 +2062,17 @@ require_once 'includes/header.php';
                     
                     <form method="post" action="">
                         <!-- Anonymous toggle - enhanced visibility -->
-                        <div class="form-group mb-4 p-3 border rounded bg-light">
-                            <div class="d-flex align-items-center">
-                                <input class="form-check-input me-3" type="checkbox" id="is_anonymous" name="is_anonymous" style="transform: scale(1.3); cursor: pointer;">
-                                <div>
-                                    <label class="form-check-label fw-bold" for="is_anonymous">
-                                        <i class="fas fa-user-secret me-2"></i> Submit anonymously
-                            </label>
-                            <small class="form-text text-muted d-block">
-                                If checked, your name and email won't be linked to this feedback.
-                            </small>
-                                </div>
+                        <div class="form-group mb-4 p-3 border rounded" style="background-color: #f8f9fa; border-color: #dee2e6 !important;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_anonymous" name="is_anonymous"
+                                       style="cursor: pointer;">
+                                <label class="form-check-label fw-bold" for="is_anonymous" style="cursor: pointer;">
+                                    <i class="fas fa-user-secret me-2 text-info"></i> Submit anonymously
+                                </label>
+                                <small class="form-text text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    If checked, your name and email won't be linked to this feedback.
+                                </small>
                             </div>
                         </div>
                         
@@ -656,7 +2129,7 @@ require_once 'includes/header.php';
                         </button>
                     </form>
                     
-                    <!-- Add JavaScript to toggle contact info fields -->
+                    <!-- Add JavaScript to toggle contact info fields with mobile enhancements -->
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const anonymousCheckbox = document.getElementById('is_anonymous');
@@ -664,28 +2137,74 @@ require_once 'includes/header.php';
                             const nameField = document.getElementById('name');
                             const emailField = document.getElementById('email');
                             const phoneField = document.getElementById('phone');
-                            
-                            // Function to toggle visibility of contact info
+
+                            // Function to toggle visibility of contact info with mobile-friendly animations
                             function toggleContactInfo() {
-                                if (anonymousCheckbox.checked) {
-                                    contactInfoSection.style.display = 'none';
-                                    // Clear the fields when anonymous is selected
-                                    nameField.value = '';
-                                    emailField.value = '';
-                                    phoneField.value = '';
-                                } else {
-                                    contactInfoSection.style.display = 'block';
-                                    // Restore default values
-                                    nameField.value = '<?php echo $currentUser['first_name'] . ' ' . $currentUser['last_name']; ?>';
-                                    emailField.value = '<?php echo $currentUser['email']; ?>';
+                                if (anonymousCheckbox && contactInfoSection) {
+                                    if (anonymousCheckbox.checked) {
+                                        // Smooth hide animation for mobile
+                                        contactInfoSection.style.transition = 'all 0.3s ease';
+                                        contactInfoSection.style.opacity = '0';
+                                        contactInfoSection.style.transform = 'translateY(-10px)';
+
+                                        setTimeout(function() {
+                                            contactInfoSection.style.display = 'none';
+                                            // Clear the fields when anonymous is selected
+                                            if (nameField) nameField.value = '';
+                                            if (emailField) emailField.value = '';
+                                            if (phoneField) phoneField.value = '';
+                                        }, 300);
+                                    } else {
+                                        // Smooth show animation for mobile
+                                        contactInfoSection.style.display = 'block';
+                                        contactInfoSection.style.opacity = '0';
+                                        contactInfoSection.style.transform = 'translateY(-10px)';
+
+                                        // Restore default values
+                                        if (nameField) nameField.value = '<?php echo addslashes($currentUser['first_name'] . ' ' . $currentUser['last_name']); ?>';
+                                        if (emailField) emailField.value = '<?php echo addslashes($currentUser['email']); ?>';
+
+                                        setTimeout(function() {
+                                            contactInfoSection.style.transition = 'all 0.3s ease';
+                                            contactInfoSection.style.opacity = '1';
+                                            contactInfoSection.style.transform = 'translateY(0)';
+                                        }, 50);
+                                    }
                                 }
                             }
-                            
+
                             // Initial state check
-                            toggleContactInfo();
-                            
-                            // Add event listener for changes
-                            anonymousCheckbox.addEventListener('change', toggleContactInfo);
+                            if (anonymousCheckbox) {
+                                toggleContactInfo();
+
+                                // Add event listener for changes with mobile touch support
+                                anonymousCheckbox.addEventListener('change', toggleContactInfo);
+
+                                // Add touch-friendly styling for mobile
+                                if (window.innerWidth <= 768) {
+                                    anonymousCheckbox.style.transform = 'scale(1.2)';
+                                    anonymousCheckbox.style.margin = '0 8px 0 0';
+
+                                    const label = document.querySelector('label[for="is_anonymous"]');
+                                    if (label) {
+                                        label.style.cursor = 'pointer';
+                                        label.style.userSelect = 'none';
+                                        label.style.padding = '8px';
+                                        label.style.borderRadius = '4px';
+                                        label.style.transition = 'background-color 0.2s ease';
+
+                                        label.addEventListener('touchstart', function() {
+                                            label.style.backgroundColor = 'rgba(0, 123, 255, 0.1)';
+                                        });
+
+                                        label.addEventListener('touchend', function() {
+                                            setTimeout(function() {
+                                                label.style.backgroundColor = 'transparent';
+                                            }, 150);
+                                        });
+                                    }
+                                }
+                            }
                         });
                     </script>
                 </div>
@@ -693,7 +2212,7 @@ require_once 'includes/header.php';
         </div>
         <?php endif; ?>
         
-        <div class="<?php echo (hasPermission('create', 'feedback') && !$canRespondToFeedback) ? 'col-md-7' : 'col-md-12'; ?>">
+        <div class="<?php echo (hasPermission('create', 'feedback') && !shouldUseAdminInterface()) ? 'col-md-7' : 'col-md-12'; ?>">
             <!-- Information Card -->
             <div class="card mb-4">
                 <div class="card-body">
@@ -712,13 +2231,8 @@ require_once 'includes/header.php';
             <?php if ($canRespondToFeedback): ?>
             <!-- Admin/Member View: Feedback Management Dashboard -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i> Feedback Dashboard</h5>
-                    <a href="../admin/feedback_dashboard.php" class="btn btn-sm btn-outline-light">
-                        <i class="fas fa-external-link-alt me-1"></i> Full Dashboard
-                    </a>
-                </div>
-                <div class="card-body">
+                <?php ?>
+<div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
                             <div class="card bg-light mb-0">
@@ -771,17 +2285,8 @@ require_once 'includes/header.php';
 
             <!-- Admin/Member View: Feedback Management -->
             <div class="card">
-                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i> Feedback Management</h5>
-                    <div>
-                        <button class="btn btn-sm btn-outline-light" data-bs-toggle="collapse" data-bs-target="#filterOptions">
-                            <i class="fas fa-filter me-1"></i> Filter
-                        </button>
-                        <button class="btn btn-sm btn-outline-light ms-2" id="toggleView">
-                            <i class="fas fa-th-list me-1"></i> <span id="viewText">Switch to Grid View</span>
-                        </button>
-                    </div>
-                </div>
+                <?php ?>
+</div>
                 
                 <!-- Filter Options -->
                 <div id="filterOptions" class="collapse">
@@ -936,13 +2441,8 @@ require_once 'includes/header.php';
                         <?php foreach ($feedbackSubmissions as $feedback): ?>
                         <div class="col-md-6 col-lg-4 mb-4">
                             <div class="card h-100 feedback-card feedback-item-<?php echo $feedback['status']; ?>">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span>Feedback #<?php echo $feedback['feedback_id']; ?></span>
-                                    <span class="badge status-badge-<?php echo $feedback['status']; ?> text-white">
-                                        <?php echo $feedback['status_display']; ?>
-                                    </span>
-                                </div>
-                                <div class="card-body">
+                                <?php ?>
+<div class="card-body">
                                     <h6 class="card-subtitle mb-2 text-muted">
                                         <?php echo $portfolioCategories[$feedback['subject']] ?? 'Other'; ?>
                                     </h6>
@@ -950,13 +2450,8 @@ require_once 'includes/header.php';
                                         <?php echo htmlspecialchars(substr($feedback['message'], 0, 150)); ?>
                                         <?php echo strlen($feedback['message']) > 150 ? '...' : ''; ?>
                                     </p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">
-                                            <i class="far fa-calendar-alt me-1"></i> <?php echo date('M j, Y', strtotime($feedback['date_submitted'])); ?>
-                                        </small>
-                                    </div>
-                                    
-                                    <?php 
+                                    <?php ?>
+<?php 
                                     $contactEmail = !empty($feedback['email']) ? $feedback['email'] : (!empty($feedback['submitter_email']) ? $feedback['submitter_email'] : '');
                                     $contactPhone = !empty($feedback['submitter_phone']) ? $feedback['submitter_phone'] : '';
                                     $feedbackCategory = $portfolioCategories[$feedback['subject']] ?? 'Other';
@@ -1013,6 +2508,7 @@ require_once 'includes/header.php';
             <?php foreach ($feedbackSubmissions as $feedback): ?>
             <!-- View Feedback Modal -->
             <div class="modal fade" id="viewFeedbackModal<?php echo $feedback['feedback_id']; ?>" tabindex="-1" aria-labelledby="viewFeedbackModalLabel<?php echo $feedback['feedback_id']; ?>" aria-hidden="true">
+                <a id="feedback-<?php echo $feedback['feedback_id']; ?>"></a>
                 <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -1083,7 +2579,7 @@ require_once 'includes/header.php';
                                             <?php echo $feedback['status_display']; ?>
                                         </span><br>
                                         <strong>Category:</strong> <?php echo $portfolioCategories[$feedback['subject']] ?? 'Other'; ?><br>
-                                        <strong>Assigned To:</strong> <?php echo !empty($feedback['assigned_to']) ? htmlspecialchars($feedback['assigned_to']) : 'Not assigned'; ?>
+                                        <strong>Assigned To:</strong> <?php echo !empty($feedback['assigned_to']) ? htmlspecialchars($feedback['assigned_first_name'] . ' ' . $feedback['assigned_last_name']) : 'Not assigned'; ?>
                                     </p>
                                 </div>
                             </div>
@@ -1108,13 +2604,8 @@ require_once 'includes/header.php';
                             </div>
                             <?php endif; ?>
                             
-                            <div class="d-flex justify-content-between">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateFeedbackModal<?php echo $feedback['feedback_id']; ?>" onclick="$('#viewFeedbackModal<?php echo $feedback['feedback_id']; ?>').modal('hide');">
-                                    <i class="fas fa-edit me-1"></i> Update & Respond
-                                </button>
-                            </div>
-                        </div>
+                            <?php ?>
+</div>
                     </div>
                 </div>
             </div>
@@ -1183,8 +2674,17 @@ require_once 'includes/header.php';
                                 
                                 <div class="mb-3">
                                     <label for="assignedTo<?php echo $feedback['feedback_id']; ?>" class="form-label">Assign To</label>
-                                    <input type="text" class="form-control" id="assignedTo<?php echo $feedback['feedback_id']; ?>" name="assigned_to" value="<?php echo htmlspecialchars($feedback['assigned_to'] ?? ''); ?>" placeholder="Enter name of person to handle this feedback">
-                                        </div>
+                                    <select class="form-select" id="assignedTo<?php echo $feedback['feedback_id']; ?>" name="assigned_to">
+                                        <option value="">Select a member...</option>
+                                        <option value="unassigned">Unassign</option>
+                                        <?php foreach ($members as $member): ?>
+                                        <option value="<?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>"
+                                                <?php echo ($feedback['assigned_first_name'] . ' ' . $feedback['assigned_last_name']) === ($member['first_name'] . ' ' . $member['last_name']) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                                     </div>
                                 </div>
                                 
@@ -1248,27 +2748,83 @@ require_once 'includes/header.php';
             </div>
             <?php endforeach; ?>
             
-            <!-- Add JavaScript for toggling between List and Grid views -->
+            <!-- Add JavaScript for toggling between List and Grid views and Mobile Responsiveness -->
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const toggleViewBtn = document.getElementById('toggleView');
                     const viewText = document.getElementById('viewText');
                     const listView = document.getElementById('listView');
                     const gridView = document.getElementById('gridView');
-                    
-                    toggleViewBtn.addEventListener('click', function() {
-                        if (listView.classList.contains('d-none')) {
-                            // Switch to List View
-                            listView.classList.remove('d-none');
-                            gridView.classList.add('d-none');
-                            viewText.textContent = 'Switch to Grid View';
-                        } else {
-                            // Switch to Grid View
-                            listView.classList.add('d-none');
-                            gridView.classList.remove('d-none');
-                            viewText.textContent = 'Switch to List View';
-                        }
+
+                    if (toggleViewBtn) {
+                        toggleViewBtn.addEventListener('click', function() {
+                            if (listView.classList.contains('d-none')) {
+                                // Switch to List View
+                                listView.classList.remove('d-none');
+                                gridView.classList.add('d-none');
+                                viewText.textContent = 'Switch to Grid View';
+                            } else {
+                                // Switch to Grid View
+                                listView.classList.add('d-none');
+                                gridView.classList.remove('d-none');
+                                viewText.textContent = 'Switch to List View';
+                            }
+                        });
+                    }
+
+                    // Mobile Table Responsiveness
+                    function initMobileTable() {
+                        const tables = document.querySelectorAll('.table');
+
+                        tables.forEach(function(table) {
+                            // Add mobile-responsive class
+                            if (window.innerWidth <= 576) {
+                                table.classList.add('table-mobile-cards');
+                            } else {
+                                table.classList.remove('table-mobile-cards');
+                            }
+                        });
+                    }
+
+                    // Initialize mobile table on load
+                    initMobileTable();
+
+                    // Re-initialize on window resize
+                    window.addEventListener('resize', function() {
+                        initMobileTable();
                     });
+
+                    // Mobile Modal Optimizations
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(function(modal) {
+                        modal.addEventListener('shown.bs.modal', function() {
+                            // Adjust modal height for mobile
+                            if (window.innerWidth <= 576) {
+                                const modalBody = modal.querySelector('.modal-body');
+                                if (modalBody) {
+                                    modalBody.style.maxHeight = '70vh';
+                                    modalBody.style.overflowY = 'auto';
+                                }
+                            }
+                        });
+                    });
+
+                    // Mobile-specific UI enhancements
+                    if (window.innerWidth <= 768) {
+                        // Add touch-friendly classes to buttons
+                        const buttons = document.querySelectorAll('.btn');
+                        buttons.forEach(function(btn) {
+                            btn.style.minHeight = '44px'; // Touch-friendly minimum height
+                        });
+
+                        // Improve form field spacing on mobile
+                        const formGroups = document.querySelectorAll('.mb-3');
+                        formGroups.forEach(function(group) {
+                            if (window.innerWidth <= 375) {
+                                group.style.marginBottom = '0.8rem';
+                            }
+                        });
+                    }
                 });
             </script>
             <?php else: ?>
@@ -1295,5 +2851,95 @@ require_once 'includes/header.php';
         </div>
     </div>
 </div>
+
+<!-- Mobile Optimization Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile viewport optimization
+    function optimizeForMobile() {
+        const isMobile = window.innerWidth <= 768;
+        const isSmallMobile = window.innerWidth <= 480;
+        const isVerySmallMobile = window.innerWidth <= 375;
+
+        // Add mobile classes to body for CSS targeting
+        document.body.classList.toggle('mobile-device', isMobile);
+        document.body.classList.toggle('small-mobile', isSmallMobile);
+        document.body.classList.toggle('very-small-mobile', isVerySmallMobile);
+
+        // Optimize touch targets for mobile
+        if (isMobile) {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(function(btn) {
+                if (!btn.style.minHeight) {
+                    btn.style.minHeight = '44px';
+                }
+                btn.style.touchAction = 'manipulation';
+            });
+
+            // Optimize form inputs for mobile
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(function(input) {
+                input.style.fontSize = Math.max(16, parseInt(getComputedStyle(input).fontSize)) + 'px';
+            });
+
+            // Optimize table scrolling for mobile
+            const tableContainers = document.querySelectorAll('.table-responsive');
+            tableContainers.forEach(function(container) {
+                container.style.webkitOverflowScrolling = 'touch';
+                container.style.overflowX = 'auto';
+            });
+        }
+
+        // Optimize modal positioning for mobile
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(function(modal) {
+            if (isMobile) {
+                modal.addEventListener('shown.bs.modal', function() {
+                    const modalDialog = modal.querySelector('.modal-dialog');
+                    if (modalDialog) {
+                        modalDialog.style.margin = '0.5rem';
+                        modalDialog.style.maxWidth = 'calc(100% - 1rem)';
+                    }
+                });
+            }
+        });
+    }
+
+    // Initial optimization
+    optimizeForMobile();
+
+    // Re-optimize on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(optimizeForMobile, 250);
+    });
+
+    // Prevent zoom on input focus for iOS
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(function(input) {
+            input.addEventListener('focus', function() {
+                input.style.fontSize = '16px';
+            });
+        });
+    }
+
+    // Smooth scrolling for mobile anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target && window.innerWidth <= 768) {
+                e.preventDefault();
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+</script>
 
 <?php require_once 'includes/footer.php'; ?>

@@ -1,0 +1,93 @@
+/* Increase font sizes across all pages */
+body {
+    font-size: 1.1rem !important;
+}
+
+h1 {
+    font-size: 2.2rem !important;
+}
+
+h2 {
+    font-size: 1.8rem !important;
+}
+
+h3 {
+    font-size: 1.5rem !important;
+}
+
+h4 {
+    font-size: 1.3rem !important;
+}
+
+h5 {
+    font-size: 1.2rem !important;
+}
+
+h6 {
+    font-size: 1.1rem !important;
+}
+
+p, li, td, th, label, input, select, textarea, button {
+    font-size: 1.1rem !important;
+}
+
+.sidebar-link {
+    font-size: 1.1rem !important;
+}
+
+.nav-link {
+    font-size: 1.1rem !important;
+}
+
+.btn {
+    font-size: 1.1rem !important;
+}
+
+.badge {
+    font-size: 0.9rem !important;
+}
+
+.small {
+    font-size: 1rem !important;
+}
+
+.form-text {
+    font-size: 1rem !important;
+}
+
+.table th {
+    font-size: 1rem !important;
+}
+
+.table td {
+    font-size: 1.1rem !important;
+}
+
+.card-title {
+    font-size: 1.3rem !important;
+}
+
+.card-subtitle {
+    font-size: 1.1rem !important;
+}
+
+.alert {
+    font-size: 1.1rem !important;
+}
+
+.breadcrumb {
+    font-size: 1.1rem !important;
+}
+
+.dropdown-menu {
+    font-size: 1.1rem !important;
+}
+
+.modal-title {
+    font-size: 1.5rem !important;
+}
+
+.modal-body {
+    font-size: 1.1rem !important;
+}
+

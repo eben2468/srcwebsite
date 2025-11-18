@@ -1,0 +1,359 @@
+/**
+ * VVUSRC Tables Mobile Responsive Fixes
+ * Comprehensive responsive table solutions for mobile devices
+ */
+
+/* Mobile Table Base Styles */
+@media (max-width: 991px) {
+    .table-responsive {
+        border: none !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        box-shadow: var(--mobile-shadow, 0 2px 8px rgba(0, 0, 0, 0.1)) !important;
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .table {
+        margin-bottom: 0 !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+        white-space: nowrap !important;
+    }
+    
+    .table th {
+        background-color: #f8f9fa !important;
+        font-weight: 600 !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+        padding: 12px 8px !important;
+        border-bottom: 2px solid #dee2e6 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+    }
+    
+    .table td {
+        padding: 10px 8px !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    
+    .table tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05) !important;
+    }
+    
+    /* Table Actions */
+    .table .btn {
+        padding: 4px 8px !important;
+        font-size: var(--mobile-font-xs, 12px) !important;
+        margin: 2px !important;
+        border-radius: 4px !important;
+    }
+    
+    .table .btn-sm {
+        padding: 2px 6px !important;
+        font-size: 11px !important;
+    }
+    
+    /* Table Icons */
+    .table i {
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+    
+    /* Table Status Badges */
+    .table .badge {
+        font-size: 10px !important;
+        padding: 3px 6px !important;
+    }
+}
+
+/* Card-Style Tables for Very Small Screens */
+@media (max-width: 576px) {
+    .table-mobile-cards {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    .table-mobile-cards thead {
+        display: none !important;
+    }
+    
+    .table-mobile-cards tbody {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    .table-mobile-cards tr {
+        display: block !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        margin-bottom: var(--mobile-padding-sm, 12px) !important;
+        padding: var(--mobile-padding-md, 16px) !important;
+        box-shadow: var(--mobile-shadow, 0 2px 8px rgba(0, 0, 0, 0.1)) !important;
+    }
+    
+    .table-mobile-cards td {
+        display: block !important;
+        border: none !important;
+        padding: 6px 0 !important;
+        text-align: left !important;
+        position: relative !important;
+        padding-left: 40% !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    
+    .table-mobile-cards td:before {
+        content: attr(data-label) !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 6px !important;
+        width: 35% !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+    
+    .table-mobile-cards td:last-child {
+        border-bottom: none !important;
+    }
+    
+    /* Actions in card style */
+    .table-mobile-cards .table-actions {
+        padding-left: 0 !important;
+        text-align: center !important;
+        margin-top: 10px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid #dee2e6 !important;
+    }
+    
+    .table-mobile-cards .table-actions:before {
+        display: none !important;
+    }
+    
+    .table-mobile-cards .table-actions .btn {
+        margin: 2px 4px !important;
+        padding: 6px 12px !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+}
+
+/* Horizontal Scroll Tables */
+@media (max-width: 991px) {
+    .table-scroll-horizontal {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+    }
+    
+    .table-scroll-horizontal .table {
+        min-width: 600px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    /* Scroll indicator */
+    .table-scroll-horizontal:after {
+        content: "← Scroll to see more →" !important;
+        display: block !important;
+        text-align: center !important;
+        padding: 8px !important;
+        background-color: #f8f9fa !important;
+        color: #6c757d !important;
+        font-size: var(--mobile-font-xs, 12px) !important;
+        border-top: 1px solid #dee2e6 !important;
+    }
+}
+
+/* Stacked Tables */
+@media (max-width: 768px) {
+    .table-stacked {
+        display: block !important;
+    }
+    
+    .table-stacked thead {
+        display: none !important;
+    }
+    
+    .table-stacked tbody,
+    .table-stacked tr,
+    .table-stacked td {
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    .table-stacked tr {
+        border: 1px solid #dee2e6 !important;
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        margin-bottom: var(--mobile-padding-sm, 12px) !important;
+        padding: var(--mobile-padding-md, 16px) !important;
+        background: white !important;
+    }
+    
+    .table-stacked td {
+        border: none !important;
+        padding: 4px 0 !important;
+        position: relative !important;
+        padding-left: 35% !important;
+    }
+    
+    .table-stacked td:before {
+        content: attr(data-label) ": " !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 4px !important;
+        font-weight: 600 !important;
+        color: #495057 !important;
+        width: 30% !important;
+    }
+}
+
+/* Table Search and Filter */
+@media (max-width: 991px) {
+    .table-search {
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    .table-search .form-control {
+        border-radius: var(--mobile-border-radius, 8px) !important;
+        padding: 12px var(--mobile-padding-md, 16px) !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+    }
+    
+    .table-filter {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        margin-bottom: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    .table-filter .btn {
+        flex: 1 1 auto !important;
+        min-width: 80px !important;
+    }
+}
+
+/* Table Pagination */
+@media (max-width: 991px) {
+    .pagination {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+        margin-top: var(--mobile-padding-md, 16px) !important;
+    }
+    
+    .page-link {
+        padding: 8px 12px !important;
+        font-size: var(--mobile-font-md, 14px) !important;
+        margin: 2px !important;
+        border-radius: 6px !important;
+    }
+    
+    .pagination-sm .page-link {
+        padding: 6px 10px !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+    
+    .pagination-lg .page-link {
+        padding: 10px 16px !important;
+        font-size: var(--mobile-font-lg, 15px) !important;
+    }
+}
+
+/* Very Small Phones (320px - 374px) */
+@media (max-width: 374px) {
+    .table {
+        font-size: var(--mobile-font-xs, 12px) !important;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 6px !important;
+    }
+    
+    .table .btn {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+    }
+    
+    .table-mobile-cards tr {
+        padding: var(--mobile-padding-sm, 12px) !important;
+    }
+    
+    .table-mobile-cards td {
+        padding-left: 45% !important;
+    }
+    
+    .table-mobile-cards td:before {
+        width: 40% !important;
+        font-size: var(--mobile-font-xs, 12px) !important;
+    }
+    
+    .page-link {
+        padding: 6px 8px !important;
+        font-size: var(--mobile-font-sm, 13px) !important;
+    }
+}
+
+/* Medium Phones (375px - 413px) */
+@media (min-width: 375px) and (max-width: 413px) {
+    .table-mobile-cards td {
+        padding-left: 42% !important;
+    }
+    
+    .table-mobile-cards td:before {
+        width: 37% !important;
+    }
+}
+
+/* Landscape Orientation */
+@media (max-width: 991px) and (orientation: landscape) {
+    .table th,
+    .table td {
+        padding: 8px 6px !important;
+    }
+    
+    .table-mobile-cards tr {
+        padding: var(--mobile-padding-sm, 12px) !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .table-mobile-cards td {
+        padding: 4px 0 !important;
+        padding-left: 35% !important;
+    }
+    
+    .pagination {
+        margin-top: var(--mobile-padding-sm, 12px) !important;
+    }
+}
+
+/* Dark Mode Support */
+@media (max-width: 991px) {
+    [data-bs-theme="dark"] .table th {
+        background-color: #343a40 !important;
+        color: white !important;
+        border-bottom-color: #495057 !important;
+    }
+    
+    [data-bs-theme="dark"] .table td {
+        border-bottom-color: #495057 !important;
+        color: #f8f9fa !important;
+    }
+    
+    [data-bs-theme="dark"] .table tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    [data-bs-theme="dark"] .table-mobile-cards tr {
+        background: #212529 !important;
+        border-color: #495057 !important;
+    }
+    
+    [data-bs-theme="dark"] .table-mobile-cards td:before {
+        color: #adb5bd !important;
+    }
+    
+    [data-bs-theme="dark"] .table-mobile-cards .table-actions {
+        border-top-color: #495057 !important;
+    }
+}

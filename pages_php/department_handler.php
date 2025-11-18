@@ -1,18 +1,29 @@
 <?php
-// Department handler file - Processes form submissions for department actions
-require_once '../db_config.php';
-require_once '../functions.php';
-require_once '../auth_functions.php'; // Add auth_functions for standard auth
-require_once '../auth_bridge.php'; // Add auth bridge for admin status
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+
+// Require login for this page
+requireLogin();
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check for admin status using both systems
-$isAdmin = isAdmin() || getBridgedAdminStatus();
+// Check for admin status - use unified admin interface check for super admin users
+$isAdmin = shouldUseAdminInterface();
 $adminParam = $isAdmin ? '?admin=1' : '';
+
+// Ensure only admin users can perform CRUD operations
+if (!$isAdmin) {
+    $_SESSION['error'] = "Access denied. Admin privileges required.";
+    header("Location: departments.php");
+    exit();
+}
 
 // Default redirect location
 $redirectUrl = 'departments.php' . $adminParam;
@@ -44,12 +55,20 @@ switch ($action) {
         handleAddEvent();
         break;
         
+    case 'edit_event':
+        handleEditEvent();
+        break;
+        
     case 'delete_event':
         handleDeleteEvent();
         break;
         
     case 'add_contact':
         handleAddContact();
+        break;
+        
+    case 'edit_contact':
+        handleEditContact();
         break;
         
     case 'delete_contact':
@@ -75,7 +94,15 @@ switch ($action) {
     case 'delete_gallery_image_file':
         handleDeleteGalleryImageFile();
         break;
-        
+
+    case 'bulk_upload_gallery':
+        handleBulkUploadGallery();
+        break;
+
+    case 'bulk_upload_documents':
+        handleBulkUploadDocuments();
+        break;
+
     default:
         $_SESSION['error'] = "Invalid action specified.";
         header("Location: $redirectUrl");
@@ -152,13 +179,34 @@ function handleAddDepartment() {
         $fileExt = strtolower(pathinfo($_FILES['department_image']['name'], PATHINFO_EXTENSION));
         $targetFile = $targetDir . $code . '.' . $fileExt;
         
+        // Debug log
+        $logMessage = date('Y-m-d H:i:s') . " - Uploading image for new department {$code}:\n";
+        $logMessage .= "Source: " . $_FILES['department_image']['tmp_name'] . "\n";
+        $logMessage .= "Target: " . $targetFile . "\n";
+        $logMessage .= "Size: " . $_FILES['department_image']['size'] . " bytes\n";
+        $logMessage .= "Type: " . $_FILES['department_image']['type'] . "\n";
+        
         // Handle image upload
         if (move_uploaded_file($_FILES['department_image']['tmp_name'], $targetFile)) {
+            $logMessage .= "Upload successful\n";
+            
             // Resize image if GD is available
             if (extension_loaded('gd')) {
-                resizeImage($targetFile, $targetFile, 800, 400);
+                $resizeResult = resizeImage($targetFile, $targetFile, 800, 400);
+                $logMessage .= "Resize result: " . ($resizeResult ? "Success" : "Failed") . "\n";
+            } else {
+                $logMessage .= "GD extension not available, skipping resize\n";
             }
+            
+            // Set proper permissions
+            chmod($targetFile, 0644);
+            $logMessage .= "Permissions set to 0644\n";
+        } else {
+            $logMessage .= "Upload failed: " . error_get_last()['message'] . "\n";
         }
+        
+        // Write to log
+        file_put_contents('../image_upload.log', $logMessage . "\n", FILE_APPEND);
     }
     
     $_SESSION['success'] = "Department '$name' added successfully!";
@@ -242,13 +290,34 @@ function handleEditDepartment() {
         $fileExt = strtolower(pathinfo($_FILES['department_image']['name'], PATHINFO_EXTENSION));
         $targetFile = $targetDir . $lowerCode . '.' . $fileExt;
         
+        // Debug log
+        $logMessage = date('Y-m-d H:i:s') . " - Uploading image for department {$code}:\n";
+        $logMessage .= "Source: " . $_FILES['department_image']['tmp_name'] . "\n";
+        $logMessage .= "Target: " . $targetFile . "\n";
+        $logMessage .= "Size: " . $_FILES['department_image']['size'] . " bytes\n";
+        $logMessage .= "Type: " . $_FILES['department_image']['type'] . "\n";
+        
         // Handle image upload
         if (move_uploaded_file($_FILES['department_image']['tmp_name'], $targetFile)) {
+            $logMessage .= "Upload successful\n";
+            
             // Resize image if GD is available
             if (extension_loaded('gd')) {
-                resizeImage($targetFile, $targetFile, 800, 400);
+                $resizeResult = resizeImage($targetFile, $targetFile, 800, 400);
+                $logMessage .= "Resize result: " . ($resizeResult ? "Success" : "Failed") . "\n";
+            } else {
+                $logMessage .= "GD extension not available, skipping resize\n";
             }
+            
+            // Set proper permissions
+            chmod($targetFile, 0644);
+            $logMessage .= "Permissions set to 0644\n";
+        } else {
+            $logMessage .= "Upload failed: " . error_get_last()['message'] . "\n";
         }
+        
+        // Write to log
+        file_put_contents('../image_upload.log', $logMessage . "\n", FILE_APPEND);
     }
     
     $_SESSION['success'] = "Department '$name' updated successfully!";
@@ -380,6 +449,68 @@ function handleAddEvent() {
     exit();
 }
 
+function handleEditEvent() {
+    global $adminParam;
+    
+    // Get form data
+    $code = strtoupper(trim($_POST['department_code']));
+    $eventId = intval($_POST['event_id']);
+    $title = trim($_POST['title']);
+    $date = trim($_POST['date']);
+    $description = trim($_POST['description']);
+    
+    // Load existing departments data
+    $departmentsFile = '../data/departments.json';
+    $departments = [];
+    
+    // Load existing data if available
+    if (file_exists($departmentsFile)) {
+        $departmentsData = file_get_contents($departmentsFile);
+        $departments = json_decode($departmentsData, true) ?: [];
+    } else {
+        $_SESSION['error'] = "Department data not found!";
+        header("Location: departments.php" . $adminParam);
+        exit();
+    }
+    
+    // Check if department exists
+    if (!isset($departments[$code])) {
+        $_SESSION['error'] = "Department not found!";
+        header("Location: departments.php" . $adminParam);
+        exit();
+    }
+    
+    // Find and update the event
+    $events = $departments[$code]['events'] ?? [];
+    $eventFound = false;
+    
+    foreach ($events as &$event) {
+        if ($event['id'] == $eventId) {
+            $event['title'] = $title;
+            $event['date'] = $date;
+            $event['description'] = $description;
+            $eventFound = true;
+            break;
+        }
+    }
+    
+    if (!$eventFound) {
+        $_SESSION['error'] = "Event not found!";
+        header("Location: department-detail.php?code=$code" . ($adminParam ? '&admin=1' : ''));
+        exit();
+    }
+    
+    // Update department events
+    $departments[$code]['events'] = $events;
+    
+    // Save updated departments data
+    file_put_contents($departmentsFile, json_encode($departments, JSON_PRETTY_PRINT));
+    
+    $_SESSION['success'] = "Event '$title' updated successfully!";
+    header("Location: department-detail.php?code=$code" . ($adminParam ? '&admin=1' : ''));
+    exit();
+}
+
 function handleDeleteEvent() {
     global $adminParam;
     
@@ -483,6 +614,70 @@ function handleAddContact() {
     file_put_contents($departmentsFile, json_encode($departments, JSON_PRETTY_PRINT));
     
     $_SESSION['success'] = "Contact '$name' added successfully!";
+    header("Location: department-detail.php?code=$code" . ($adminParam ? '&admin=1' : ''));
+    exit();
+}
+
+function handleEditContact() {
+    global $adminParam;
+    
+    // Get form data
+    $code = strtoupper(trim($_POST['department_code']));
+    $contactId = intval($_POST['contact_id']);
+    $name = trim($_POST['name']);
+    $position = trim($_POST['position']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+    
+    // Load existing departments data
+    $departmentsFile = '../data/departments.json';
+    $departments = [];
+    
+    // Load existing data if available
+    if (file_exists($departmentsFile)) {
+        $departmentsData = file_get_contents($departmentsFile);
+        $departments = json_decode($departmentsData, true) ?: [];
+    } else {
+        $_SESSION['error'] = "Department data not found!";
+        header("Location: departments.php" . $adminParam);
+        exit();
+    }
+    
+    // Check if department exists
+    if (!isset($departments[$code])) {
+        $_SESSION['error'] = "Department not found!";
+        header("Location: departments.php" . $adminParam);
+        exit();
+    }
+    
+    // Find and update the contact
+    $contacts = $departments[$code]['contacts'] ?? [];
+    $contactFound = false;
+    
+    foreach ($contacts as &$contact) {
+        if ($contact['id'] == $contactId) {
+            $contact['name'] = $name;
+            $contact['position'] = $position;
+            $contact['email'] = $email;
+            $contact['phone'] = $phone;
+            $contactFound = true;
+            break;
+        }
+    }
+    
+    if (!$contactFound) {
+        $_SESSION['error'] = "Contact not found!";
+        header("Location: department-detail.php?code=$code" . ($adminParam ? '&admin=1' : ''));
+        exit();
+    }
+    
+    // Update department contacts
+    $departments[$code]['contacts'] = $contacts;
+    
+    // Save updated departments data
+    file_put_contents($departmentsFile, json_encode($departments, JSON_PRETTY_PRINT));
+    
+    $_SESSION['success'] = "Contact '$name' updated successfully!";
     header("Location: department-detail.php?code=$code" . ($adminParam ? '&admin=1' : ''));
     exit();
 }
@@ -851,8 +1046,37 @@ function handleDeleteGalleryImageFile() {
 
 // Helper function to resize images
 function resizeImage($sourceFile, $targetFile, $maxWidth, $maxHeight) {
-    list($width, $height) = getimagesize($sourceFile);
-    
+    // Check if GD extension is loaded
+    if (!extension_loaded('gd')) {
+        // GD extension not available, just copy the file without resizing
+        if ($sourceFile !== $targetFile) {
+            return copy($sourceFile, $targetFile);
+        }
+        return true; // File is already in place
+    }
+
+    // Check if required GD functions exist
+    if (!function_exists('imagecreatefromjpeg') || !function_exists('imagecreatefrompng') ||
+        !function_exists('imagecreatefromgif') || !function_exists('imagecreatetruecolor')) {
+        // Required GD functions not available, just copy the file
+        if ($sourceFile !== $targetFile) {
+            return copy($sourceFile, $targetFile);
+        }
+        return true;
+    }
+
+    // Get image info
+    $imageInfo = getimagesize($sourceFile);
+    if (!$imageInfo) {
+        // Cannot get image info, just copy the file
+        if ($sourceFile !== $targetFile) {
+            return copy($sourceFile, $targetFile);
+        }
+        return true;
+    }
+
+    list($width, $height, $type) = $imageInfo;
+
     // Calculate new dimensions while maintaining aspect ratio
     if ($width > $height) {
         $newWidth = $maxWidth;
@@ -861,19 +1085,363 @@ function resizeImage($sourceFile, $targetFile, $maxWidth, $maxHeight) {
         $newHeight = $maxHeight;
         $newWidth = intval($width * $maxHeight / $height);
     }
-    
+
     // Create a new image with the new dimensions
-    $sourceImage = imagecreatefromjpeg($sourceFile);
+    $sourceImage = null;
+
+    // Load image based on its type
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            if (function_exists('imagecreatefromjpeg')) {
+                $sourceImage = imagecreatefromjpeg($sourceFile);
+            }
+            break;
+        case IMAGETYPE_PNG:
+            if (function_exists('imagecreatefrompng')) {
+                $sourceImage = imagecreatefrompng($sourceFile);
+            }
+            break;
+        case IMAGETYPE_GIF:
+            if (function_exists('imagecreatefromgif')) {
+                $sourceImage = imagecreatefromgif($sourceFile);
+            }
+            break;
+        default:
+            // Unsupported image type, just copy the file
+            if ($sourceFile !== $targetFile) {
+                return copy($sourceFile, $targetFile);
+            }
+            return true;
+    }
+
+    if (!$sourceImage) {
+        // Failed to create image resource, just copy the file
+        if ($sourceFile !== $targetFile) {
+            return copy($sourceFile, $targetFile);
+        }
+        return true;
+    }
+
+    // Create target image
     $targetImage = imagecreatetruecolor($newWidth, $newHeight);
-    
+    if (!$targetImage) {
+        imagedestroy($sourceImage);
+        // Failed to create target image, just copy the file
+        if ($sourceFile !== $targetFile) {
+            return copy($sourceFile, $targetFile);
+        }
+        return true;
+    }
+
+    // Preserve transparency for PNG images
+    if ($type == IMAGETYPE_PNG) {
+        imagealphablending($targetImage, false);
+        imagesavealpha($targetImage, true);
+        $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
+        imagefilledrectangle($targetImage, 0, 0, $newWidth, $newHeight, $transparent);
+    }
+
     // Resize the image
     imagecopyresampled($targetImage, $sourceImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-    
+
     // Save the resized image
-    imagejpeg($targetImage, $targetFile, 90);
-    
+    $result = false;
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            if (function_exists('imagejpeg')) {
+                $result = imagejpeg($targetImage, $targetFile, 90);
+            }
+            break;
+        case IMAGETYPE_PNG:
+            if (function_exists('imagepng')) {
+                $result = imagepng($targetImage, $targetFile, 9);
+            }
+            break;
+        case IMAGETYPE_GIF:
+            if (function_exists('imagegif')) {
+                $result = imagegif($targetImage, $targetFile);
+            }
+            break;
+    }
+
     // Free up memory
     imagedestroy($sourceImage);
     imagedestroy($targetImage);
+
+    // If image processing failed, try to copy the original file
+    if (!$result && $sourceFile !== $targetFile) {
+        return copy($sourceFile, $targetFile);
+    }
+
+    return $result;
 }
-?> 
+
+function handleBulkUploadGallery() {
+    global $isAdmin, $adminParam;
+
+    if (!$isAdmin) {
+        $_SESSION['error'] = "Access denied. Only administrators can upload gallery images.";
+        header("Location: departments.php$adminParam");
+        exit();
+    }
+
+    $departmentCode = $_POST['department_code'] ?? '';
+    $defaultCaption = $_POST['default_caption'] ?? '';
+
+    if (empty($departmentCode)) {
+        $_SESSION['error'] = "Department code is required.";
+        header("Location: departments.php$adminParam");
+        exit();
+    }
+
+    // Check if files were uploaded
+    if (!isset($_FILES['gallery_images']) || empty($_FILES['gallery_images']['name'][0])) {
+        $_SESSION['error'] = "Please select at least one image to upload.";
+        header("Location: department-detail.php?code=$departmentCode$adminParam");
+        exit();
+    }
+
+    $uploadDir = "../images/departments/gallery/" . strtolower($departmentCode) . "/";
+
+    // Create directory if it doesn't exist
+    if (!file_exists($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            $_SESSION['error'] = "Failed to create upload directory.";
+            header("Location: department-detail.php?code=$departmentCode$adminParam");
+            exit();
+        }
+    }
+
+    $successCount = 0;
+    $errorCount = 0;
+    $errors = [];
+
+    $fileCount = count($_FILES['gallery_images']['name']);
+
+    for ($i = 0; $i < $fileCount; $i++) {
+        if ($_FILES['gallery_images']['error'][$i] !== UPLOAD_ERR_OK) {
+            $errors[] = "File " . ($_i + 1) . ": Upload error.";
+            $errorCount++;
+            continue;
+        }
+
+        $fileName = $_FILES['gallery_images']['name'][$i];
+        $fileTmpName = $_FILES['gallery_images']['tmp_name'][$i];
+        $fileSize = $_FILES['gallery_images']['size'][$i];
+
+        // Validate file size (5MB max)
+        if ($fileSize > 5 * 1024 * 1024) {
+            $errors[] = "$fileName: File size exceeds 5MB limit.";
+            $errorCount++;
+            continue;
+        }
+
+        // Validate file type
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        $fileType = mime_content_type($fileTmpName);
+
+        if (!in_array($fileType, $allowedTypes)) {
+            $errors[] = "$fileName: Invalid file type. Only JPG, JPEG, PNG are allowed.";
+            $errorCount++;
+            continue;
+        }
+
+        // Generate unique filename
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $newFileName = uniqid() . '_' . time() . '.' . $fileExtension;
+        $targetPath = $uploadDir . $newFileName;
+
+        // Move uploaded file
+        if (move_uploaded_file($fileTmpName, $targetPath)) {
+            // Resize image if needed
+            resizeImage($targetPath, $targetPath, 800, 600);
+
+            // Update department JSON with new image
+            updateDepartmentGallery($departmentCode, $newFileName, $defaultCaption ?: $fileName);
+            $successCount++;
+        } else {
+            $errors[] = "$fileName: Failed to upload file.";
+            $errorCount++;
+        }
+    }
+
+    // Set success/error messages
+    if ($successCount > 0) {
+        $_SESSION['success'] = "Successfully uploaded $successCount images.";
+    }
+
+    if ($errorCount > 0) {
+        $errorMessage = "Failed to upload $errorCount images. Errors: " . implode(", ", array_slice($errors, 0, 5));
+        if (count($errors) > 5) {
+            $errorMessage .= " and " . (count($errors) - 5) . " more.";
+        }
+        $_SESSION['error'] = $errorMessage;
+    }
+
+    header("Location: department-detail.php?code=$departmentCode$adminParam");
+    exit();
+}
+
+function handleBulkUploadDocuments() {
+    global $isAdmin, $adminParam;
+
+    if (!$isAdmin) {
+        $_SESSION['error'] = "Access denied. Only administrators can upload documents.";
+        header("Location: departments.php$adminParam");
+        exit();
+    }
+
+    $departmentCode = $_POST['department_code'] ?? '';
+
+    if (empty($departmentCode)) {
+        $_SESSION['error'] = "Department code is required.";
+        header("Location: departments.php$adminParam");
+        exit();
+    }
+
+    // Check if files were uploaded
+    if (!isset($_FILES['documents']) || empty($_FILES['documents']['name'][0])) {
+        $_SESSION['error'] = "Please select at least one document to upload.";
+        header("Location: department-detail.php?code=$departmentCode$adminParam");
+        exit();
+    }
+
+    $uploadDir = "../documents/departments/";
+
+    // Create directory if it doesn't exist
+    if (!file_exists($uploadDir)) {
+        if (!mkdir($uploadDir, 0755, true)) {
+            $_SESSION['error'] = "Failed to create upload directory.";
+            header("Location: department-detail.php?code=$departmentCode$adminParam");
+            exit();
+        }
+    }
+
+    $successCount = 0;
+    $errorCount = 0;
+    $errors = [];
+
+    $fileCount = count($_FILES['documents']['name']);
+
+    for ($i = 0; $i < $fileCount; $i++) {
+        if ($_FILES['documents']['error'][$i] !== UPLOAD_ERR_OK) {
+            $errors[] = "File " . ($i + 1) . ": Upload error.";
+            $errorCount++;
+            continue;
+        }
+
+        $fileName = $_FILES['documents']['name'][$i];
+        $fileTmpName = $_FILES['documents']['tmp_name'][$i];
+        $fileSize = $_FILES['documents']['size'][$i];
+
+        // Validate file size (10MB max)
+        if ($fileSize > 10 * 1024 * 1024) {
+            $errors[] = "$fileName: File size exceeds 10MB limit.";
+            $errorCount++;
+            continue;
+        }
+
+        // Validate file type
+        $allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt'];
+        $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            $errors[] = "$fileName: Invalid file type. Only PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT are allowed.";
+            $errorCount++;
+            continue;
+        }
+
+        // Generate unique filename
+        $newFileName = uniqid() . '_' . time() . '.' . $fileExtension;
+        $targetPath = $uploadDir . $newFileName;
+
+        // Move uploaded file
+        if (move_uploaded_file($fileTmpName, $targetPath)) {
+            // Update department JSON with new document
+            $documentTitle = pathinfo($fileName, PATHINFO_FILENAME);
+            updateDepartmentDocuments($departmentCode, $newFileName, $documentTitle, $fileName);
+            $successCount++;
+        } else {
+            $errors[] = "$fileName: Failed to upload file.";
+            $errorCount++;
+        }
+    }
+
+    // Set success/error messages
+    if ($successCount > 0) {
+        $_SESSION['success'] = "Successfully uploaded $successCount documents.";
+    }
+
+    if ($errorCount > 0) {
+        $errorMessage = "Failed to upload $errorCount documents. Errors: " . implode(", ", array_slice($errors, 0, 5));
+        if (count($errors) > 5) {
+            $errorMessage .= " and " . (count($errors) - 5) . " more.";
+        }
+        $_SESSION['error'] = $errorMessage;
+    }
+
+    header("Location: department-detail.php?code=$departmentCode$adminParam");
+    exit();
+}
+
+function updateDepartmentGallery($departmentCode, $fileName, $caption) {
+    $departmentsFile = '../data/departments.json';
+
+    if (!file_exists($departmentsFile)) {
+        return false;
+    }
+
+    $departmentsData = file_get_contents($departmentsFile);
+    $departments = json_decode($departmentsData, true) ?: [];
+
+    if (!isset($departments[$departmentCode])) {
+        return false;
+    }
+
+    if (!isset($departments[$departmentCode]['gallery'])) {
+        $departments[$departmentCode]['gallery'] = [];
+    }
+
+    $newImage = [
+        'id' => uniqid(),
+        'path' => "images/departments/gallery/" . strtolower($departmentCode) . "/" . $fileName,
+        'caption' => $caption,
+        'upload_date' => date('Y-m-d H:i:s')
+    ];
+
+    $departments[$departmentCode]['gallery'][] = $newImage;
+
+    return file_put_contents($departmentsFile, json_encode($departments, JSON_PRETTY_PRINT));
+}
+
+function updateDepartmentDocuments($departmentCode, $fileName, $title, $originalFileName) {
+    $departmentsFile = '../data/departments.json';
+
+    if (!file_exists($departmentsFile)) {
+        return false;
+    }
+
+    $departmentsData = file_get_contents($departmentsFile);
+    $departments = json_decode($departmentsData, true) ?: [];
+
+    if (!isset($departments[$departmentCode])) {
+        return false;
+    }
+
+    if (!isset($departments[$departmentCode]['documents'])) {
+        $departments[$departmentCode]['documents'] = [];
+    }
+
+    $newDocument = [
+        'id' => uniqid(),
+        'title' => $title,
+        'filename' => $fileName,
+        'original_filename' => $originalFileName,
+        'upload_date' => date('Y-m-d H:i:s')
+    ];
+
+    $departments[$departmentCode]['documents'][] = $newDocument;
+
+    return file_put_contents($departmentsFile, json_encode($departments, JSON_PRETTY_PRINT));
+}
+?>

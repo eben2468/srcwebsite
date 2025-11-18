@@ -1,0 +1,136 @@
+/* 
+ * Election Results Print Override CSS
+ * This file contains overrides to ensure the print template works correctly
+ */
+
+/* Print-specific styles */
+@media print {
+    /* Hide elements that shouldn't be printed */
+    .navbar, .sidebar, .breadcrumb, .btn, .footer, footer,
+    .header-actions, #adminActionsDropdown, .dropdown-menu,
+    .no-print, .footer-content, .copyright, .page-footer {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Reset body styles */
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-family: Arial, Helvetica, sans-serif !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    /* Container reset */
+    .container-fluid {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Show print header */
+    .print-header {
+        display: block !important;
+        visibility: visible !important;
+        position: relative !important;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb) !important;
+        color: white !important;
+        padding: 30px 20px !important;
+        text-align: center !important;
+        margin-bottom: 20px !important;
+        page-break-after: always !important;
+    }
+    
+    /* Show debug message in print */
+    .print-debug {
+        display: block !important;
+        visibility: visible !important;
+        color: green !important;
+        margin: 10px !important;
+        padding: 10px !important;
+        border: 1px solid green !important;
+    }
+    
+    /* Header elements */
+    .print-header h1 {
+        font-size: 24pt !important;
+        font-weight: bold !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .print-header h2 {
+        font-size: 18pt !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .print-header h3 {
+        font-size: 16pt !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        display: inline-block !important;
+        padding: 8px 20px !important;
+        border-radius: 30px !important;
+    }
+    
+    /* Card styling */
+    .card {
+        page-break-inside: avoid !important;
+        margin-bottom: 20px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 10px !important;
+    }
+    
+    .card-header {
+        background-color: #4e73df !important;
+        color: white !important;
+        padding: 10px 15px !important;
+    }
+    
+    /* Candidate cards */
+    .candidate-result-card {
+        padding: 15px !important;
+        margin-bottom: 10px !important;
+        border: 1px solid #ddd !important;
+        border-radius: 8px !important;
+    }
+    
+    .candidate-result-card.winner {
+        border: 2px solid #28a745 !important;
+        background-color: rgba(40, 167, 69, 0.05) !important;
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 8px !important;
+        background-color: #e9ecef !important;
+        border-radius: 4px !important;
+    }
+    
+    .progress-bar {
+        background-color: #4e73df !important;
+    }
+    
+    .progress-bar.bg-success {
+        background-color: #28a745 !important;
+    }
+    
+    /* Force page breaks */
+    .page-break-after {
+        page-break-after: always !important;
+    }
+    
+    .page-break-before {
+        page-break-before: always !important;
+    }
+    
+    /* Ensure content is visible */
+    .container-fluid, .card, .card-body, .card-header {
+        visibility: visible !important;
+        display: block !important;
+    }
+} 

@@ -1,0 +1,74 @@
+/* Management interface fixes */
+.management-container {
+    padding: 1rem;
+}
+
+.management-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.management-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 8px 8px 0 0;
+}
+
+.management-body {
+    padding: 1rem;
+}
+
+.management-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.management-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.management-btn:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color, #007bff);
+}
+
+.management-btn.primary {
+    background-color: var(--primary-color, #007bff);
+    color: white;
+    border-color: var(--primary-color, #007bff);
+}
+
+.management-btn.primary:hover {
+    background-color: var(--primary-color-hover, #0056b3);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .management-container {
+        padding: 0.5rem;
+    }
+    
+    .management-header,
+    .management-body {
+        padding: 0.75rem;
+    }
+    
+    .management-actions {
+        flex-direction: column;
+    }
+    
+    .management-btn {
+        text-align: center;
+        width: 100%;
+    }
+}

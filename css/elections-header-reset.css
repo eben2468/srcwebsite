@@ -1,0 +1,116 @@
+/**
+ * ELECTIONS HEADER RESET
+ * This CSS completely resets the elections header and forces correct positioning
+ */
+
+/* RESET ALL POSSIBLE INTERFERING STYLES */
+@media screen and (max-width: 768px) {
+    .elections-header {
+        /* Reset all margins and positioning */
+        margin: 0 !important;
+        padding: 0 !important;
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        
+        /* Reset dimensions */
+        width: auto !important;
+        height: auto !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        
+        /* Reset display and visibility */
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        
+        /* Reset animations */
+        animation: none !important;
+        transition: none !important;
+        
+        /* Reset box model */
+        box-sizing: border-box !important;
+        
+        /* Reset float and clear */
+        float: none !important;
+        clear: both !important;
+        
+        /* Reset overflow */
+        overflow: visible !important;
+        
+        /* Now apply correct spacing */
+        margin-top: 75px !important; /* 60px navbar + 15px spacing */
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+        margin-bottom: 15px !important;
+        
+        /* Apply correct width */
+        width: calc(100% - 30px) !important;
+        max-width: calc(100% - 30px) !important;
+        
+        /* Apply correct styling */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        padding: 1.5rem 1rem !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+        position: relative !important;
+        z-index: 10 !important;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .elections-header {
+        margin-top: 71px !important; /* 56px navbar + 15px spacing */
+        padding: 1rem 0.6rem !important;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .elections-header {
+        margin-top: 67px !important; /* 52px navbar + 15px spacing */
+        padding: 0.8rem 0.5rem !important;
+    }
+}
+
+/* Force override any container padding that might interfere */
+@media screen and (max-width: 768px) {
+    .container-fluid {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    body {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    
+    /* Ensure the elections header is not affected by any parent containers */
+    .container-fluid .elections-header {
+        margin-top: 75px !important;
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+        margin-bottom: 15px !important;
+        width: calc(100% - 30px) !important;
+        max-width: calc(100% - 30px) !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .container-fluid .elections-header {
+        margin-top: 71px !important;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .container-fluid .elections-header {
+        margin-top: 67px !important;
+    }
+}

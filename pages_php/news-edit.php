@@ -1,7 +1,14 @@
 <?php
-// Include authentication file and database connection
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -12,9 +19,9 @@ if (!isLoggedIn()) {
 
 // Get current user
 $currentUser = getCurrentUser();
-$isAdmin = isAdmin();
+$hasAdminInterface = shouldUseAdminInterface();
 $isMember = isMember();
-$canManageNews = $isAdmin || $isMember; // Allow both admins and members to manage news
+$canManageNews = $hasAdminInterface || $isMember; // Allow super admin, admin, and members to manage news
 
 // Check if user has permission to edit news
 if (!$canManageNews) {
@@ -41,9 +48,9 @@ if (!$news) {
     exit();
 }
 
-// Check if user is the author or an admin
+// Check if user is the author or has admin interface access
 $isAuthor = $news['author_id'] == $currentUser['user_id'];
-if (!$isAdmin && !$isAuthor) {
+if (!$hasAdminInterface && !$isAuthor) {
     header("Location: news.php?error=unauthorized");
     exit();
 }
@@ -196,15 +203,159 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_news'])) {
 require_once 'includes/header.php';
 ?>
 
-<div class="header">
-    <h1 class="page-title">Edit News</h1>
-    
-    <div class="header-actions">
-        <a href="news.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i> Back to News
-        </a>
+
+<!-- Custom News Edit Header -->
+<div class="news-edit-header animate__animated animate__fadeInDown">
+    <div class="news-edit-header-content">
+        <div class="news-edit-header-main">
+            <h1 class="news-edit-title">
+                <i class="fas fa-edit me-3"></i>
+                Edit News
+            </h1>
+            <p class="news-edit-description">Modify news article details and content</p>
+        </div>
+        <div class="news-edit-header-actions">
+            <a href="news-detail.php?id=<?php echo $newsId; ?>" class="btn btn-header-action">
+                <i class="fas fa-arrow-left me-2"></i>Back to News
+            </a>
+            <a href="news.php" class="btn btn-header-action">
+                <i class="fas fa-newspaper me-2"></i>All News
+            </a>
+        </div>
     </div>
 </div>
+
+<style>
+.news-edit-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.news-edit-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.news-edit-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.news-edit-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.news-edit-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.news-edit-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.news-edit-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .news-edit-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .news-edit-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .news-edit-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+    }
+
+    .news-edit-title i {
+        font-size: 1.8rem;
+    }
+
+    .news-edit-description {
+        font-size: 1.1rem;
+    }
+
+    .news-edit-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
 
 <!-- Notification area -->
 <?php if (!empty($successMessage)): ?>
@@ -377,7 +528,7 @@ require_once 'includes/header.php';
 
 <!-- Image Modal -->
 <?php if (!empty($news['image_path'])): ?>
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">

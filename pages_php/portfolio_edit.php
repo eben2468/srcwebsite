@@ -1,11 +1,18 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
-// Check if user is logged in and is an admin
-if (!isLoggedIn() || !isAdmin()) {
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+// Check if user is logged in and has admin interface access
+if (!isLoggedIn() || !shouldUseAdminInterface()) {
     $_SESSION['error'] = "You don't have permission to access this page.";
     header("Location: portfolio.php");
     exit();
@@ -46,15 +53,32 @@ $pageTitle = "Edit Portfolio: " . $portfolio['title'];
 require_once 'includes/header.php';
 ?>
 
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mt-4"><?php echo $pageTitle; ?></h1>
-        
-        <a href="portfolio.php" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left me-2"></i> Back to Portfolios
-        </a>
-    </div>
-    
+<!-- Page Content -->
+<div class="container-fluid" style="margin-top: 60px;">
+    <?php
+    // Set up modern page header variables
+    $pageTitle = "Edit Portfolio";
+    $pageIcon = "fa-edit";
+    $pageDescription = "Modify portfolio details and information";
+    $actions = [
+        [
+            'url' => 'portfolio-detail.php?id=' . $portfolioId,
+            'icon' => 'fa-eye',
+            'text' => 'View Portfolio',
+            'class' => 'btn-outline-light'
+        ],
+        [
+            'url' => 'portfolio.php',
+            'icon' => 'fa-arrow-left',
+            'text' => 'Back to Portfolios',
+            'class' => 'btn-outline-light'
+        ]
+    ];
+
+    // Include modern page header
+    include 'includes/modern_page_header.php';
+    ?>
+
     <!-- Notification area -->
     <?php if (isset($_SESSION['error'])): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -63,7 +87,15 @@ require_once 'includes/header.php';
     </div>
     <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
-    
+
+    <?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i> <?php echo $_SESSION['success']; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
     <div class="card mb-4">
         <div class="card-header">
             <h2 class="mb-0">Edit Portfolio</h2>

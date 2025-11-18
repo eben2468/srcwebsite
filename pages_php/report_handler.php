@@ -1,7 +1,16 @@
 <?php
-// Include required files
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Include auto notifications system
+require_once __DIR__ . '/includes/auto_notifications.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -82,12 +91,20 @@ if (isset($_POST['upload_report'])) {
             // Get current user ID
             $currentUser = getCurrentUser();
             $uploadedBy = $currentUser['user_id'];
-            
-            // Insert into database
-            $sql = "INSERT INTO reports (title, author, date, type, portfolio, summary, categories, file_path, featured, uploaded_by, 
-                                      description, report_type, content, author_id) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            
+
+            // Insert into database with all form fields
+            $sql = "INSERT INTO reports (
+                        title, author, date, type, portfolio, summary,
+                        categories, file_path, featured, uploaded_by,
+                        description, report_type, content, author_id,
+                        created_at, updated_at
+                    ) VALUES (
+                        ?, ?, ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        ?, ?, ?, ?,
+                        NOW(), NOW()
+                    )";
+
             $params = [
                 $title,
                 $author,
@@ -96,19 +113,22 @@ if (isset($_POST['upload_report'])) {
                 $portfolio,
                 $summary,
                 $categoriesJson,
-                $newFileName,
+                $newFileName, // Use the new filename for file_path
                 $featured,
                 $uploadedBy,
-                $summary, // Use summary for description as well
+                $summary, // Use summary for description
                 'general', // Use 'general' as the default report_type
                 $summary, // Use summary for content as well
-                $uploadedBy // Use uploadedBy for author_id as well
+                $uploadedBy // Use uploadedBy for author_id
             ];
-            
+
             $insertId = insert($sql, $params);
-            
+
             if ($insertId) {
                 $_SESSION['success'] = "Report uploaded successfully.";
+
+                // Send notification to members and admins about new report
+                autoNotifyReportCreated($title, $type, $uploadedBy, $insertId);
             } else {
                 // Delete the file if database insert failed
                 unlink($uploadFilePath);
@@ -171,7 +191,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     $reportId = intval($_GET['id']);
     
     // Check permission
-    if (!hasPermission('delete', 'reports')) {
+    if (!isAdmin()) {
         $_SESSION['error'] = "You don't have permission to delete reports.";
         header("Location: reports.php");
         exit();

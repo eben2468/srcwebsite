@@ -1,6 +1,6 @@
 <?php
-// Include authentication functions
-require_once '../auth_functions.php';
+// Include simple authentication
+require_once __DIR__ . '/../includes/simple_auth.php';
 
 // Log out the user
 logout();
@@ -8,4 +8,4 @@ logout();
 // Redirect to login page
 header("Location: login.php");
 exit;
-?> 
+?>

@@ -1,7 +1,14 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -20,9 +27,9 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $reportId = intval($_GET['id']);
 
 // Get report information
-$sql = "SELECT r.*, u.first_name, u.last_name 
-        FROM reports r 
-        LEFT JOIN users u ON r.uploaded_by = u.user_id 
+$sql = "SELECT r.*, u.first_name, u.last_name
+        FROM reports r
+        LEFT JOIN users u ON r.author_id = u.user_id
         WHERE r.report_id = ?";
 $report = fetchOne($sql, [$reportId]);
 
@@ -36,22 +43,51 @@ if (!$report) {
 // Set page title
 $pageTitle = "Report Details: " . $report['title'];
 
-// Decode categories JSON
-$categories = json_decode($report['categories'], true) ?: [];
+// Decode categories JSON (with fallback for missing categories column)
+$categories = isset($report['categories']) ? json_decode($report['categories'], true) : [];
+$categories = $categories ?: [];
 
 // Get uploader's name
-$uploaderName = $report['first_name'] && $report['last_name'] 
+$uploaderName = $report['first_name'] && $report['last_name']
                 ? $report['first_name'] . ' ' . $report['last_name']
                 : 'Unknown';
 
+// Get current date for header
+$currentDate = date('l, F j, Y');
+
 // Include header
 require_once 'includes/header.php';
+
+// Define page title, icon, and actions for the modern header
+$pageTitle = htmlspecialchars($report['title']);
+$pageIcon = "fa-file-alt";
+$pageDescription = "Report Details and Information";
+$actions = [];
+
+if (isAdmin() || isMember()) {
+    $actions[] = [
+        'url' => 'report_edit.php?id=' . $report['report_id'],
+        'icon' => 'fa-edit',
+        'text' => 'Edit Report',
+        'class' => 'btn-secondary'
+    ];
+}
+
+$actions[] = [
+    'url' => 'reports.php',
+    'icon' => 'fa-arrow-left',
+    'text' => 'Back to Reports',
+    'class' => 'btn-outline-light'
+];
+
+// Include the modern page header
+include_once 'includes/modern_page_header.php';
 ?>
 
 <div class="container-fluid px-4">
     <div class="row">
         <div class="col-12">
-            <nav aria-label="breadcrumb" class="mt-3">
+            <nav aria-label="breadcrumb" style="margin-top: 1.5rem;">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="reports.php">Reports</a></li>
@@ -85,7 +121,7 @@ require_once 'includes/header.php';
         <div class="card-header d-flex justify-content-between align-items-center">
             <div class="report-detail-header">
                 <h2 class="mb-0"><?php echo htmlspecialchars($report['title']); ?></h2>
-                <?php if ($report['featured']): ?>
+                <?php if ($report['featured'] ?? false): ?>
                 <span class="badge bg-warning ms-2">
                     <i class="fas fa-star me-1"></i> Featured
                 </span>
@@ -98,7 +134,7 @@ require_once 'includes/header.php';
                 </a>
                 <?php endif; ?>
 
-                <?php if (hasPermission('delete', 'reports')): ?>
+                <?php if (isAdmin()): ?>
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteReportModal">
                     <i class="fas fa-trash-alt me-2"></i> Delete
                 </button>
@@ -113,19 +149,19 @@ require_once 'includes/header.php';
                         <table class="table">
                             <tr>
                                 <th style="width: 150px;">Author:</th>
-                                <td><?php echo htmlspecialchars($report['author']); ?></td>
+                                <td><?php echo htmlspecialchars($report['author'] ?? 'Unknown Author'); ?></td>
                             </tr>
                             <tr>
                                 <th>Date:</th>
-                                <td><?php echo date('F j, Y', strtotime($report['date'])); ?></td>
+                                <td><?php echo date('F j, Y', strtotime($report['created_at'] ?? $report['date'] ?? date('Y-m-d'))); ?></td>
                             </tr>
                             <tr>
                                 <th>Type:</th>
-                                <td><?php echo htmlspecialchars($report['type']); ?></td>
+                                <td><?php echo htmlspecialchars($report['report_type'] ?? $report['type'] ?? 'General'); ?></td>
                             </tr>
                             <tr>
                                 <th>Portfolio:</th>
-                                <td><?php echo htmlspecialchars($report['portfolio']); ?></td>
+                                <td><?php echo htmlspecialchars($report['portfolio'] ?? 'General'); ?></td>
                             </tr>
                             <tr>
                                 <th>Categories:</th>
@@ -143,10 +179,10 @@ require_once 'includes/header.php';
                                 <th>Upload Date:</th>
                                 <td><?php echo date('F j, Y, g:i a', strtotime($report['created_at'])); ?></td>
                             </tr>
-                            <?php if ($report['updated_at'] !== $report['created_at']): ?>
+                            <?php if (isset($report['updated_at']) && isset($report['created_at']) && $report['updated_at'] !== $report['created_at']): ?>
                             <tr>
                                 <th>Last Updated:</th>
-                                <td><?php echo date('F j, Y, g:i a', strtotime($report['updated_at'])); ?></td>
+                                <td><?php echo date('F j, Y, g:i a', strtotime($report['updated_at'] ?? $report['created_at'])); ?></td>
                             </tr>
                             <?php endif; ?>
                         </table>
@@ -155,7 +191,7 @@ require_once 'includes/header.php';
                     <div class="mb-4">
                         <h3>Summary</h3>
                         <div class="report-summary">
-                            <p><?php echo nl2br(htmlspecialchars($report['summary'])); ?></p>
+                            <p><?php echo nl2br(htmlspecialchars($report['description'] ?? $report['content'] ?? $report['summary'] ?? 'No description available')); ?></p>
                         </div>
                     </div>
                 </div>
@@ -167,17 +203,23 @@ require_once 'includes/header.php';
                                 <i class="fas fa-file-pdf document-icon"></i>
                             </div>
                             <div class="d-grid gap-2">
+                                <?php if (!empty($report['file_path'])): ?>
                                 <a href="<?php echo '../uploads/reports/' . $report['file_path']; ?>" class="btn btn-primary" target="_blank">
                                     <i class="fas fa-eye me-2"></i> View Report
                                 </a>
                                 <a href="report_handler.php?action=download&id=<?php echo $report['report_id']; ?>" class="btn btn-success">
                                     <i class="fas fa-download me-2"></i> Download Report
                                 </a>
-                                <?php if (isAdmin() && $report['featured'] == 0): ?>
+                                <?php else: ?>
+                                <span class="btn btn-secondary disabled">
+                                    <i class="fas fa-file-alt me-2"></i> No File Available
+                                </span>
+                                <?php endif; ?>
+                                <?php if (isAdmin() && ($report['featured'] ?? 0) == 0): ?>
                                 <a href="report_handler.php?action=toggle_featured&id=<?php echo $report['report_id']; ?>" class="btn btn-warning">
                                     <i class="fas fa-star me-2"></i> Mark as Featured
                                 </a>
-                                <?php elseif (isAdmin() && $report['featured'] == 1): ?>
+                                <?php elseif (isAdmin() && ($report['featured'] ?? 0) == 1): ?>
                                 <a href="report_handler.php?action=toggle_featured&id=<?php echo $report['report_id']; ?>" class="btn btn-outline-warning">
                                     <i class="fas fa-star me-2"></i> Remove from Featured
                                 </a>
@@ -191,9 +233,9 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<?php if (hasPermission('delete', 'reports')): ?>
+<?php if (isAdmin()): ?>
 <!-- Delete Report Modal -->
-<div class="modal fade" id="deleteReportModal" tabindex="-1" aria-labelledby="deleteReportModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteReportModal" tabindex="-1" aria-labelledby="deleteReportModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

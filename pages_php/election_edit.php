@@ -1,6 +1,13 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -9,8 +16,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Check if user has permission to edit elections
-if (!hasPermission('update', 'elections')) {
+// Check if user has permission to edit elections (super admin only)
+if (!canManageElections()) {
     $_SESSION['error'] = "You don't have permission to edit elections.";
     header("Location: elections.php");
     exit();
@@ -45,6 +52,8 @@ $endDate = date('Y-m-d', strtotime($election['end_date']));
 
 // Map status from database to display format
 $statusMap = [
+    'nomination' => 'Nominations Open',
+    'pending' => 'Pending Voting',
     'upcoming' => 'Upcoming',
     'active' => 'Active',
     'completed' => 'Completed',
@@ -60,13 +69,39 @@ $pageTitle = "Edit Election - " . $election['title'] . " - SRC Management System
 require_once 'includes/header.php';
 ?>
 
+
+
 <!-- Page Content -->
-<div class="container-fluid">
+<div class="container-fluid" style="margin-top: 60px;">
+    <?php
+    // Set up modern page header variables
+    $pageTitle = "Edit Election";
+    $pageIcon = "fa-edit";
+    $pageDescription = "Modify election details and settings";
+    $actions = [
+        [
+            'url' => 'election_detail.php?id=' . $electionId,
+            'icon' => 'fa-eye',
+            'text' => 'View Election',
+            'class' => 'btn-outline-light'
+        ],
+        [
+            'url' => 'elections.php',
+            'icon' => 'fa-arrow-left',
+            'text' => 'Back to Elections',
+            'class' => 'btn-outline-light'
+        ]
+    ];
+
+    // Include modern page header
+    include 'includes/modern_page_header.php';
+    ?>
+
     <!-- Display success/error messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?php 
-            echo $_SESSION['success']; 
+            <?php
+            echo $_SESSION['success'];
             unset($_SESSION['success']);
             ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -75,28 +110,36 @@ require_once 'includes/header.php';
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?php 
-            echo $_SESSION['error']; 
+            <?php
+            echo $_SESSION['error'];
             unset($_SESSION['error']);
             ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
+    
 
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">Edit Election</h1>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="elections.php">Elections</a></li>
-                    <li class="breadcrumb-item"><a href="election_detail.php?id=<?php echo $electionId; ?>">Election Details</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Edit Election</li>
-                </ol>
-            </nav>
+</div>
+
+        <div class="header-actions">
+            <div class="header-date">
+                <i class="fas fa-calendar"></i> <?php echo $startDate; ?> - <?php echo $endDate; ?>
+            </div>
+            <a href="election_detail.php?id=<?php echo $electionId; ?>" class="btn btn-icon">
+                <i class="fas fa-arrow-left"></i>
+            </a>
         </div>
     </div>
+    
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="elections.php">Elections</a></li>
+            <li class="breadcrumb-item"><a href="election_detail.php?id=<?php echo $electionId; ?>">Election Details</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Edit Election</li>
+        </ol>
+    </nav>
 
     <!-- Edit Election Form -->
     <div class="card mb-4">
@@ -135,6 +178,8 @@ require_once 'includes/header.php';
                         <label for="election-status" class="form-label">Status</label>
                         <select class="form-select" id="election-status" name="election_status" required>
                             <option value="Planning" <?php echo $displayStatus === 'Upcoming' && strtotime($election['start_date']) > time() ? 'selected' : ''; ?>>Planning</option>
+                            <option value="Nominations Open" <?php echo $displayStatus === 'Nominations Open' ? 'selected' : ''; ?>>Nominations Open</option>
+                            <option value="Pending Voting" <?php echo $displayStatus === 'Pending Voting' ? 'selected' : ''; ?>>Pending Voting</option>
                             <option value="Upcoming" <?php echo $displayStatus === 'Upcoming' ? 'selected' : ''; ?>>Upcoming</option>
                             <option value="Active" <?php echo $displayStatus === 'Active' ? 'selected' : ''; ?>>Active</option>
                             <option value="Completed" <?php echo $displayStatus === 'Completed' ? 'selected' : ''; ?>>Completed</option>

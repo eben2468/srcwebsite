@@ -1,9 +1,15 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../db_functions.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -12,8 +18,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Check if user is admin
-if (!isAdmin()) {
+// Check if user is super admin (only super admins can edit users)
+if (!isSuperAdmin()) {
     header("Location: dashboard.php");
     exit();
 }
@@ -100,6 +106,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }
                         
                         $profilePicture = $newFilename;
+                        
+                        // Also update the user_profiles table
+                        $profileUpdateSql = "UPDATE user_profiles SET profile_picture = ?, updated_at = NOW() WHERE user_id = ?";
+                        executeQuery($profileUpdateSql, [$profilePicture, $userId]);
+                        
+                        // If user_profiles record doesn't exist yet, create it
+                        $checkProfileSql = "SELECT COUNT(*) as count FROM user_profiles WHERE user_id = ?";
+                        $profileExists = fetchOne($checkProfileSql, [$userId]);
+                        
+                        if (!$profileExists || $profileExists['count'] == 0) {
+                            $createProfileSql = "INSERT INTO user_profiles (user_id, full_name, profile_picture, created_at) VALUES (?, ?, ?, NOW())";
+                            $fullName = $firstName . ' ' . $lastName;
+                            executeQuery($createProfileSql, [$userId, $fullName, $profilePicture]);
+                        }
                     } else {
                         $message = "Failed to upload profile picture.";
                         $messageType = "danger";
@@ -148,9 +168,162 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
+// Get current date for header
+$currentDate = date('l, F j, Y');
+
 // Include header
 require_once 'includes/header.php';
 ?>
+
+<!-- Custom User Edit Header -->
+<div class="user-edit-header animate__animated animate__fadeInDown">
+    <div class="user-edit-header-content">
+        <div class="user-edit-header-main">
+            <h1 class="user-edit-title">
+                <i class="fas fa-user-edit me-3"></i>
+                Edit User
+            </h1>
+            <p class="user-edit-description">Modify user profile and account settings</p>
+        </div>
+        <div class="user-edit-header-actions">
+            <a href="users.php" class="btn btn-header-action">
+                <i class="fas fa-arrow-left me-2"></i>Back to Users
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-edit-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.user-edit-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.user-edit-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.user-edit-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.user-edit-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.user-edit-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.user-edit-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .user-edit-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .user-edit-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .user-edit-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+    }
+
+    .user-edit-title i {
+        font-size: 1.8rem;
+    }
+
+    .user-edit-description {
+        font-size: 1.1rem;
+    }
+
+    .user-edit-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
 
 <!-- Page Content -->
 <?php if (!empty($message)): ?>
@@ -159,13 +332,6 @@ require_once 'includes/header.php';
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 <?php endif; ?>
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">Edit User</h1>
-    <a href="users.php" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i> Back to Users
-    </a>
-</div>
 
 <div class="row">
     <div class="col-md-4">
@@ -187,7 +353,7 @@ require_once 'includes/header.php';
                     </div>
                 <?php endif; ?>
                 
-                <p class="mb-2"><strong><?php echo htmlspecialchars($userDetails['username']); ?></strong></p>
+                <p class="mb-2"><strong><?php echo htmlspecialchars($userDetails['email']); ?></strong></p>
                 <p class="text-muted mb-3">
                     <span class="badge bg-<?php echo $userDetails['role'] === 'admin' ? 'danger' : 'primary'; ?>">
                         <?php echo ucfirst(htmlspecialchars($userDetails['role'])); ?>

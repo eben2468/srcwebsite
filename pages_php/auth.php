@@ -1,9 +1,12 @@
 <?php
-// Initialize session
-session_start();
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
-// Include main auth functions
-require_once '../auth_functions.php';
+// Require login for this page
+requireLogin();
 
 // This file is a simple wrapper around auth_functions.php
 // It's kept for backward compatibility with existing code

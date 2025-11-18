@@ -1,0 +1,408 @@
+/**
+ * Footer Mobile Fix CSS
+ * Ensures footer content is fully visible on all mobile devices
+ * Enhanced for better readability with larger fonts and improved layout
+ */
+
+/* Tablet and intermediate screen sizes (768px - 1199px) - Fix left spacing */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .src-footer .container-fluid,
+    .src-footer .footer-container {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    .src-footer [class*="col-"] {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        text-align: center !important;
+    }
+
+    .src-footer .col-lg-3,
+    .src-footer .col-md-6,
+    .src-footer .col-lg-2,
+    .src-footer .col-lg-4 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .src-footer .footer-section {
+        text-align: center !important;
+    }
+
+    .src-footer .footer-title {
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-description {
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links a {
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .contact-item {
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+
+    .src-footer .social-links {
+        justify-content: center !important;
+    }
+
+    .src-footer .social-link {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.2rem !important;
+    }
+}
+
+/* Mobile Footer - Always Visible and Properly Positioned */
+@media (max-width: 991.98px) {
+    /* Ensure footer is always visible on mobile */
+    footer.src-footer,
+    .src-footer {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: 999 !important;
+        max-height: none !important;
+        min-height: auto !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        box-shadow: none !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0 !important;
+        padding: 1.5rem 0 !important;
+    }
+
+    /* Remove any toggle buttons */
+    .footer-toggle-btn,
+    .footer-close-btn {
+        display: none !important;
+    }
+
+    /* Remove backdrop */
+    .footer-backdrop {
+        display: none !important;
+    }
+
+    /* Ensure main content doesn't have unnecessary padding */
+    .main-content {
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Footer content optimization */
+    .src-footer .container-fluid,
+    .src-footer .footer-container {
+        padding: 1rem 15px !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .src-footer .row {
+        margin: 0 !important;
+    }
+
+    .src-footer .col-lg-3,
+    .src-footer .col-md-6 {
+        padding: 8px !important;
+        margin-bottom: 1.5rem !important;
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Footer sections styling */
+    .src-footer .footer-section {
+        margin-bottom: 1.5rem !important;
+        padding-bottom: 0.75rem !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-section:last-child {
+        border-bottom: none !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .src-footer .footer-title {
+        font-size: 1.4rem !important;
+        margin-bottom: 0.85rem !important;
+        font-weight: 700 !important;
+        color: white !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-description {
+        font-size: 1.2rem !important;
+        line-height: 1.7 !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        margin-bottom: 0.85rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links {
+        margin-bottom: 0.85rem !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links a {
+        font-size: 1.2rem !important;
+        padding: 0.6rem 0 !important;
+        display: inline-block !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-decoration: none !important;
+        transition: color 0.3s ease !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links a:hover {
+        color: #4cc9f0 !important;
+    }
+
+    .src-footer .social-links {
+        margin-top: 0.85rem !important;
+        display: flex !important;
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+    }
+
+    .src-footer .social-link {
+        font-size: 1.25rem !important;
+        color: #4cc9f0 !important;
+        width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .src-footer .social-link:hover {
+        background: rgba(76, 201, 240, 0.3) !important;
+        transform: scale(1.1) !important;
+    }
+
+    /* Footer bottom section */
+    .src-footer .footer-bottom {
+        padding: 1rem 20px !important;
+        margin-top: 1.5rem !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: transparent !important;
+    }
+
+    .src-footer .copyright-and-links {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1.5rem !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links-bottom {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 18px !important;
+    }
+
+    .src-footer .footer-links-bottom a {
+        color: #4cc9f0 !important;
+        text-decoration: none !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        padding: 0.5rem 0.85rem !important;
+    }
+
+    .src-footer .footer-links-bottom a:hover {
+        color: rgba(76, 201, 240, 0.8) !important;
+    }
+
+    /* Contact info styling */
+    .src-footer .contact-item {
+        margin-bottom: 1.1rem !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 1.2rem !important;
+        font-weight: 600 !important;
+        line-height: 1.7 !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .src-footer .contact-item i {
+        color: #4cc9f0 !important;
+        width: 20px !important;
+    }
+}
+
+/* iPhone SE Specific Optimizations (375px width) */
+@media (max-width: 375px) {
+    .src-footer .container-fluid,
+    .src-footer .footer-container {
+        padding: 1rem 10px !important;
+    }
+
+    .src-footer .col-lg-3,
+    .src-footer .col-md-6 {
+        padding: 8px !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    .src-footer .footer-section h5 {
+        font-size: 1.15rem !important;
+        margin-bottom: 0.75rem !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-section p,
+    .src-footer .footer-section a {
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-section ul li {
+        margin-bottom: 0.6rem !important;
+    }
+
+    .src-footer .footer-bottom {
+        padding: 1rem 10px !important;
+        margin-top: 1.25rem !important;
+    }
+
+    .src-footer .social-link {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1rem !important;
+    }
+
+    .src-footer .contact-item {
+        margin-bottom: 1rem !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links-bottom a {
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+}
+
+/* Very Small Phones (320px and below) */
+@media (max-width: 320px) {
+    .src-footer .container-fluid,
+    .src-footer .footer-container {
+        padding: 0.9rem 8px !important;
+    }
+
+    .src-footer .col-lg-3,
+    .src-footer .col-md-6 {
+        padding: 6px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .src-footer .footer-section h5 {
+        font-size: 1.1rem !important;
+        margin-bottom: 0.65rem !important;
+        font-weight: 700 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-section p,
+    .src-footer .footer-section a {
+        font-size: 0.95rem !important;
+        line-height: 1.5 !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-bottom {
+        padding: 0.9rem 8px !important;
+        margin-top: 1rem !important;
+    }
+
+    .src-footer .social-link {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .src-footer .contact-item {
+        margin-bottom: 0.85rem !important;
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+    }
+
+    .src-footer .footer-links-bottom a {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+    }
+
+    .src-footer .footer-links-bottom {
+        gap: 12px !important;
+    }
+}
+
+/* Ensure footer is at bottom of page */
+@media (max-width: 991.98px) {
+    body {
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .main-content {
+        flex: 1 !important;
+    }
+
+    .src-footer {
+        margin-top: auto !important;
+    }
+}
+
+/* Desktop - ensure normal behavior */
+@media (min-width: 992px) {
+    .footer-toggle-btn,
+    .footer-close-btn,
+    .footer-backdrop {
+        display: none !important;
+    }
+
+    footer.src-footer,
+    .src-footer {
+        display: block !important;
+        opacity: 1 !important;
+        transform: none !important;
+        position: relative !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+        box-shadow: none !important;
+    }
+}

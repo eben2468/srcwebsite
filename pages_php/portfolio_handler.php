@@ -1,11 +1,18 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
-// Check if user is logged in and is an admin
-if (!isLoggedIn() || !isAdmin()) {
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/functions.php';
+
+// Check if user is logged in and has admin interface access
+if (!isLoggedIn() || !shouldUseAdminInterface()) {
     $_SESSION['error'] = "You don't have permission to perform this action.";
     header("Location: portfolio.php");
     exit();
@@ -192,28 +199,56 @@ if ($action === 'update') {
     }
     
     // Update portfolio in database
-    $sql = "UPDATE portfolios 
-            SET title = ?, name = ?, email = ?, phone = ?, photo = ?, description = ?, responsibilities = ?, qualifications = ? 
+    $sql = "UPDATE portfolios
+            SET title = ?, name = ?, email = ?, phone = ?, photo = ?, description = ?, responsibilities = ?, qualifications = ?
             WHERE portfolio_id = ?";
-    
-    $result = update($sql, [
-        $title,
-        $name,
-        $email,
-        $phone,
-        $photoFileName,
-        $description,
-        $responsibilitiesJson,
-        $qualificationsJson,
-        $portfolioId
-    ]);
-    
-    if ($result) {
-        $_SESSION['success'] = "Portfolio updated successfully!";
-        header("Location: portfolio-detail.php?id=$portfolioId");
-        exit();
-    } else {
-        $_SESSION['error'] = "Failed to update portfolio. Please try again.";
+
+    try {
+        // Debug logging
+        error_log("Portfolio Update Debug - Portfolio ID: $portfolioId");
+        error_log("Portfolio Update Debug - Title: $title");
+        error_log("Portfolio Update Debug - Name: $name");
+        error_log("Portfolio Update Debug - Email: $email");
+        error_log("Portfolio Update Debug - Phone: $phone");
+        error_log("Portfolio Update Debug - Photo: $photoFileName");
+        error_log("Portfolio Update Debug - Description length: " . strlen($description));
+        error_log("Portfolio Update Debug - Responsibilities JSON: $responsibilitiesJson");
+        error_log("Portfolio Update Debug - Qualifications JSON: $qualificationsJson");
+
+        $result = update($sql, [
+            $title,
+            $name,
+            $email,
+            $phone,
+            $photoFileName,
+            $description,
+            $responsibilitiesJson,
+            $qualificationsJson,
+            $portfolioId
+        ], 'ssssssssi'); // Specify types: 8 strings and 1 integer
+
+        error_log("Portfolio Update Debug - Update result: " . var_export($result, true));
+
+        if ($result !== false && $result > 0) {
+            $_SESSION['success'] = "Portfolio updated successfully!";
+            header("Location: portfolio-detail.php?id=$portfolioId");
+            exit();
+        } else {
+            // Check if portfolio exists
+            $checkPortfolio = fetchOne("SELECT portfolio_id FROM portfolios WHERE portfolio_id = ?", [$portfolioId]);
+            if (!$checkPortfolio) {
+                $_SESSION['error'] = "Portfolio not found. It may have been deleted.";
+                error_log("Portfolio Update Debug - Portfolio not found: $portfolioId");
+            } else {
+                $_SESSION['error'] = "No changes were made to the portfolio. Please check your data and try again.";
+                error_log("Portfolio Update Debug - No changes made, result: " . var_export($result, true));
+            }
+            header("Location: portfolio_edit.php?id=$portfolioId");
+            exit();
+        }
+    } catch (Exception $e) {
+        $_SESSION['error'] = "Database error: " . $e->getMessage();
+        error_log("Portfolio Update Debug - Exception: " . $e->getMessage());
         header("Location: portfolio_edit.php?id=$portfolioId");
         exit();
     }

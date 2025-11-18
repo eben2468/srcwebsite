@@ -1,9 +1,13 @@
 <?php
-// Profile page - View and edit user profile information
-require_once '../db_config.php';
-require_once '../functions.php';
-require_once '../auth_functions.php';
-require_once '../auth_bridge.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/profile_picture_helpers.php';
+
+// Require login for this page
+requireLogin();
 
 // Create user_profiles table if it doesn't exist
 $createTableSQL = "CREATE TABLE IF NOT EXISTS user_profiles (
@@ -79,7 +83,7 @@ try {
 }
 
 // Check for admin status
-$isAdmin = getBridgedAdminStatus();
+$isAdmin = isAdmin();
 
 // Handle profile update
 $successMessage = '';
@@ -112,6 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             // If profile doesn't exist, create it
             if (!$checkProfile) {
                 $profileSql = "INSERT INTO user_profiles (user_id, full_name, bio, phone) VALUES (?, ?, ?, ?)";
+                $profileParams = [$userId, $fullName, $bio, $phone]; // Correct params for INSERT
+            } else {
+                // Parameters for UPDATE
+                $profileParams = [$fullName, $bio, $phone, $userId];
             }
             
             $profileUpdated = executeQuery($profileSql, $profileParams);
@@ -151,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 $errorMessage = "Failed to update profile. Please try again.";
             }
         } catch (Exception $e) {
-            $errorMessage = "An error occurred while updating your profile. Please try again.";
+            $errorMessage = "An error occurred while updating your profile: " . $e->getMessage();
             error_log("Error updating profile: " . $e->getMessage());
         }
     }
@@ -214,16 +222,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_picture'])) {
             $targetFile = $uploadDir . $filename;
             
             if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFile)) {
-                // Update profile picture in database
-                $sql = "UPDATE users SET profile_picture = ? WHERE user_id = ?";
+                // Update profile picture in both users and user_profiles tables
+                $userSql = "UPDATE users SET profile_picture = ?, updated_at = NOW() WHERE user_id = ?";
+                $profileSql = "UPDATE user_profiles SET profile_picture = ?, updated_at = NOW() WHERE user_id = ?";
                 
-                if (executeQuery($sql, [$filename, $userId])) {
+                $userUpdated = executeQuery($userSql, [$filename, $userId]);
+                $profileUpdated = executeQuery($profileSql, [$filename, $userId]);
+                
+                // If user_profiles record doesn't exist yet, create it
+                if (!$profileUpdated) {
+                    $checkProfileSql = "SELECT COUNT(*) as count FROM user_profiles WHERE user_id = ?";
+                    $profileExists = fetchOne($checkProfileSql, [$userId]);
+
+                    if (!$profileExists || $profileExists['count'] == 0) {
+                        $createProfileSql = "INSERT INTO user_profiles (user_id, full_name, profile_picture) VALUES (?, ?, ?)";
+                        // Use the full name from the profile if available, otherwise construct it
+                        $fullName = $userProfile['full_name'] ?? ($currentUser['first_name'] . ' ' . $currentUser['last_name']);
+                        executeQuery($createProfileSql, [$userId, $fullName, $filename]);
+                    }
+                }
+                
+                if ($userUpdated) {
                     // Update session data
-                    $_SESSION['user']['profile_picture'] = $filename;
+                    $_SESSION['profile_picture'] = $filename;
                     $successMessage = "Profile picture updated successfully!";
-                    
+
                     // Refresh user data
                     $currentUser = getCurrentUser();
+
+                    // Also update userProfile variable for this page
+                    if (isset($userProfile) && is_array($userProfile)) {
+                        $userProfile['profile_picture'] = $filename;
+                    }
                 } else {
                     $errorMessage = "Failed to update profile picture in database.";
                 }
@@ -243,9 +273,172 @@ $pageTitle = "My Profile";
 require_once 'includes/header.php';
 ?>
 
-<div class="container-fluid px-4">
-    <h1 class="mt-4"><?php echo $pageTitle; ?></h1>
-    
+<!-- Custom Profile Header -->
+<div class="profile-header animate__animated animate__fadeInDown">
+    <div class="profile-header-content">
+        <div class="profile-header-main">
+            <h1 class="profile-title">
+                <i class="fas fa-user me-3"></i>
+                My Profile
+            </h1>
+            <p class="profile-description">Manage your personal information and account settings</p>
+        </div>
+        <div class="profile-header-actions">
+            <a href="dashboard.php" class="btn btn-header-action">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.profile-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.profile-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.profile-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.profile-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.profile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .profile-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .profile-header-content {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 1.5rem;
+    }
+
+    .profile-header-main {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .profile-title i {
+        font-size: 1.8rem;
+    }
+
+    .profile-description {
+        font-size: 1.1rem;
+        text-align: center;
+        width: 100%;
+    }
+
+    .profile-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        min-width: 200px;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
+
+<div class="container-fluid">
     <?php if ($successMessage): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="fas fa-check-circle me-2"></i> <?php echo $successMessage; ?>
@@ -272,15 +465,13 @@ require_once 'includes/header.php';
                     <div class="mb-3">
                         <?php
                         // Display profile picture if available, otherwise show initial
-                        if (!empty($currentUser['profile_picture']) && file_exists('../images/profiles/' . $currentUser['profile_picture'])) {
-                            echo '<img src="../images/profiles/' . htmlspecialchars($currentUser['profile_picture']) . '" class="img-fluid rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" alt="Profile Picture">';
-                        } else {
-                            // Use the first letter of the full name for the avatar
-                            $initial = strtoupper(substr($userProfile['full_name'] ?? $currentUser['username'], 0, 1));
-                            echo '<div class="avatar-circle mx-auto" style="width: 150px; height: 150px;">';
-                            echo '<span class="avatar-text">' . $initial . '</span>';
-                            echo '</div>';
-                        }
+                        // Display profile picture using helper function
+                        echo displayProfilePicture($currentUser, 'pages_php', [
+                            'width' => 150, 
+                            'height' => 150, 
+                            'class' => 'img-fluid rounded-circle',
+                            'style' => 'object-fit: cover;'
+                        ]);
                         ?>
                     </div>
                     <h4><?php echo htmlspecialchars($userProfile['full_name'] ?? $currentUser['username']); ?></h4>
@@ -379,4 +570,4 @@ require_once 'includes/header.php';
 <?php
 // Include standard footer instead of department_footer
 require_once 'includes/footer.php';
-?> 
+?>

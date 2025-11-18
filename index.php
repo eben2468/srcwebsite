@@ -1,653 +1,1448 @@
 <?php
-// Simple index file to redirect after department system deletion
+// Include simple authentication
+require_once __DIR__ . '/includes/simple_auth.php';
+require_once __DIR__ . '/includes/db_config.php';
+
 // Check if user is logged in
-require_once 'auth_functions.php';
 $isLoggedIn = isLoggedIn();
+
+// Fetch slider images from database
+$sliderImages = [];
+$sliderQuery = "SELECT * FROM slider_images WHERE is_active = 1 ORDER BY slide_order ASC";
+$sliderResult = mysqli_query($conn, $sliderQuery);
+if ($sliderResult) {
+    while ($row = mysqli_fetch_assoc($sliderResult)) {
+        $sliderImages[] = $row;
+    }
+}
+
+// If no slider images in database, use defaults
+if (empty($sliderImages)) {
+    $sliderImages = [
+        [
+            'image_path' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920',
+            'title' => 'Valley View University',
+            'subtitle' => 'Students\' Representative Council',
+            'button1_text' => 'Student Login',
+            'button1_link' => 'pages_php/login.php',
+            'button2_text' => 'Learn More',
+            'button2_link' => '#about'
+        ],
+        [
+            'image_path' => 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920',
+            'title' => 'Your Voice Matters',
+            'subtitle' => 'Empowering Students Through Representation',
+            'button1_text' => 'Latest News',
+            'button1_link' => '#news',
+            'button2_text' => 'Upcoming Events',
+            'button2_link' => '#events'
+        ],
+        [
+            'image_path' => 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920',
+            'title' => 'Excellence in Leadership',
+            'subtitle' => 'Building Tomorrow\'s Leaders Today',
+            'button1_text' => 'Join Us',
+            'button1_link' => 'pages_php/login.php',
+            'button2_text' => 'Contact Us',
+            'button2_link' => '#contact'
+        ]
+    ];
+}
+
+// Fetch news from database
+$newsItems = [];
+$newsQuery = "SELECT * FROM news WHERE status = 'published' ORDER BY created_at DESC LIMIT 3";
+$newsResult = mysqli_query($conn, $newsQuery);
+if ($newsResult) {
+    while ($row = mysqli_fetch_assoc($newsResult)) {
+        $newsItems[] = $row;
+    }
+}
+
+// If no news in database, use defaults
+if (empty($newsItems)) {
+    $newsItems = [
+        [
+            'title' => 'SRC Election 2024 Schedule Announced',
+            'content' => 'The electoral commission has released the official schedule for the upcoming SRC elections. Nominations open next week.',
+            'image_path' => 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600',
+            'category' => 'Announcement',
+            'created_at' => date('Y-m-d'),
+            'author' => 'SRC President'
+        ],
+        [
+            'title' => 'Freshers\' Orientation Week Success',
+            'content' => 'Over 1,000 new students participated in this year\'s orientation week activities, making it the most successful ever.',
+            'image_path' => 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600',
+            'category' => 'Event',
+            'created_at' => date('Y-m-d', strtotime('-5 days')),
+            'author' => 'Events Team'
+        ],
+        [
+            'title' => 'Scholarship Fund Reaches GHS 50,000',
+            'content' => 'The SRC scholarship initiative has successfully raised over GHS 50,000 to support underprivileged students.',
+            'image_path' => 'https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?w=600',
+            'category' => 'Achievement',
+            'created_at' => date('Y-m-d', strtotime('-10 days')),
+            'author' => 'SRC Team'
+        ]
+    ];
+}
+
+// Fetch events from database
+$eventsItems = [];
+// First check what columns exist in events table
+$eventsColumnsQuery = "SHOW COLUMNS FROM events";
+$eventsColumnsResult = @mysqli_query($conn, $eventsColumnsQuery);
+$eventHasEventDate = false;
+$eventHasDate = false;
+$eventHasEventTime = false;
+$eventHasTime = false;
+
+if ($eventsColumnsResult) {
+    while ($col = mysqli_fetch_assoc($eventsColumnsResult)) {
+        if ($col['Field'] === 'event_date') $eventHasEventDate = true;
+        if ($col['Field'] === 'date') $eventHasDate = true;
+        if ($col['Field'] === 'event_time') $eventHasEventTime = true;
+        if ($col['Field'] === 'time') $eventHasTime = true;
+    }
+}
+
+// Build query based on actual column names
+$dateColumn = $eventHasEventDate ? 'event_date' : ($eventHasDate ? 'date' : 'created_at');
+$timeColumn = $eventHasEventTime ? 'event_time' : ($eventHasTime ? 'time' : 'created_at');
+
+$eventsQuery = "SELECT * FROM events ORDER BY $dateColumn ASC LIMIT 10";
+$eventsResult = @mysqli_query($conn, $eventsQuery);
+if ($eventsResult) {
+    while ($row = mysqli_fetch_assoc($eventsResult)) {
+        // Filter for upcoming events
+        $eventDateValue = $row[$dateColumn] ?? $row['created_at'] ?? date('Y-m-d');
+        if (strtotime($eventDateValue) >= strtotime('today')) {
+            $eventsItems[] = $row;
+            if (count($eventsItems) >= 4) break;
+        }
+    }
+}
+
+// If no events in database, use defaults
+if (empty($eventsItems)) {
+    $dateCol = $eventHasEventDate ? 'event_date' : 'date';
+    $timeCol = $eventHasEventTime ? 'event_time' : 'time';
+    $eventsItems = [
+        [
+            'event_name' => 'Christmas Carol Night',
+            $dateCol => '2024-12-25',
+            $timeCol => '18:00:00',
+            'event_end_time' => '21:00:00',
+            'location' => 'University Auditorium',
+            'description' => 'Open to all students'
+        ],
+        [
+            'event_name' => 'SRC Leadership Summit 2025',
+            $dateCol => '2025-01-05',
+            $timeCol => '09:00:00',
+            'event_end_time' => '17:00:00',
+            'location' => 'Conference Hall',
+            'description' => 'Student Leaders'
+        ],
+        [
+            'event_name' => 'Career Fair 2025',
+            $dateCol => '2025-01-15',
+            $timeCol => '10:00:00',
+            'event_end_time' => '16:00:00',
+            'location' => 'Sports Complex',
+            'description' => 'All students welcome'
+        ],
+        [
+            'event_name' => 'Inter-Hall Sports Competition',
+            $dateCol => '2025-01-20',
+            $timeCol => '08:00:00',
+            'event_end_time' => '18:00:00',
+            'location' => 'University Stadium',
+            'description' => 'All halls participate'
+        ]
+    ];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>SRC Management System</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valley View University - Students' Representative Council</title>
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- AOS Animation Library -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="css/index-styles.css" rel="stylesheet">
+    <!-- Swiper CSS for carousel -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+
     <style>
         :root {
-            --primary-color: #0061f2;
-            --secondary-color: #6900c7;
-            --accent-color: #00cfd5;
-            --text-color: #1f2d3d;
-            --light-color: #f8f9fa;
-            --dark-color: #212832;
+            --primary-color: #1a5490;
+            --secondary-color: #e67e22;
+            --accent-color: #27ae60;
+            --dark-blue: #0d3b66;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --gold: #f39c12;
         }
-        
-        /* Absolute positioned button */
-        .absolute-button {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            background: white;
-            color: var(--primary-color);
-            border: none;
-            font-weight: 600;
-            border-radius: 40px;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        .absolute-button:hover {
-            transform: translateX(-50%) translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
-            background: white;
-            color: var(--secondary-color);
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+            overflow-x: hidden;
         }
-        
-        /* Preloader styles */
+
+        /* Preloader */
         #preloader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff;
-            z-index: 9999;
+            background: var(--white);
+            z-index: 99999;
             display: flex;
+            align-items: center;
             justify-content: center;
-            align-items: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            transition: opacity 0.5s ease;
         }
-        
-        .loader {
-            position: relative;
+
+        .preloader-content {
             text-align: center;
         }
-        
-        .circular {
-            animation: rotate 2s linear infinite;
-            height: 50px;
-            width: 50px;
-            position: relative;
-        }
-        
-        .path {
-            stroke: var(--primary-color);
-            stroke-dasharray: 90, 150;
-            stroke-dashoffset: 0;
-            stroke-linecap: round;
-            animation: dash 1.5s ease-in-out infinite;
-        }
-        
-        .loading-text {
-            margin-top: 15px;
-            font-weight: 500;
-            color: var(--primary-color);
-            letter-spacing: 1px;
-        }
-        
-        @keyframes rotate {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-        
-        @keyframes dash {
-            0% {
-                stroke-dasharray: 1, 150;
-                stroke-dashoffset: 0;
-            }
-            50% {
-                stroke-dasharray: 90, 150;
-                stroke-dashoffset: -35;
-            }
-            100% {
-                stroke-dasharray: 90, 150;
-                stroke-dashoffset: -124;
-            }
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            color: var(--text-color);
-        }
-        
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 120px 0 100px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMTI4MCAxNDAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iI2ZmZmZmZiI+PHBhdGggZD0iTTAgNTEuNzZjMzYuMjEtMi4yNSA3Ny41Ny0zLjU4IDEyNi40Mi0zLjU4IDMyMCAwIDMyMCA1NyA2NDAgNTcgMjcxLjE1IDAgMzEyLjU4LTQwLjkxIDUxMy41OC01Ny40OFYxNDBIMFY1MS43NnoiIGZpbGwtb3BhY2l0eT0iLjMiLz48cGF0aCBkPSJNMCA5MC43MmMxNzEtMTcuNTUgMzQwLjkxLTIxLjQ2IDUwMC4wMy0yMS40NiAyNzguNzQgMCAzOTcuODcgMTQuMzMgNzc5Ljk3IDE0LjMzIDI0Ljc1IDAgNDguMzgtLjk0IDAtMS43Mi0zNS4zLTIuMjctNzAuNTktMy41LTEwNS45OC0zLjVDNjM5LjU1IDc4LjM3IDUxMi44MSA1NiAzMjQgNTZjLTEwMS4xNSAwLTE5Mi43NiA4LjU3LTMyNCAxNi43MnY3NHoiIGZpbGwtb3BhY2l0eT0iLjUiLz48cGF0aCBkPSJNMCAxNDBWOTkuNzdjMTMzLjIxIDEuNDggMjQ0LjQ2IDE1LjY3IDM1MC45MSAzMS4xNkM2MTQuNTUgMTQwIDc2NC45MSAxNDAgMTI4MCAxNDB6Ii8+PC9nPjwvc3ZnPg==') center bottom/100% 100px no-repeat;
-            opacity: 0.1;
-        }
-        
-        .hero-title, .university-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
-            display: block;
-            width: 100%;
-            text-align: center;
-            overflow: visible;
-            line-height: 1.2;
-            color: white;
-            letter-spacing: normal;
-            word-spacing: 0.2em;
-        }
-        
-        .university-title {
-            margin-bottom: 0.5rem;
-        }
-        
-        .university-title::after {
-            content: '';
-            display: block;
+
+        .spinner {
             width: 60px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.7);
-            margin: 5px auto 10px;
-            border-radius: 2px;
+            height: 60px;
+            border: 4px solid var(--light-bg);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
-        
-        /* Cursor animation for typing effect */
-        .university-title.typing-active::before,
-        .hero-title.typing-active::after {
-            content: '|';
-            display: inline-block;
-            margin-left: 2px;
-            animation: blink-cursor 0.7s step-end infinite;
-            vertical-align: text-bottom;
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        
-        @keyframes blink-cursor {
-            from, to { opacity: 0; }
-            50% { opacity: 1; }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--dark-blue);
+            color: var(--white);
+            padding: 10px 0;
+            font-size: 0.9rem;
         }
-        
-        .hero-subtitle {
-            font-size: 1.6rem;
-            font-weight: 300;
-            margin-bottom: 2.5rem;
-            opacity: 0.9;
+
+        .top-bar a {
+            color: var(--white);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .title-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            overflow: visible;
-        }
-        
-        .features-section {
-            padding: 80px 0;
-            background-color: white;
-            position: relative;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
-        }
-        
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            margin: 15px auto 0;
-            border-radius: 2px;
-        }
-        
-        .feature-card {
-            padding: 40px 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            height: 100%;
-            transition: all 0.4s ease;
-            background-color: white;
-            border-bottom: 4px solid transparent;
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-        }
-        
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 0;
-            background: linear-gradient(135deg, rgba(0,97,242,0.03), rgba(105,0,199,0.03));
-            z-index: -1;
-            transition: height 0.4s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            border-bottom: 4px solid var(--primary-color);
-        }
-        
-        .feature-card:hover::before {
-            height: 100%;
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 25px;
-            display: inline-block;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: transform 0.4s ease;
-        }
-        
-        .feature-card:hover .feature-icon {
-            transform: scale(1.1);
-        }
-        
-        .feature-card h3 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--dark-color);
-        }
-        
-        .feature-card p {
-            color: #6c757d;
-            line-height: 1.6;
-        }
-        
-        .cta-section {
-            padding: 100px 0;
-            background: linear-gradient(135deg, rgba(0,97,242,0.05), rgba(105,0,199,0.05));
-            text-align: center;
-            position: relative;
-        }
-        
-        .cta-section h2 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .btn-primary {
-            padding: 14px 32px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 50px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,97,242,0.4);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,97,242,0.5);
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
-        }
-        
-        .btn-light {
-            padding: 14px 32px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 50px;
-            background: white;
-            color: var(--primary-color);
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .btn-light:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            background: white;
+
+        .top-bar a:hover {
             color: var(--secondary-color);
         }
-        
-        .btn-outline-light {
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 50px;
-            transition: all 0.3s ease;
+
+        .top-bar i {
+            margin-right: 5px;
         }
-        
-        .footer {
-            background-color: var(--dark-color);
-            color: white;
-            padding: 50px 0 30px;
-            margin-top: auto;
+
+        /* Navigation */
+        .navbar {
+            background: var(--white);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            transition: all 0.3s;
         }
-        
-        .footer p {
-            opacity: 0.8;
+
+        .navbar.scrolled {
+            padding: 10px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
-        
-        .nav-buttons {
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-color) !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand img {
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .nav-link {
+            color: var(--text-dark) !important;
+            font-weight: 500;
+            margin: 0 15px;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link::after {
+            content: '';
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .btn-login {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 10px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-login:hover {
+            background: transparent;
+            color: var(--primary-color);
+        }
+
+        /* Hero Slider */
+        .hero-slider {
+            position: relative;
+            height: 650px;
+            overflow: hidden;
+        }
+
+        .swiper {
+            width: 100%;
+            height: 100%;
+        }
+
+        .swiper-slide {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .swiper-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Overlay removed - image now fully visible */
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 10;
+            color: var(--white);
+            text-align: center;
+            max-width: 900px;
+            padding: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .slide-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,0,0.7);
+        }
+
+        .slide-content p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7);
+        }
+
+        .slide-content .btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            margin: 0 10px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-custom {
+            background: var(--secondary-color);
+            border: 2px solid var(--secondary-color);
+            color: var(--white);
+        }
+
+        .btn-primary-custom:hover {
+            background: transparent;
+            border-color: var(--white);
+            color: var(--white);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+        }
+
+        .btn-outline-custom:hover {
+            background: var(--white);
+            color: var(--primary-color);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            background: var(--white);
+            margin-top: -50px;
+            position: relative;
             z-index: 100;
         }
-        
-        .floating-shapes {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
+
+        .quick-link-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            text-align: center;
+            border-bottom: 4px solid transparent;
         }
-        
-        .shape {
+
+        .quick-link-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .quick-link-card.card-1:hover { border-bottom-color: var(--primary-color); }
+        .quick-link-card.card-2:hover { border-bottom-color: var(--secondary-color); }
+        .quick-link-card.card-3:hover { border-bottom-color: var(--accent-color); }
+        .quick-link-card.card-4:hover { border-bottom-color: var(--gold); }
+
+        .quick-link-card i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            transition: transform 0.3s;
+        }
+
+        .quick-link-card:hover i {
+            transform: scale(1.1);
+        }
+
+        .quick-link-card.card-1 i { color: var(--primary-color); }
+        .quick-link-card.card-2 i { color: var(--secondary-color); }
+        .quick-link-card.card-3 i { color: var(--accent-color); }
+        .quick-link-card.card-4 i { color: var(--gold); }
+
+        .quick-link-card h4 {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .quick-link-card p {
+            color: var(--text-light);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-blue));
+            color: var(--white);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-section::before {
+            content: '';
             position: absolute;
-            opacity: 0.2;
+            top: -50%;
+            right: -5%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.05);
             border-radius: 50%;
         }
-        
-        .shape-1 {
-            width: 150px;
-            height: 150px;
-            background: var(--accent-color);
-            top: 20%;
-            left: 10%;
-            animation: float 8s ease-in-out infinite;
+
+        .stats-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 350px;
+            height: 350px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
         }
-        
-        .shape-2 {
-            width: 80px;
-            height: 80px;
-            background: var(--primary-color);
-            top: 60%;
-            left: 20%;
-            animation: float 9s ease-in-out infinite 1s;
+
+        .stat-item {
+            text-align: center;
+            position: relative;
+            z-index: 10;
         }
-        
-        .shape-3 {
-            width: 120px;
-            height: 120px;
-            background: var(--secondary-color);
-            top: 30%;
-            right: 15%;
-            animation: float 7s ease-in-out infinite 2s;
+
+        .stat-item i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
         }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(0) rotate(0deg);
-            }
-            50% {
-                transform: translateY(-20px) rotate(5deg);
-            }
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: block;
         }
-        
-        @media (max-width: 991px) {
-            .university-title, .hero-title {
-                font-size: 2.8rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.4rem;
-            }
-            
-            .section-title {
-                margin-bottom: 40px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 100px 0 80px;
-            }
-            
-            .university-title, .hero-title {
-                font-size: 2.3rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .nav-buttons {
-                position: relative;
-                top: 0;
-                right: 0;
-                margin-top: 20px;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .features-section,
-            .cta-section {
-                padding: 60px 0;
-            }
-            
-            .cta-section h2 {
-                font-size: 2rem;
-            }
-        }
-        
-        /* Button enhancements */
-        .btn-light, .btn-primary {
-            padding: 14px 32px;
+
+        .stat-label {
             font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 100px 0;
+            background: var(--light-bg);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--secondary-color);
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .about-content {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+        }
+
+        .about-image {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .about-image img {
+            width: 100%;
+            height: auto;
+            transition: transform 0.5s;
+        }
+
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+
+        /* News Section */
+        .news-section {
+            padding: 100px 0;
+            background: var(--white);
+        }
+
+        .news-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .news-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .news-image {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .news-card:hover .news-image img {
+            transform: scale(1.1);
+        }
+
+        .news-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--secondary-color);
+            color: var(--white);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: 600;
-            border-radius: 50px;
-            transition: all 0.3s ease;
         }
-        
-        .btn-light {
-            background: white;
+
+        .news-content {
+            padding: 25px;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .news-meta i {
+            margin-right: 5px;
+        }
+
+        .news-meta span {
+            margin-right: 15px;
+        }
+
+        .news-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-dark);
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .read-more {
             color: var(--primary-color);
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s;
         }
-        
-        .btn-light:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            background: white;
+
+        .read-more:hover {
             color: var(--secondary-color);
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            box-shadow: 0 5px 15px rgba(0,97,242,0.4);
+
+        .read-more i {
+            margin-left: 5px;
+            transition: transform 0.3s;
         }
-        
-        .btn-primary:hover {
+
+        .read-more:hover i {
+            transform: translateX(5px);
+        }
+
+        /* Events Section */
+        .events-section {
+            padding: 100px 0;
+            background: var(--light-bg);
+        }
+
+        .event-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .event-card:hover {
+            transform: translateX(10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .event-date {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 30px;
+            text-align: center;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .event-day {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .event-month {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .event-details {
+            padding: 30px;
+            flex: 1;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .event-info {
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .event-info i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--secondary-color), var(--gold));
+            padding: 80px 0;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .cta-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .cta-text {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-blue);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer h5 {
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+        }
+
+        .footer ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer ul li a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .footer ul li a:hover {
+            color: var(--secondary-color);
+            padding-left: 5px;
+        }
+
+        .footer ul li a i {
+            margin-right: 8px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: var(--white);
+            margin-right: 10px;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            background: var(--secondary-color);
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,97,242,0.5);
-            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
         }
-        
-        .btn-light:active, .btn-primary:active {
-            transform: scale(0.95);
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+            padding-top: 30px;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-color);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--secondary-color);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide-content h1 {
+                font-size: 2rem;
+            }
+
+            .slide-content p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .event-card {
+                flex-direction: column;
+            }
+
+            .event-date {
+                min-width: 100%;
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .hero-slider {
+                height: 500px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Preloader -->
     <div id="preloader">
-        <div class="loader">
-            <svg class="circular" viewBox="25 25 50 50">
-                <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="3" stroke-miterlimit="10" />
-            </svg>
-            <p class="loading-text">Loading...</p>
+        <div class="preloader-content">
+            <div class="spinner"></div>
+            <p style="color: var(--primary-color); font-weight: 600;">Loading...</p>
         </div>
     </div>
 
-    <!-- Navigation Buttons -->
-    <div class="nav-buttons">
-        <?php if ($isLoggedIn): ?>
-            <a href="pages_php/dashboard.php" class="btn btn-light me-2">
-                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
-            </a>
-            <a href="pages_php/logout.php" class="btn btn-outline-light">
-                <i class="fas fa-sign-out-alt me-1"></i> Logout
-            </a>
-        <?php else: ?>
-            <a href="pages_php/register.php" class="btn btn-light me-2">
-                <i class="fas fa-user-plus me-1"></i> Sign Up / Login
-            </a>
-        <?php endif; ?>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-        </div>
-        <div class="container" data-aos="fade-up" data-aos-duration="1000">
-            <div class="title-container">
-                <h1 class="university-title">Valley View University</h1>
-                <h1 class="hero-title">Students' Representative Council</h1>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <span><i class="fas fa-phone"></i> +233 123 456 789</span>&nbsp
+                        <span><i class="fas fa-envelope"></i> src@vvu.edu.gh</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <?php if ($isLoggedIn): ?>
+                        <a href="pages_php/dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="pages_php/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <?php else: ?>
+                        <a href="pages_php/login.php"><i class="fas fa-sign-in-alt"></i> Student Portal</a>
+                    <?php endif; ?>
+                </div>
             </div>
-            <p class="hero-subtitle">Management System</p>
         </div>
-        
-        <!-- Main Get Started button (absolute positioned) -->
-        <?php if (!$isLoggedIn): ?>
-            <a href="pages_php/register.php" class="btn absolute-button">
-                <i class="fas fa-user-plus me-1"></i> Get Started
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-university"></i>
+                <span>VVU SRC</span>
             </a>
-        <?php else: ?>
-            <a href="pages_php/dashboard.php" class="btn absolute-button">
-                <i class="fas fa-tachometer-alt me-1"></i> Go to Dashboard
-            </a>
-        <?php endif; ?>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="events.php">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                    <?php if (!$isLoggedIn): ?>
+                        <li class="nav-item ms-3">
+                            <a href="pages_php/login.php" class="btn btn-login">
+                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Slider -->
+    <section class="hero-slider" id="home">
+        <div class="swiper heroSwiper">
+            <div class="swiper-wrapper">
+                <?php foreach ($sliderImages as $index => $slide): ?>
+                <!-- Slide <?php echo $index + 1; ?> -->
+                <div class="swiper-slide" style="background-image: linear-gradient(rgba(26, 84, 144, 0.6), rgba(13, 59, 102, 0.5)), url('<?php echo htmlspecialchars($slide['image_path']); ?>');">
+
+                    <div class="slide-content" data-aos="fade-up">
+                        <h1><?php echo htmlspecialchars($slide['title']); ?></h1>
+                        <p><?php echo htmlspecialchars($slide['subtitle']); ?></p>
+                        <div class="mt-4">
+                            <?php if (!empty($slide['button1_text']) && !empty($slide['button1_link'])): ?>
+                                <?php
+                                $btn1Link = $slide['button1_link'];
+                                // If logged in and button1 is login link, change to dashboard
+                                if ($isLoggedIn && strpos($btn1Link, 'login.php') !== false) {
+                                    $btn1Link = 'pages_php/dashboard.php';
+                                    $btn1Text = 'Go to Dashboard';
+                                    $btn1Icon = 'tachometer-alt';
+                                } else {
+                                    $btn1Text = $slide['button1_text'];
+                                    $btn1Icon = strpos($btn1Link, 'login') !== false ? 'sign-in-alt' : 'newspaper';
+                                }
+                                ?>
+                                <a href="<?php echo htmlspecialchars($btn1Link); ?>" class="btn btn-primary-custom">
+                                    <i class="fas fa-<?php echo $btn1Icon; ?> me-2"></i><?php echo htmlspecialchars($btn1Text); ?>
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if (!empty($slide['button2_text']) && !empty($slide['button2_link'])): ?>
+                                <a href="<?php echo htmlspecialchars($slide['button2_link']); ?>" class="btn btn-outline-custom">
+                                    <i class="fas fa-<?php echo strpos($slide['button2_link'], 'contact') !== false ? 'envelope' : 'info-circle'; ?> me-2"></i><?php echo htmlspecialchars($slide['button2_text']); ?>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+        </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features-section">
+    <!-- Quick Links -->
+    <section class="quick-links">
         <div class="container">
-            <h2 class="section-title gradient-text" data-aos="fade-up">Our Features</h2>
             <div class="row g-4">
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
-                    <div class="feature-card">
-                        <div class="hover-overlay"></div>
-                        <div class="feature-icon">
-                            <i class="fas fa-users"></i>
+                <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="100">
+                    <a href="pages_php/login.php" style="text-decoration: none;">
+                        <div class="quick-link-card card-1">
+                            <i class="fas fa-graduation-cap"></i>
+                            <h4>Student Portal</h4>
+                            <p>Access your account</p>
                         </div>
-                        <h3>Portfolio Management</h3>
-                        <p>Manage SRC portfolios and officers with detailed profiles and responsibilities.</p>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="200">
+                    <a href="#events" style="text-decoration: none;">
+                        <div class="quick-link-card card-2">
+                            <i class="fas fa-calendar-check"></i>
+                            <h4>Events</h4>
+                            <p>View upcoming events</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="300">
+                    <a href="#news" style="text-decoration: none;">
+                        <div class="quick-link-card card-3">
+                            <i class="fas fa-newspaper"></i>
+                            <h4>News & Updates</h4>
+                            <p>Latest announcements</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-3 col-sm-6" data-aos="fade-up" data-aos-delay="400">
+                    <a href="#contact" style="text-decoration: none;">
+                        <div class="quick-link-card card-4">
+                            <i class="fas fa-envelope"></i>
+                            <h4>Contact Us</h4>
+                            <p>Get in touch with SRC</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <span class="stat-number">1500+</span>
+                        <span class="stat-label">Active Students</span>
                     </div>
                 </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
-                    <div class="feature-card">
-                        <div class="hover-overlay"></div>
-                        <div class="feature-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <h3>Event Planning</h3>
-                        <p>Organize and track SRC events, meetings, and activities with our comprehensive calendar system.</p>
+                <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span class="stat-number">30+</span>
+                        <span class="stat-label">Events Annually</span>
                     </div>
                 </div>
-                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
-                    <div class="feature-card">
-                        <div class="hover-overlay"></div>
-                        <div class="feature-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <h3>Document Management</h3>
-                        <p>Store and access important documents, minutes, and reports in a secure central location.</p>
+                <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-item">
+                        <i class="fas fa-award"></i>
+                        <span class="stat-number">10+</span>
+                        <span class="stat-label">SRC Portfolios</span>
                     </div>
                 </div>
+                <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-item">
+                        <i class="fas fa-hands-helping"></i>
+                        <span class="stat-number">20+</span>
+                        <span class="stat-label">Projects Completed</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                    <h2 class="section-title">About VVU SRC</h2>
+                    <p class="section-subtitle">Serving students with excellence and integrity</p>
+                    <div class="about-content">
+                        <p>The Students' Representative Council (SRC) of Valley View University is the official student government body representing the interests and welfare of all students. We are committed to fostering a vibrant campus life, advocating for student rights, and creating meaningful opportunities for personal and academic growth.</p>
+                        <p>Our mission is to bridge the gap between students and university administration, organize impactful events, manage student welfare initiatives, and ensure that every student's voice is heard and valued.</p>
+                        <p>Through transparent leadership, innovative programs, and dedicated service, we strive to make VVU a better place for all students.</p>
+                        <div class="mt-4">
+                            <a href="pages_php/login.php" class="btn btn-primary-custom me-2">
+                                <i class="fas fa-user-circle me-2"></i>Get Involved
+                            </a>
+                            <a href="#contact" class="btn btn-outline-custom">
+                                <i class="fas fa-phone me-2"></i>Contact Us
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=800" alt="Students" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section" id="news">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Latest News & Updates</h2>
+                <p class="section-subtitle">Stay informed with the latest happenings</p>
+            </div>
+            <div class="row">
+                <?php foreach ($newsItems as $index => $news): ?>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index + 1) * 100; ?>">
+                    <div class="news-card">
+                        <div class="news-image">
+                            <span class="news-badge"><?php echo htmlspecialchars($news['category'] ?? 'News'); ?></span>
+                            <img src="<?php echo htmlspecialchars($news['image_path'] ?? 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=600'); ?>" alt="<?php echo htmlspecialchars($news['title']); ?>">
+                        </div>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span><i class="far fa-calendar"></i> <?php echo date('M d, Y', strtotime($news['created_at'])); ?></span>
+                                <span><i class="far fa-user"></i> <?php
+                                    if (isset($news['first_name']) && isset($news['last_name'])) {
+                                        echo htmlspecialchars($news['first_name'] . ' ' . $news['last_name']);
+                                    } elseif (isset($news['author'])) {
+                                        echo htmlspecialchars($news['author']);
+                                    } else {
+                                        echo 'SRC Admin';
+                                    }
+                                ?></span>
+                            </div>
+                            <h3 class="news-title"><?php echo htmlspecialchars($news['title']); ?></h3>
+                            <p class="news-excerpt"><?php echo htmlspecialchars(substr($news['content'], 0, 150)); ?><?php echo strlen($news['content']) > 150 ? '...' : ''; ?></p>
+                            <a href="pages_php/news.php<?php echo isset($news['id']) ? '?id=' . $news['id'] : ''; ?>" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section class="events-section" id="events">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Upcoming Events</h2>
+                <p class="section-subtitle">Don't miss out on these exciting events</p>
+            </div>
+            <div class="row">
+                <?php foreach ($eventsItems as $index => $event):
+                    // Handle different column names
+                    $eventDateValue = $event['event_date'] ?? $event['date'] ?? date('Y-m-d');
+                    $eventTimeValue = $event['event_time'] ?? $event['time'] ?? '00:00:00';
+
+                    $eventDate = new DateTime($eventDateValue);
+                    $eventDay = $eventDate->format('d');
+                    $eventMonth = strtoupper($eventDate->format('M'));
+                    $eventTime = date('g:i A', strtotime($eventTimeValue));
+                    $eventEndTime = !empty($event['event_end_time']) ? date('g:i A', strtotime($event['event_end_time'])) : '';
+                ?>
+                <div class="col-lg-6" data-aos="fade-up" data-aos-delay="<?php echo ($index + 1) * 100; ?>">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <span class="event-day"><?php echo $eventDay; ?></span>
+                            <span class="event-month"><?php echo $eventMonth; ?></span>
+                        </div>
+                        <div class="event-details">
+                            <h4 class="event-title"><?php echo htmlspecialchars($event['event_name'] ?? $event['name'] ?? 'Event'); ?></h4>
+                            <p class="event-info"><i class="fas fa-clock"></i> <?php echo $eventTime; ?><?php echo $eventEndTime ? ' - ' . $eventEndTime : ''; ?></p>
+                            <p class="event-info"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($event['location'] ?? 'TBA'); ?></p>
+                            <p class="event-info"><i class="fas fa-users"></i> <?php echo htmlspecialchars($event['description'] ?? 'All students'); ?></p>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="cta-section">
-        <div class="container">
-            <h2 class="mb-4 gradient-text" data-aos="fade-up">Let's Get Started</h2>
+    <section class="cta-section" id="contact">
+        <div class="cta-content">
+            <div class="container">
+                <h2 class="cta-title" data-aos="fade-up">Get Involved with SRC</h2>
+                <p class="cta-text" data-aos="fade-up" data-aos-delay="100">
+                    Join us in making a difference. Your voice matters, and we want to hear from you!
+                </p>
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <?php if ($isLoggedIn): ?>
+                        <a href="pages_php/dashboard.php" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                    <?php else: ?>
+                        <a href="pages_php/login.php" class="btn btn-primary-custom btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Join Us Today
+                        </a>
+                    <?php endif; ?>
+                    <a href="#contact" class="btn btn-outline-custom btn-lg ms-2">
+                        <i class="fas fa-envelope me-2"></i>Contact SRC
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container text-center">
-            <p>&copy; <?php echo date('Y'); ?> SRC Management System. All rights reserved.</p>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <h5><i class="fas fa-university me-2"></i>VVU SRC</h5>
+                    <p style="color: rgba(255,255,255,0.8); line-height: 1.8;">
+                        The official Students' Representative Council of Valley View University, dedicated to serving the student body with excellence and integrity.
+                    </p>
+                    <div class="social-links mt-3">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="#home"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="#about"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                        <li><a href="#news"><i class="fas fa-chevron-right"></i> News</a></li>
+                        <li><a href="#events"><i class="fas fa-chevron-right"></i> Events</a></li>
+                        <li><a href="pages_php/login.php"><i class="fas fa-chevron-right"></i> Portal</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5>Services</h5>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Student Welfare</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Events Management</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Scholarships</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Feedback System</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5>Contact Info</h5>
+                    <ul>
+                        <li style="display: flex; align-items: start;">
+                            <i class="fas fa-map-marker-alt" style="margin-top: 5px;"></i>
+                            <span>Valley View University<br>Oyibi, Accra, Ghana</span>
+                        </li>
+                        <li><i class="fas fa-phone"></i> +233 123 456 789</li>
+                        <li><i class="fas fa-envelope"></i> src@vvu.edu.gh</li>
+                        <li><i class="fas fa-clock"></i> Mon - Fri: 8AM - 5PM</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025/2026 Valley View University SRC. All Rights Reserved. | Designed with <i class="fas fa-heart" style="color: var(--secondary-color);"></i> for Students</p>
+            </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS Bundle with Popper -->
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- AOS Animation Library -->
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Custom animations -->
-    <script src="js/index-animations.js"></script>
+
     <script>
-        // Initialize AOS animation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide preloader once page is loaded
-            const preloader = document.getElementById('preloader');
-            if (preloader) {
-                setTimeout(() => {
-                    preloader.style.opacity = '0';
-                    preloader.style.visibility = 'hidden';
-                }, 800);
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Initialize Swiper
+        const swiper = new Swiper('.heroSwiper', {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
             }
-            
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true
+        });
+
+        // Preloader
+        window.addEventListener('load', function() {
+            const preloader = document.getElementById('preloader');
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }, 800);
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
         });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && href !== '#contact') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        const offsetTop = target.offsetTop - 80;
+                        window.scrollTo({
+                            top: offsetTop,
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Counter animation
+        function animateCounter(element, start, end, duration) {
+            let current = start;
+            const increment = (end - start) / (duration / 16);
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    element.textContent = end + '+';
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + '+';
+                }
+            }, 16);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counters = document.querySelectorAll('.stat-number');
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.textContent.replace('+', ''));
+                            animateCounter(counter, 0, target, 2000);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            observer.observe(statsSection);
+        }
     </script>
 </body>
-</html> 
+</html>

@@ -1,0 +1,336 @@
+/**
+ * Profile Header Full-Width Layout
+ * Makes the profile page header full-width with centered content and right-aligned buttons
+ */
+
+/* Profile header full-width layout */
+.profile-header {
+    /* Full-width container */
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    padding: 2.5rem 0 !important;
+    position: relative !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    border-radius: 0 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    margin-top: 0 !important;
+    margin-bottom: 1.5rem !important;
+}
+
+/* Profile header content container */
+.profile-header-content {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+}
+
+/* Main content area - centered */
+.profile-header-main {
+    flex: 1 !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Profile title - centered */
+.profile-title {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    margin: 0 0 1rem 0 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.8rem !important;
+    text-align: center !important;
+}
+
+.profile-title i {
+    font-size: 2.2rem !important;
+    opacity: 0.9 !important;
+}
+
+/* Profile description - centered */
+.profile-description {
+    margin: 0 !important;
+    opacity: 0.95 !important;
+    font-size: 1.2rem !important;
+    font-weight: 400 !important;
+    line-height: 1.4 !important;
+    text-align: center !important;
+}
+
+/* Actions area - right aligned */
+.profile-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.8rem !important;
+    flex-wrap: wrap !important;
+    position: absolute !important;
+    right: 2rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+/* Button styling */
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    backdrop-filter: blur(10px) !important;
+    transition: all 0.3s ease !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    text-decoration: none !important;
+}
+
+/* Desktop adjustments */
+@media (min-width: 992px) {
+    .profile-header {
+        padding: 3rem 0 !important;
+    }
+    
+    .profile-header-content {
+        padding: 0 3rem !important;
+    }
+    
+    .profile-title {
+        font-size: 3rem !important;
+    }
+    
+    .profile-description {
+        font-size: 1.3rem !important;
+    }
+    
+    .profile-header-actions {
+        right: 3rem !important;
+    }
+}
+
+/* Large desktop adjustments */
+@media (min-width: 1200px) {
+    .profile-header-content {
+        max-width: 1400px !important;
+        padding: 0 4rem !important;
+    }
+    
+    .profile-header-actions {
+        right: 4rem !important;
+    }
+}
+
+/* Tablet adjustments */
+@media (max-width: 991px) {
+    .profile-header {
+        padding: 2rem 0 !important;
+    }
+    
+    .profile-header-content {
+        padding: 0 1.5rem !important;
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+    
+    .profile-header-main {
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    .profile-header-actions {
+        position: static !important;
+        transform: none !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+    
+    .profile-title {
+        font-size: 2.2rem !important;
+    }
+    
+    .profile-description {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .profile-header {
+        padding: 1.5rem 0 !important;
+        margin-left: calc(-50vw + 50%) !important;
+        margin-right: calc(-50vw + 50%) !important;
+        width: 100vw !important;
+    }
+    
+    .profile-header-content {
+        padding: 0 1rem !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 1rem !important;
+    }
+    
+    .profile-header-main {
+        width: 100% !important;
+        text-align: center !important;
+    }
+    
+    .profile-title {
+        font-size: 1.8rem !important;
+        gap: 0.6rem !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    .profile-title i {
+        font-size: 1.6rem !important;
+    }
+    
+    .profile-description {
+        font-size: 1rem !important;
+        text-align: center !important;
+    }
+    
+    .profile-header-actions {
+        position: static !important;
+        transform: none !important;
+        justify-content: center !important;
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        margin-top: 1rem !important;
+    }
+    
+    .btn-header-action {
+        font-size: 0.9rem !important;
+        padding: 0.5rem 1rem !important;
+        width: 100% !important;
+        max-width: 280px !important;
+        text-align: center !important;
+    }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 576px) {
+    .profile-header {
+        padding: 1.2rem 0 !important;
+    }
+    
+    .profile-header-content {
+        padding: 0 0.75rem !important;
+    }
+    
+    .profile-title {
+        font-size: 1.6rem !important;
+    }
+    
+    .profile-title i {
+        font-size: 1.4rem !important;
+    }
+    
+    .profile-description {
+        font-size: 0.9rem !important;
+    }
+    
+    .btn-header-action {
+        font-size: 0.85rem !important;
+        padding: 0.45rem 0.9rem !important;
+    }
+}
+
+/* Ensure proper spacing from navbar */
+.profile-header {
+    margin-top: 0 !important;
+}
+
+/* Override any container constraints */
+.container-fluid .profile-header {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+}
+
+/* Fix for pages with sidebar */
+@media (min-width: 992px) {
+    .main-content .profile-header {
+        width: calc(100vw - 260px) !important;
+        margin-left: calc(-50vw + 50% + 130px) !important;
+        margin-right: calc(-50vw + 50% - 130px) !important;
+    }
+    
+    .sidebar.collapsed ~ .main-content .profile-header {
+        width: calc(100vw - 60px) !important;
+        margin-left: calc(-50vw + 50% + 30px) !important;
+        margin-right: calc(-50vw + 50% - 30px) !important;
+    }
+}
+
+/* Animation support */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s !important;
+    animation-fill-mode: both !important;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown !important;
+}
+
+/* Ensure text remains readable */
+.profile-header * {
+    color: white !important;
+}
+
+.profile-header .btn-header-action {
+    color: white !important;
+}
+
+.profile-header .btn-header-action:hover {
+    color: white !important;
+}
+
+/* Print styles */
+@media print {
+    .profile-header {
+        background: #667eea !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+    
+    .profile-header * {
+        color: black !important;
+    }
+}

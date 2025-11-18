@@ -1,8 +1,14 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../functions.php'; // Include the functions file directly
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/functions.php'; // Include the functions file directly
+
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in and has permission
 if (!isLoggedIn()) {
@@ -213,53 +219,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_report'])) {
     }
 }
 
-// Define the function locally in case it's not found from the include
-if (!function_exists('getAllPortfolios')) {
-    function getAllPortfolios() {
-        global $conn;
-        
-        $portfolios = [];
-        
-        // Try to get portfolios from the database
-        try {
-            $portfoliosSql = "SELECT DISTINCT portfolio FROM reports ORDER BY portfolio";
-            $result = mysqli_query($conn, $portfoliosSql);
-            
-            if ($result && mysqli_num_rows($result) > 0) {
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $portfolios[] = $row['portfolio'];
-                }
-            }
-        } catch (Exception $e) {
-            // Just handle silently and use default list
-        }
-        
-        // If no portfolios found in database, use a standard list
-        if (empty($portfolios)) {
-            $portfolios = [
-                'President',
-                'Secretary General',
-                'Treasurer',
-                'Academic Affairs',
-                'Sports & Culture',
-                'Student Welfare',
-                'International Students',
-                'General'
-            ];
-        }
-        
-        // Sort the portfolios
-        sort($portfolios);
-        
-        return $portfolios;
-    }
-}
-
 // Get available portfolios
 $portfolios = getAllPortfolios();
 
+
+
 // Include header
 require_once 'includes/header.php';
+
+// Define page title, icon, and actions for the modern header
+$pageTitle = $isCreateMode ? 'Create New Report' : 'Edit Report';
+$pageIcon = "fa-edit";
+$pageDescription = $isCreateMode ? 'Create a new report for the system' : 'Edit and update report information';
+$actions = [];
+
+if (!$isCreateMode) {
+    $actions[] = [
+        'url' => 'report_detail.php?id=' . $reportId,
+        'icon' => 'fa-eye',
+        'text' => 'View Report',
+        'class' => 'btn-secondary'
+    ];
+}
+
+$actions[] = [
+    'url' => 'reports.php',
+    'icon' => 'fa-arrow-left',
+    'text' => 'Back to Reports',
+    'class' => 'btn-outline-light'
+];
+
+// Include the modern page header
+include_once 'includes/modern_page_header.php';
 ?>
 
 <div class="container-fluid px-4">
@@ -290,10 +281,7 @@ require_once 'includes/header.php';
     </div>
     <?php endif; ?>
 
-    <div class="card mb-4">
-        <div class="card-header">
-            <h2 class="mb-0"><?php echo $pageTitle; ?></h2>
-        </div>
+    <div class="card mb-4" style="margin-top: 1.5rem;">
         <div class="card-body">
             <form method="POST" action="<?php echo $isCreateMode ? 'report_handler.php' : htmlspecialchars($_SERVER['PHP_SELF'] . '?id=' . $reportId); ?>" enctype="multipart/form-data">
                 <div class="mb-3">
@@ -304,11 +292,11 @@ require_once 'includes/header.php';
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="report_author" class="form-label">Author</label>
-                        <input type="text" class="form-control" id="report_author" name="report_author" value="<?php echo $isEditMode ? htmlspecialchars($report['author']) : ''; ?>" required>
+                        <input type="text" class="form-control" id="report_author" name="report_author" value="<?php echo $isEditMode ? htmlspecialchars($report['author'] ?? '') : ''; ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label for="report_date" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="report_date" name="report_date" value="<?php echo $isEditMode ? $report['date'] : date('Y-m-d'); ?>" required>
+                        <input type="date" class="form-control" id="report_date" name="report_date" value="<?php echo $isEditMode ? ($report['created_at'] ?? $report['date'] ?? date('Y-m-d')) : date('Y-m-d'); ?>" required>
                     </div>
                 </div>
                 
@@ -317,13 +305,13 @@ require_once 'includes/header.php';
                         <label for="report_type" class="form-label">Report Type</label>
                         <select class="form-select" id="report_type" name="report_type" required>
                             <option value="">Select Type</option>
-                            <option value="Annual" <?php echo $isEditMode && $report['type'] === 'Annual' ? 'selected' : ''; ?>>Annual Report</option>
-                            <option value="Term" <?php echo $isEditMode && $report['type'] === 'Term' ? 'selected' : ''; ?>>Term Report</option>
-                            <option value="Financial" <?php echo $isEditMode && $report['type'] === 'Financial' ? 'selected' : ''; ?>>Financial Report</option>
-                            <option value="Event" <?php echo $isEditMode && $report['type'] === 'Event' ? 'selected' : ''; ?>>Event Report</option>
-                            <option value="Survey" <?php echo $isEditMode && $report['type'] === 'Survey' ? 'selected' : ''; ?>>Survey Results</option>
-                            <option value="Academic" <?php echo $isEditMode && $report['type'] === 'Academic' ? 'selected' : ''; ?>>Academic Report</option>
-                            <option value="Program" <?php echo $isEditMode && $report['type'] === 'Program' ? 'selected' : ''; ?>>Program Evaluation</option>
+                            <option value="Annual" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Annual' ? 'selected' : ''; ?>>Annual Report</option>
+                            <option value="Term" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Term' ? 'selected' : ''; ?>>Term Report</option>
+                            <option value="Financial" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Financial' ? 'selected' : ''; ?>>Financial Report</option>
+                            <option value="Event" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Event' ? 'selected' : ''; ?>>Event Report</option>
+                            <option value="Survey" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Survey' ? 'selected' : ''; ?>>Survey Results</option>
+                            <option value="Academic" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Academic' ? 'selected' : ''; ?>>Academic Report</option>
+                            <option value="Program" <?php echo $isEditMode && ($report['report_type'] ?? $report['type'] ?? '') === 'Program' ? 'selected' : ''; ?>>Program Evaluation</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -331,7 +319,7 @@ require_once 'includes/header.php';
                         <select class="form-select" id="report_portfolio" name="report_portfolio" required>
                             <option value="">Select Portfolio</option>
                             <?php foreach ($portfolios as $portfolio): ?>
-                            <option value="<?php echo htmlspecialchars($portfolio); ?>" <?php echo $isEditMode && $report['portfolio'] === $portfolio ? 'selected' : ''; ?>>
+                            <option value="<?php echo htmlspecialchars($portfolio); ?>" <?php echo $isEditMode && ($report['portfolio'] ?? '') === $portfolio ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($portfolio); ?>
                             </option>
                             <?php endforeach; ?>
@@ -341,7 +329,7 @@ require_once 'includes/header.php';
                 
                 <div class="mb-3">
                     <label for="report_summary" class="form-label">Summary</label>
-                    <textarea class="form-control" id="report_summary" name="report_summary" rows="5" required><?php echo $isEditMode ? htmlspecialchars($report['summary']) : ''; ?></textarea>
+                    <textarea class="form-control" id="report_summary" name="report_summary" rows="5" required><?php echo $isEditMode ? htmlspecialchars($report['description'] ?? $report['content'] ?? $report['summary'] ?? '') : ''; ?></textarea>
                 </div>
                 
                 <div class="mb-3">
@@ -354,12 +342,12 @@ require_once 'includes/header.php';
                     <label for="report_file" class="form-label"><?php echo $isEditMode ? 'Replace Report File (PDF)' : 'Report File (PDF)'; ?></label>
                     <input type="file" class="form-control" id="report_file" name="report_file" accept=".pdf" <?php echo !$isEditMode ? 'required' : ''; ?>>
                     <?php if ($isEditMode): ?>
-                    <div class="form-text">Leave empty to keep the current file. Current file: <?php echo htmlspecialchars($report['file_path']); ?></div>
+                    <div class="form-text">Leave empty to keep the current file. Current file: <?php echo htmlspecialchars($report['file_path'] ?? 'No file'); ?></div>
                     <?php endif; ?>
                 </div>
                 
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="report_featured" name="report_featured" <?php echo $isEditMode && $report['featured'] ? 'checked' : ''; ?>>
+                    <input class="form-check-input" type="checkbox" id="report_featured" name="report_featured" <?php echo $isEditMode && ($report['featured'] ?? false) ? 'checked' : ''; ?>>
                     <label class="form-check-label" for="report_featured">
                         Mark as featured report
                     </label>

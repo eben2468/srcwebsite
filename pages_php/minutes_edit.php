@@ -1,9 +1,16 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
 
-// Check if user is logged in and is admin
-if (!isLoggedIn() || !isAdmin()) {
+// Require login for this page
+requireLogin();
+
+// Check if user is logged in and has admin privileges (including super admin)
+if (!isLoggedIn() || (!shouldUseAdminInterface() && !isMember())) {
     $_SESSION['error'] = "You don't have permission to edit minutes.";
     header("Location: minutes.php");
     exit();
@@ -41,12 +48,37 @@ $pageTitle = "Edit Minutes: " . $minutes['title'] . " - SRC Management System";
 require_once 'includes/header.php';
 ?>
 
-<div class="container-fluid">
+<!-- Page Content -->
+<div class="container-fluid" style="margin-top: 60px;">
+    <?php
+    // Set up modern page header variables
+    $pageTitle = "Edit Minutes";
+    $pageIcon = "fa-edit";
+    $pageDescription = "Modify meeting minutes details";
+    $actions = [
+        [
+            'url' => 'minutes_detail.php?id=' . $minutesId,
+            'icon' => 'fa-eye',
+            'text' => 'View Minutes',
+            'class' => 'btn-outline-light'
+        ],
+        [
+            'url' => 'minutes.php',
+            'icon' => 'fa-arrow-left',
+            'text' => 'Back to Minutes',
+            'class' => 'btn-outline-light'
+        ]
+    ];
+
+    // Include modern page header
+    include 'includes/modern_page_header.php';
+    ?>
+
     <!-- Display success/error messages -->
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?php 
-            echo $_SESSION['success']; 
+            <?php
+            echo $_SESSION['success'];
             unset($_SESSION['success']);
             ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -55,22 +87,13 @@ require_once 'includes/header.php';
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?php 
-            echo $_SESSION['error']; 
+            <?php
+            echo $_SESSION['error'];
             unset($_SESSION['error']);
             ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <a href="minutes_detail.php?id=<?php echo $minutes['minutes_id']; ?>" class="btn btn-sm btn-outline-secondary mb-2">
-                <i class="fas fa-arrow-left me-1"></i> Back to Minutes Detail
-            </a>
-            <h1 class="h3 mb-0">Edit Meeting Minutes</h1>
-        </div>
-    </div>
 
     <div class="card">
         <div class="card-body">

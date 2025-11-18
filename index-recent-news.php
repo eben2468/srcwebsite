@@ -1,6 +1,6 @@
 <?php
 // Include database config
-require_once 'db_config.php';
+require_once 'includes/db_config.php';
 
 // Fetch recent news data
 $recentNews = [

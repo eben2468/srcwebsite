@@ -121,7 +121,9 @@ function initCurrentPage() {
 
 // Ensure all sidebar links are visible, especially the settings link
 function ensureSidebarLinksVisible() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.querySelector('.sidebar') ||
+                   document.querySelector('.dashboard-sidebar') ||
+                   document.querySelector('[class*="sidebar"]');
     if (!sidebar) return;
     
     // Force sidebar to be scrollable

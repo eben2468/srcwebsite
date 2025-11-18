@@ -1,0 +1,323 @@
+/**
+ * Election Actions CSS
+ * Styles for the action buttons on the elections page
+ */
+
+/* Election Cards */
+.content-card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.content-card-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 0;
+}
+
+.content-card-body {
+    padding: 1.5rem;
+    background-color: #fff;
+}
+
+.content-card-title {
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+/* Status Badges */
+.badge.upcoming {
+    background-color: #28a745 !important;
+}
+
+.badge.active {
+    background-color: #4e73df !important;
+}
+
+.badge.planning {
+    background-color: #f6c23e !important;
+}
+
+.badge.completed {
+    background-color: #1cc88a !important;
+}
+
+.badge.nomination {
+    background-color: #36b9cc !important;
+}
+
+.badge.pending {
+    background-color: #f8f9fc !important;
+    color: #5a5c69 !important;
+    border: 1px solid #d1d3e2;
+}
+
+.badge.cancelled {
+    background-color: #e74a3b !important;
+}
+
+/* Action Buttons */
+.btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-right: 5px;
+    transition: all 0.2s;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+}
+
+.btn-view {
+    color: #4e73df;
+    background-color: rgba(78, 115, 223, 0.1);
+    border-color: transparent;
+}
+
+.btn-view:hover {
+    color: white;
+    background-color: #4e73df;
+}
+
+.btn-edit {
+    color: #1cc88a;
+    background-color: rgba(28, 200, 138, 0.1);
+    border-color: transparent;
+}
+
+.btn-edit:hover {
+    color: white;
+    background-color: #1cc88a;
+}
+
+.btn-delete {
+    color: #e74a3b;
+    background-color: rgba(231, 74, 59, 0.1);
+    border-color: transparent;
+}
+
+.btn-delete:hover {
+    color: white;
+    background-color: #e74a3b;
+}
+
+.btn-filter {
+    background-color: #4e73df;
+    color: white;
+}
+
+.btn-filter:hover {
+    background-color: #2e59d9;
+    color: white;
+}
+
+.btn-create-election {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.btn-create-election:hover {
+    background-color: #169b6b;
+    color: white;
+}
+
+/* Election Results */
+.winner-badge {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.turnout-chart-container {
+    margin: 1.5rem 0;
+}
+
+.position-bar {
+    margin-bottom: 1rem;
+}
+
+.winner-label {
+    color: #1cc88a;
+    font-weight: 600;
+}
+
+/* Custom animations */
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Admin dropdown */
+.dropdown-menu {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(78, 115, 223, 0.1);
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+}
+
+/* Action buttons container */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+/* Button icons */
+.btn-action i {
+    font-size: 14px !important;
+    margin: 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn-action {
+        width: 32px !important;
+        height: 32px !important;
+    }
+    
+    .btn-action i {
+        font-size: 12px !important;
+    }
+}
+
+/* Election Progress Indicator */
+.election-progress {
+    padding: 20px 10px;
+}
+
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    flex: 1;
+    max-width: 150px;
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #f8f9fc;
+    border: 2px solid #d1d3e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    font-size: 20px;
+    color: #5a5c69;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+.step-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #5a5c69;
+    max-width: 120px;
+}
+
+.progress-connector {
+    height: 2px;
+    background-color: #d1d3e2;
+    flex-grow: 1;
+    margin: 0 -5px;
+    position: relative;
+    top: -35px;
+    z-index: 1;
+}
+
+.progress-step.active .step-icon {
+    background-color: rgba(78, 115, 223, 0.15);
+    border-color: #4e73df;
+    color: #4e73df;
+}
+
+.progress-step.active ~ .progress-connector {
+    background-color: #4e73df;
+}
+
+.progress-step.completed .step-icon {
+    background-color: rgba(28, 200, 138, 0.15);
+    border-color: #1cc88a;
+    color: #1cc88a;
+}
+
+@media (max-width: 768px) {
+    .progress-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .progress-step {
+        flex-direction: row;
+        width: 100%;
+        margin-bottom: 10px;
+        max-width: none;
+    }
+    
+    .step-icon {
+        margin-bottom: 0;
+        margin-right: 15px;
+    }
+    
+    .progress-connector {
+        width: 2px;
+        height: 20px;
+        margin: 5px 0;
+        margin-left: 24px;
+        top: 0;
+    }
+} 

@@ -1,80 +1,758 @@
-/* Footer Styling */
-.footer {
-    background-color: #1a2e5a;
-    color: white;
-    padding: 12px 0;
-    width: 100%;
-    position: relative;
-    z-index: 100;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    bottom: 0;
+/**
+ * SRC Management System Footer Styles
+ * Comprehensive footer styling with system gradient background
+ */
+
+/* Force footer to display with gradient background */
+footer.src-footer,
+.src-footer {
+    background: linear-gradient(to right, #4b6cb7, #182848) !important;
+    background-color: #4b6cb7 !important;
+    background-image: linear-gradient(to right, #4b6cb7, #182848) !important;
+    color: white !important;
+    padding: 1rem 0 0 0 !important;
+    margin: auto !important;
+    position: relative !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    clear: both !important;
+    z-index: 999 !important;
+    display: block !important;
+    min-height: 120px !important;
+}
+
+.src-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0.1) 100%);
+    pointer-events: none;
 }
 
-.footer-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.875rem;
+.footer-section {
+    position: relative;
+    z-index: 1;
+    margin: 0 auto;
+    padding: 0 15px;
 }
 
-.footer-divider {
-    width: 1px;
-    height: 15px;
-    background-color: rgba(255, 255, 255, 0.3);
-    margin: 0 15px;
+/* Better row alignment for footer content */
+.src-footer .row {
+    margin: 0 auto !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
 }
 
-.footer a {
+/* High specificity for main footer row */
+footer.src-footer > .container-fluid > .row {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    flex-wrap: wrap !important;
+}
+
+footer.src-footer .col-lg-3,
+footer.src-footer .col-md-6 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    margin-bottom: 1rem !important;
+}
+
+.footer-title {
     color: white;
-    text-decoration: none;
-    transition: opacity 0.2s ease;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
 }
 
-.footer a:hover {
-    opacity: 0.8;
+.footer-title i {
+    color: #4cc9f0;
+    font-size: 1rem;
 }
 
-.footer i {
-    margin-right: 5px;
+.footer-description {
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
 }
 
-/* Push footer to bottom */
-html, body {
-    height: 100%;
+.footer-links {
+    list-style: none;
+    padding: 0;
     margin: 0;
 }
 
+.footer-links li {
+    margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.footer-links a:hover {
+    color: #4cc9f0;
+    transform: translateX(5px);
+    text-decoration: none;
+}
+
+.footer-links a i {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover i {
+    color: #4cc9f0;
+}
+
+/* Social Links */
+.social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.social-link:hover {
+    background: rgba(76, 201, 240, 0.3);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(76, 201, 240, 0.4);
+    text-decoration: none;
+}
+
+/* Contact Info */
+.contact-info {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.contact-item i {
+    color: #4cc9f0;
+    margin-right: 0.75rem;
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    min-width: 16px;
+}
+
+.contact-item span {
+    line-height: 1.5;
+}
+
+.contact-item .text-warning {
+    color: #f39c12 !important;
+    font-size: 0.8rem;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    background: transparent;
+    padding: 1.5rem 0;
+    margin-top: 2rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
+.footer-bottom .row {
+    margin: 0 !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+/* High specificity rules for footer bottom alignment */
+footer.src-footer .footer-bottom .row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+footer.src-footer .footer-bottom .col-md-6:first-child {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+}
+
+footer.src-footer .footer-bottom .col-md-6:last-child {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+}
+
+.footer-info {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* High specificity for footer info */
+footer.src-footer .footer-info {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+.footer-info span {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+}
+
+.footer-info i {
+    margin-right: 0.5rem;
+}
+
+.version-info i {
+    color: #4cc9f0;
+}
+
+.system-status .text-success {
+    color: #2ecc71 !important;
+}
+
+.user-count i {
+    color: #f39c12;
+}
+
+.footer-links-bottom {
+    display: flex !important;
+    gap: 15px !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+}
+
+.footer-link-bottom {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    font-size: 1.05rem;
+    transition: color 0.3s ease;
+    white-space: nowrap;
+}
+
+.footer-link-bottom:hover {
+    color: #4cc9f0;
+    text-decoration: none;
+}
+
+
+
+.copyright-and-links {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+/* High specificity for copyright and links */
+footer.src-footer .copyright-and-links {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 25px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 1rem !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+
+/* Responsive Design */
+
+/* Tablet and intermediate screen sizes (768px - 1199px) - Fix left spacing */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .src-footer .container-fluid,
+    .src-footer .footer-container {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    .src-footer [class*="col-"] {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        text-align: center !important;
+    }
+
+    .src-footer .col-lg-3,
+    .src-footer .col-md-6,
+    .src-footer .col-lg-2,
+    .src-footer .col-lg-4 {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    .src-footer .footer-section {
+        text-align: center !important;
+    }
+
+    .footer-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .footer-description {
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .footer-links a {
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .contact-item {
+        font-size: 1.15rem;
+        font-weight: 600;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .footer-info {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .copyright {
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .footer-links-bottom {
+        justify-content: center;
+    }
+
+    .footer-link-bottom {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 768px) {
+    .src-footer {
+        padding: 1.75rem 0 0 0;
+    }
+    
+    .footer-title {
+        font-size: 1.45rem;
+        margin-bottom: 1rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .footer-description {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .social-links {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .footer-info {
+        justify-content: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .footer-links-bottom {
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .copyright {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .copyright-and-links {
+        flex-direction: column !important;
+        gap: 12px !important;
+        text-align: center !important;
+    }
+    
+    .contact-item {
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .footer-links a {
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .footer-links-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .social-links {
+        gap: 0.75rem;
+    }
+    
+    .social-link {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* Animation for footer elements */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.footer-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.footer-section:nth-child(1) { animation-delay: 0.1s; }
+.footer-section:nth-child(2) { animation-delay: 0.2s; }
+.footer-section:nth-child(3) { animation-delay: 0.3s; }
+.footer-section:nth-child(4) { animation-delay: 0.4s; }
+
+/* Ensure footer sticks to bottom and handles sidebar layout */
 body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-.container-fluid {
-    flex: 1 0 auto;
-}
-
+.main-wrapper,
+.app-container,
 .main-content {
-    flex: 1 0 auto;
-    display: flex;
-    flex-direction: column;
+    flex: 1;
 }
 
-.footer {
-    flex-shrink: 0;
+/* Ensure footer is positioned at the bottom */
+footer.src-footer {
+    margin-top: auto !important;
+    position: relative !important;
+    bottom: 0 !important;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .footer-content {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
+/* Footer positioning for sidebar layout */
+.src-footer {
+    margin-left: 0 !important;
+    width: 100% !important;
+    position: relative !important;
+}
+
+/* Footer responsive to sidebar states - High specificity override */
+footer.src-footer .container-fluid,
+footer.src-footer .footer-container,
+.src-footer .container-fluid,
+.footer-container {
+    padding-left: 300px !important; /* Increased sidebar spacing */
+    padding-right: 50px !important; /* Increased right padding for balance */
+    margin-left: 0 !important; /* Reset left margin */
+    margin-right: 0 !important; /* Reset right margin */
+    max-width: none !important; /* Remove max-width constraint */
+    width: 100% !important; /* Full width */
+    transition: padding-left 0.3s ease !important;
+}
+
+/* Collapsed sidebar state - footer adjusts to 60px sidebar */
+.sidebar.collapsed ~ * .footer-container,
+body.sidebar-collapsed .footer-container,
+.sidebar.collapsed ~ * .src-footer .container-fluid {
+    padding-left: 80px !important; /* Collapsed sidebar + spacing */
+    padding-right: 80px !important; /* Equal padding for balance */
+    margin: 0 !important; /* Reset margins */
+}
+
+/* Mobile adjustments for footer */
+@media (max-width: 991.98px) {
+    .src-footer .container-fluid,
+    .footer-container {
+        padding-left: 20px !important; /* Reduced padding for mobile */
+        padding-right: 20px !important; /* Equal margins */
     }
-    
-    .footer-divider {
-        display: none;
+
+    footer.src-footer,
+    .src-footer {
+        margin-left: 0 !important;
+        min-height: 25px !important; /* Significantly reduced footer height for mobile */
+        padding: 2px 0 !important; /* Reduced padding top and bottom */
     }
-} 
+
+    /* Mobile-specific copyright text positioning */
+    footer.src-footer .copyright {
+        text-align: center !important; /* Center copyright text for better visibility */
+        padding: 0 10px !important; /* Equal padding on both sides */
+        margin: 0 auto !important; /* Center the element */
+        font-size: 0.8rem !important; /* Slightly smaller on mobile */
+        line-height: 1.3 !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        white-space: normal !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        width: 100% !important; /* Full width for proper centering */
+    }
+
+    /* Mobile footer links positioning */
+    footer.src-footer .footer-links-bottom {
+        justify-content: center !important; /* Center align footer links */
+        gap: 0.8rem !important; /* Smaller gap on mobile */
+        flex-wrap: wrap !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Mobile copyright and links container */
+    footer.src-footer .copyright-and-links {
+        text-align: center !important; /* Center align for better visibility */
+        justify-content: center !important; /* Center content */
+        align-items: center !important; /* Center align items */
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important; /* Full width for proper centering */
+    }
+
+    /* Override desktop-specific container padding on mobile */
+    footer.src-footer .container-fluid {
+        padding-left: 20px !important; /* Override desktop 300px padding */
+        padding-right: 20px !important; /* Override desktop 50px padding */
+    }
+}
+
+/* Additional CSS to ensure footer visibility */
+footer.src-footer * {
+    color: white !important;
+}
+
+footer.src-footer .footer-title {
+    color: white !important;
+}
+
+footer.src-footer .footer-links a {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+footer.src-footer .footer-links a:hover {
+    color: #4cc9f0 !important;
+}
+
+/* Ensure footer appears above other elements */
+footer.src-footer {
+    position: relative !important;
+    z-index: 1000 !important;
+}
+
+/* FINAL OVERRIDE RULES - Highest specificity to fix alignment issues */
+footer.src-footer .container-fluid {
+    padding-left: 300px !important;
+    padding-right: 50px !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+footer.src-footer .footer-bottom {
+    margin-top: 0.2rem !important; /* Further reduced margin */
+    padding: 0.2rem 0 0.1rem 0 !important; /* Significantly reduced padding for smaller footer */
+    width: 100% !important;
+}
+
+footer.src-footer .footer-bottom .row {
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+}
+
+footer.src-footer .footer-info span {
+    margin-right: 20px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+footer.src-footer .copyright-and-links {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    gap: 25px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+footer.src-footer .footer-links-bottom {
+    display: flex !important;
+    gap: 15px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Additional mobile responsive styles for very small screens */
+@media (max-width: 576px) {
+    /* Extra small screens - iPhone SE, etc. */
+    footer.src-footer .container-fluid {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
+
+    footer.src-footer .copyright {
+        font-size: 0.75rem !important; /* Even smaller text */
+        text-align: left !important;
+        padding: 0 5px 0 0 !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+
+    footer.src-footer .footer-links-bottom {
+        gap: 0.5rem !important;
+        flex-wrap: wrap !important;
+    }
+
+    footer.src-footer .footer-link-bottom {
+        font-size: 0.75rem !important;
+        padding: 3px 6px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Ensure footer bottom section has proper spacing */
+    footer.src-footer .footer-bottom {
+        padding: 0.5rem 0 !important;
+    }
+
+    footer.src-footer .footer-bottom .row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+
+    footer.src-footer .footer-info {
+        width: 100% !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    footer.src-footer .copyright-and-links {
+        width: 100% !important;
+        align-items: flex-start !important;
+    }
+}
+
+/* Ultra small screens - 320px and below */
+@media (max-width: 320px) {
+    footer.src-footer .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    footer.src-footer .copyright {
+        font-size: 0.7rem !important;
+        line-height: 1.1 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    footer.src-footer .footer-link-bottom {
+        font-size: 0.7rem !important;
+        padding: 2px 4px !important;
+    }
+
+    footer.src-footer .footer-links-bottom {
+        gap: 0.3rem !important;
+    }
+}

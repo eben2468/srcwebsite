@@ -1,0 +1,134 @@
+/* Ultra aggressive notification fixes */
+.notification-btn,
+.notification-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    background: none !important;
+    border: none !important;
+    color: #6c757d !important;
+    font-size: 1.25rem !important;
+    padding: 0.5rem !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.notification-btn:hover,
+.notification-toggle:hover {
+    color: var(--primary-color, #007bff) !important;
+    background-color: rgba(0,0,0,0.05) !important;
+}
+
+.notification-badge {
+    position: absolute !important;
+    top: -2px !important;
+    right: -2px !important;
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 0.7rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 600 !important;
+    border: 2px solid white !important;
+    z-index: 10 !important;
+}
+
+/* Force notification dropdown positioning */
+.notification-dropdown,
+.dropdown-menu[aria-labelledby*="notification"] {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    z-index: 1050 !important;
+    min-width: 320px !important;
+    max-width: 400px !important;
+    border: none !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    border-radius: 15px !important;
+    background-color: white !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Force notification items styling */
+.notification-item {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+    transition: background-color 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+.notification-item:last-child {
+    border-bottom: none !important;
+}
+
+/* Mobile aggressive fixes */
+@media (max-width: 768px) {
+    .notification-btn,
+    .notification-toggle {
+        font-size: 1.1rem !important;
+        padding: 0.4rem !important;
+    }
+    
+    .notification-badge {
+        width: 16px !important;
+        height: 16px !important;
+        font-size: 0.65rem !important;
+        top: -1px !important;
+        right: -1px !important;
+    }
+    
+    .notification-dropdown,
+    .dropdown-menu[aria-labelledby*="notification"] {
+        min-width: 280px !important;
+        max-width: 90vw !important;
+        right: -10px !important;
+    }
+    
+    .notification-item {
+        padding: 0.6rem 0.8rem !important;
+        gap: 0.6rem !important;
+    }
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .notification-btn,
+[data-bs-theme="dark"] .notification-toggle {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .notification-btn:hover,
+[data-bs-theme="dark"] .notification-toggle:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+
+[data-bs-theme="dark"] .notification-badge {
+    border-color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .notification-dropdown,
+[data-bs-theme="dark"] .dropdown-menu[aria-labelledby*="notification"] {
+    background-color: #2c3034 !important;
+    border-color: #373b3e !important;
+}
+
+[data-bs-theme="dark"] .notification-item {
+    border-bottom-color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .notification-item:hover {
+    background-color: #343a40 !important;
+}

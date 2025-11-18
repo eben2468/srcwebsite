@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentIndex = 0;
     let interval = null;
-    const autoplayDelay = 7000; // 7 seconds
+    const autoplayDelay = 5000; // 4 seconds (reduced from 7 seconds)
     let isAnimating = false;
     
     // Function to show a specific slide

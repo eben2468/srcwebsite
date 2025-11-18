@@ -1,0 +1,401 @@
+/* Finance Categories Nuclear Mobile Fix */
+/* This CSS file overrides all conflicting styles to force mobile full-width layout */
+
+/* ===== NUCLEAR MOBILE LAYOUT OVERRIDE ===== */
+
+/* Force full width on mobile - highest priority */
+@media (max-width: 991px) {
+    /* Container overrides */
+    .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100vw !important;
+        width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+    
+    /* Main content - nuclear override */
+    main,
+    main.col-md-9,
+    main.ms-sm-auto,
+    main.col-lg-10 {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+        left: 0 !important;
+        right: 0 !important;
+        flex: none !important;
+    }
+    
+    /* Content area - force full width */
+    .content-area,
+    .main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 0.75rem !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Row overrides */
+    .row {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    /* Column overrides */
+    .col-md-8,
+    .col-md-4,
+    .col-lg-8,
+    .col-lg-4,
+    .col-md-12,
+    .col-lg-12 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 0.5rem !important;
+        margin-bottom: 1rem !important;
+        flex: none !important;
+    }
+    
+    /* Finance header - mobile optimization */
+    .finance-header {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 60px 0 1.5rem 0 !important;
+        padding: 1.5rem 1rem !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+    }
+    
+    .finance-header-content {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        gap: 1rem !important;
+    }
+    
+    .finance-title {
+        font-size: 1.8rem !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+    
+    .finance-title i {
+        font-size: 2rem !important;
+    }
+    
+    .finance-description {
+        font-size: 1rem !important;
+        margin: 0.5rem 0 0 0 !important;
+    }
+    
+    .finance-header-actions {
+        width: 100% !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .btn-header-action {
+        padding: 0.75rem 1.5rem !important;
+        font-size: 0.95rem !important;
+        width: auto !important;
+        min-width: 150px !important;
+    }
+    
+    /* Cards - full width */
+    .card,
+    .budget-overview-card,
+    .add-category-card,
+    .categories-list-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: 1.5rem !important;
+        border-radius: 8px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .card-header {
+        padding: 1rem !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+    }
+    
+    .card-body {
+        padding: 1rem !important;
+    }
+    
+    /* Budget statistics - mobile layout */
+    .budget-stat {
+        flex-direction: row !important;
+        align-items: center !important;
+        padding: 1rem !important;
+        margin: 0.5rem 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .budget-stat-icon {
+        width: 45px !important;
+        height: 45px !important;
+        margin-right: 1rem !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .budget-stat-content {
+        flex: 1 !important;
+        text-align: left !important;
+    }
+    
+    .budget-stat-content h6 {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.25rem !important;
+        color: #6c757d !important;
+    }
+    
+    .budget-stat-content .h4 {
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        margin: 0 !important;
+    }
+    
+    /* Table responsiveness */
+    .table-responsive {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 8px !important;
+    }
+    
+    .table {
+        min-width: 600px !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem !important;
+        font-size: 0.9rem !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Buttons */
+    .btn-sm {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.8rem !important;
+        margin: 0.1rem !important;
+    }
+    
+    /* Forms */
+    .form-control {
+        padding: 0.75rem !important;
+        font-size: 1rem !important;
+        border-radius: 6px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .form-label {
+        font-size: 0.95rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.25rem !important;
+        font-size: 0.95rem !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        min-height: 44px !important;
+    }
+    
+    /* Modals */
+    .modal-dialog {
+        margin: 1rem !important;
+        max-width: calc(100vw - 2rem) !important;
+        width: calc(100vw - 2rem) !important;
+    }
+    
+    .modal-content {
+        border-radius: 8px !important;
+        max-height: calc(100vh - 2rem) !important;
+        overflow-y: auto !important;
+    }
+    
+    .modal-body {
+        padding: 1rem !important;
+        max-height: calc(100vh - 200px) !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Alerts */
+    .alert {
+        margin: 0 0 1rem 0 !important;
+        padding: 0.75rem 1rem !important;
+        border-radius: 6px !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+/* ===== SMALL MOBILE DEVICES ===== */
+@media (max-width: 576px) {
+    .content-area,
+    .main-content {
+        padding: 0 0.5rem !important;
+    }
+    
+    .finance-header {
+        padding: 1.25rem 0.75rem !important;
+        margin: 60px 0 1rem 0 !important;
+    }
+    
+    .finance-title {
+        font-size: 1.6rem !important;
+    }
+    
+    .finance-title i {
+        font-size: 1.8rem !important;
+    }
+    
+    .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .budget-stat {
+        padding: 0.75rem !important;
+    }
+    
+    .budget-stat-icon {
+        width: 40px !important;
+        height: 40px !important;
+        margin-right: 0.75rem !important;
+    }
+    
+    .budget-stat-content .h4 {
+        font-size: 1.2rem !important;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem 0.25rem !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .btn-sm {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.75rem !important;
+    }
+    
+    .modal-dialog {
+        margin: 0.5rem !important;
+        max-width: calc(100vw - 1rem) !important;
+        width: calc(100vw - 1rem) !important;
+    }
+}
+
+/* ===== LANDSCAPE MOBILE ===== */
+@media (max-width: 991px) and (orientation: landscape) {
+    .finance-header {
+        padding: 1rem !important;
+        margin: 60px 0 1rem 0 !important;
+    }
+    
+    .finance-title {
+        font-size: 1.5rem !important;
+    }
+    
+    .finance-header-content {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    .finance-header-main {
+        text-align: left !important;
+    }
+    
+    .finance-header-actions {
+        width: auto !important;
+    }
+}
+
+/* ===== OVERRIDE ANY CONFLICTING STYLES ===== */
+@media (max-width: 991px) {
+    /* Force override any inline styles */
+    main[style] {
+        width: 100vw !important;
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Override Bootstrap grid system on mobile */
+    .container,
+    .container-fluid,
+    .container-sm,
+    .container-md,
+    .container-lg,
+    .container-xl {
+        max-width: 100vw !important;
+        width: 100vw !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Override any fixed widths */
+    * {
+        max-width: 100vw !important;
+    }
+    
+    /* Ensure no horizontal scroll */
+    body {
+        overflow-x: hidden !important;
+    }
+    
+    html {
+        overflow-x: hidden !important;
+    }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+@media (max-width: 991px) {
+    /* Improve touch targets */
+    .btn,
+    .form-control,
+    .dropdown-toggle {
+        min-height: 44px !important;
+    }
+    
+    /* Better focus indicators */
+    .btn:focus,
+    .form-control:focus {
+        outline: 2px solid #0d6efd !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* Improve text readability */
+    body {
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+    }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+@media (max-width: 991px) {
+    /* Reduce animations on mobile */
+    * {
+        animation-duration: 0.2s !important;
+        transition-duration: 0.2s !important;
+    }
+    
+    /* Optimize scrolling */
+    .table-responsive,
+    .modal-body {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+    }
+}

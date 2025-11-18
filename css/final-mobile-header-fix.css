@@ -1,0 +1,93 @@
+/**
+ * FINAL MOBILE HEADER FIX - ABSOLUTE OVERRIDE
+ * This is the final solution that uses maximum CSS specificity
+ * and !important declarations to force correct header spacing
+ */
+
+/* ABSOLUTE MOBILE HEADER SPACING FIX */
+@media screen and (max-width: 768px) {
+    /* Use maximum specificity to override everything */
+    html body div.elections-header,
+    html body .elections-header,
+    body div.elections-header,
+    body .elections-header,
+    div.elections-header,
+    .elections-header,
+    html body div.header,
+    html body .header,
+    body div.header,
+    body .header,
+    div.header,
+    .header {
+        margin-top: 75px !important;
+        margin-left: 15px !important;
+        margin-right: 15px !important;
+        margin-bottom: 15px !important;
+        width: calc(100% - 30px) !important;
+        max-width: calc(100% - 30px) !important;
+        min-width: calc(100% - 30px) !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+    }
+}
+
+/* For smaller screens */
+@media screen and (max-width: 375px) {
+    html body div.elections-header,
+    html body .elections-header,
+    body div.elections-header,
+    body .elections-header,
+    div.elections-header,
+    .elections-header,
+    html body div.header,
+    html body .header,
+    body div.header,
+    body .header,
+    div.header,
+    .header {
+        margin-top: 71px !important;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    html body div.elections-header,
+    html body .elections-header,
+    body div.elections-header,
+    body .elections-header,
+    div.elections-header,
+    .elections-header,
+    html body div.header,
+    html body .header,
+    body div.header,
+    body .header,
+    div.header,
+    .header {
+        margin-top: 67px !important;
+    }
+}
+
+/* Force override any inline styles */
+@media screen and (max-width: 768px) {
+    .elections-header[style*="margin-top"],
+    .header[style*="margin-top"] {
+        margin-top: 75px !important;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .elections-header[style*="margin-top"],
+    .header[style*="margin-top"] {
+        margin-top: 71px !important;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .elections-header[style*="margin-top"],
+    .header[style*="margin-top"] {
+        margin-top: 67px !important;
+    }
+}

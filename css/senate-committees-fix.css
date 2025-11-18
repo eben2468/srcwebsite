@@ -1,0 +1,136 @@
+/* Senate and committees fixes */
+.senate-container,
+.committees-container {
+    padding: 1rem;
+}
+
+.senate-header,
+.committee-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.senate-title,
+.committee-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.senate-description,
+.committee-description {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.senate-card,
+.committee-card {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.senate-card-header,
+.committee-card-header {
+    background-color: #f8f9fa;
+    padding: 1.25rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.senate-card-body,
+.committee-card-body {
+    padding: 1.25rem;
+}
+
+.senate-member,
+.committee-member {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.senate-member:hover,
+.committee-member:hover {
+    background-color: #f8f9fa;
+}
+
+.senate-member:last-child,
+.committee-member:last-child {
+    border-bottom: none;
+}
+
+.member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color, #007bff);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 1rem;
+}
+
+.member-info {
+    flex: 1;
+}
+
+.member-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.member-position {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .senate-container,
+    .committees-container {
+        padding: 0.5rem;
+    }
+    
+    .senate-header,
+    .committee-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .senate-title,
+    .committee-title {
+        font-size: 2rem;
+    }
+    
+    .senate-description,
+    .committee-description {
+        font-size: 1.1rem;
+    }
+    
+    .senate-card-header,
+    .committee-card-header,
+    .senate-card-body,
+    .committee-card-body {
+        padding: 1rem;
+    }
+    
+    .senate-member,
+    .committee-member {
+        padding: 0.6rem;
+    }
+    
+    .member-avatar {
+        width: 35px;
+        height: 35px;
+        margin-right: 0.75rem;
+    }
+}

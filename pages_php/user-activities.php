@@ -1,9 +1,15 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../db_config.php';
-require_once '../db_functions.php';
-require_once '../activity_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
+
+// Require login for this page
+requireLogin();
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/activity_functions.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -12,8 +18,8 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Check if user is admin
-if (!isAdmin()) {
+// Check if user has admin privileges (super admin or admin)
+if (!hasAdminPrivileges()) {
     header("Location: dashboard.php");
     exit();
 }
@@ -129,8 +135,8 @@ $offset = ($page - 1) * $perPage;
 
 // Process filter form
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['filter'])) {
-    if (!empty($_GET['username'])) {
-        $filters['username'] = $_GET['username'];
+    if (!empty($_GET['email'])) {
+        $filters['user_email'] = $_GET['email'];
     }
     
     if (!empty($_GET['activity_type'])) {
@@ -159,7 +165,7 @@ $totalPages = ceil($totalActivities / $perPage);
 $activityTypeSummary = getActivityTypeSummary($filters);
 
 // Get the list of users for filter dropdown
-$users = fetchAll("SELECT user_id, username, CONCAT(first_name, ' ', last_name) as full_name FROM users ORDER BY username");
+$users = fetchAll("SELECT user_id, email, CONCAT(first_name, ' ', last_name) as full_name FROM users ORDER BY email");
 
 // Get activity types for filter dropdown
 $activityTypes = [
@@ -170,29 +176,900 @@ $activityTypes = [
     'delete' => 'Delete',
     'view' => 'View'
 ];
-?>
 
-<!-- Page Content -->
-<div class="container-fluid">
-    <?php 
-    // Define page title, icon, and actions for the enhanced header
-    $pageTitle = "User Activities";
-    $pageIcon = "fa-history";
-    $actions = [];
+// Activity description templates for enhanced detail
+$activityDescriptionTemplates = [
+    'login' => [
+        'title' => 'User Login',
+        'icon' => 'fa-sign-in-alt',
+        'color' => '#4caf50',
+        'details' => 'User successfully authenticated and logged into the system'
+    ],
+    'logout' => [
+        'title' => 'User Logout',
+        'icon' => 'fa-sign-out-alt',
+        'color' => '#f44336',
+        'details' => 'User session ended and logged out of the system'
+    ],
+    'create' => [
+        'title' => 'Content Created',
+        'icon' => 'fa-plus-circle',
+        'color' => '#2196f3',
+        'details' => 'New content, record, or entity was created in the system'
+    ],
+    'update' => [
+        'title' => 'Content Updated',
+        'icon' => 'fa-edit',
+        'color' => '#ff9800',
+        'details' => 'Existing content or record was modified or updated'
+    ],
+    'delete' => [
+        'title' => 'Content Deleted',
+        'icon' => 'fa-trash-alt',
+        'color' => '#e91e63',
+        'details' => 'Content or record was permanently removed from the system'
+    ],
+    'view' => [
+        'title' => 'Content Viewed',
+        'icon' => 'fa-eye',
+        'color' => '#9c27b0',
+        'details' => 'User accessed and viewed specific content or page'
+    ],
+    'download' => [
+        'title' => 'File Downloaded',
+        'icon' => 'fa-download',
+        'color' => '#00bcd4',
+        'details' => 'User downloaded a file or resource from the system'
+    ],
+    'upload' => [
+        'title' => 'File Uploaded',
+        'icon' => 'fa-upload',
+        'color' => '#3f51b5',
+        'details' => 'User uploaded a file or resource to the system'
+    ],
+    'register' => [
+        'title' => 'User Registered',
+        'icon' => 'fa-user-plus',
+        'color' => '#009688',
+        'details' => 'New user account was created in the system'
+    ],
+    'vote' => [
+        'title' => 'Vote Recorded',
+        'icon' => 'fa-check-square',
+        'color' => '#673ab7',
+        'details' => 'User cast a vote or made a selection in a poll or ballot'
+    ],
+    'email' => [
+        'title' => 'Email Action',
+        'icon' => 'fa-envelope',
+        'color' => '#795548',
+        'details' => 'Email was sent to or received from user'
+    ],
+    'sms' => [
+        'title' => 'SMS Action',
+        'icon' => 'fa-comment',
+        'color' => '#607d8b',
+        'details' => 'SMS message was sent to or received from user'
+    ]
+];
+
+// Function to get activity description context
+function getActivityDescription($activityType, $description) {
+    global $activityDescriptionTemplates;
     
-    if ($isAdmin || $isMember || isset($canManageUserActivities)) {
-        $actions[] = [
-            'url' => '#',
-            'icon' => 'fa-plus',
-            'text' => 'Add New',
-            'class' => 'btn-primary',
-            'attributes' => 'data-bs-toggle="modal" data-bs-target="#createModal"'
-        ];
+    if (isset($activityDescriptionTemplates[$activityType])) {
+        return $activityDescriptionTemplates[$activityType];
     }
     
-    // Include the enhanced page header
-    include_once 'includes/enhanced_page_header.php';
-    ?>
+    // Default template for unknown types
+    return [
+        'title' => ucfirst($activityType),
+        'icon' => 'fa-dot-circle',
+        'color' => '#757575',
+        'details' => $description ?: 'System activity recorded'
+    ];
+}
+?>
+
+<style>
+    .activity-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 15px;
+    }
+    .activity-badge.login { background-color: #4caf50; }
+    .activity-badge.logout { background-color: #f44336; }
+    .activity-badge.create { background-color: #2196f3; }
+    .activity-badge.update { background-color: #ff9800; }
+    .activity-badge.delete { background-color: #e91e63; }
+    .activity-badge.view { background-color: #9c27b0; }
+    .activity-badge.download { background-color: #00bcd4; }
+    .activity-badge.upload { background-color: #3f51b5; }
+    .activity-badge.register { background-color: #009688; }
+    .activity-badge.vote { background-color: #673ab7; }
+    .activity-badge.email { background-color: #795548; }
+    .activity-badge.sms { background-color: #607d8b; }
+    .activity-badge.other { background-color: #757575; }
+    
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+    .activity-item:hover {
+        background-color: #f9f9f9;
+    }
+    .activity-content {
+        flex: 1;
+    }
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+    .activity-user {
+        font-weight: 600;
+        color: #333;
+    }
+    .activity-time {
+        color: #777;
+        font-size: 0.85rem;
+    }
+    .activity-description {
+        margin-bottom: 5px;
+    }
+    .activity-meta {
+        font-size: 0.85rem;
+        color: #666;
+    }
+    
+    /* Enhanced activity detail styles */
+    .activity-row-expandable {
+        cursor: pointer;
+        user-select: none;
+    }
+    
+    .activity-row-expandable:hover {
+        background-color: #f5f5f5 !important;
+    }
+    
+    .activity-expand-btn {
+        transition: transform 0.3s ease;
+        color: #667eea;
+    }
+    
+    .activity-expand-btn.expanded {
+        transform: rotate(180deg);
+    }
+    
+    .activity-detail-row {
+        display: none;
+        background-color: #f9f9f9;
+    }
+    
+    .activity-detail-row.show {
+        display: table-row;
+        animation: slideDown 0.3s ease;
+    }
+    
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .activity-detail-content {
+        padding: 20px;
+        background: white;
+        border-top: 2px solid #e0e0e0;
+    }
+    
+    .detail-section {
+        margin-bottom: 15px;
+    }
+    
+    .detail-section:last-child {
+        margin-bottom: 0;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .detail-value {
+        margin-top: 5px;
+        color: #333;
+        padding-left: 10px;
+        border-left: 3px solid #667eea;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        line-height: 1.6;
+        display: block;
+        text-decoration: none;
+    }
+    
+    .detail-value * {
+        text-decoration: none;
+    }
+    
+    .detail-value strong {
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+    
+    .detail-value em {
+        display: block;
+        margin-top: 4px;
+        font-style: italic;
+    }
+    
+    .detail-value br {
+        display: block;
+        content: '';
+        margin: 6px 0;
+    }
+    
+    .detail-value code {
+        background: #f5f5f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        word-break: break-all;
+        display: inline-block;
+        margin: 4px 0;
+    }
+    
+
+    .activity-info-badge {
+        display: inline-block;
+        background-color: #f0f0f0;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        border-left: 3px solid #667eea;
+    }
+    
+    .filter-card {
+        margin-bottom: 20px;
+    }
+    .filter-toggle {
+        cursor: pointer;
+    }
+    
+    /* Mobile responsive table styles */
+    @media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.9rem;
+        }
+        
+        .table thead {
+            display: none;
+        }
+        
+        .table tbody {
+            display: block;
+            width: 100%;
+        }
+        
+        .table tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: visible;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            page-break-inside: avoid;
+            break-inside: avoid;
+            background: white;
+        }
+        
+        .table td {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            grid-gap: 10px;
+            text-align: left;
+            padding: 12px 15px;
+            border: none;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            word-wrap: break-word;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            line-height: 1.5;
+            align-items: start;
+        }
+        
+        .table td:last-child {
+            border-bottom: none;
+        }
+        
+        .table td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            word-wrap: break-word;
+            flex-shrink: 0;
+        }
+        
+        /* First column (expand button) - no label */
+        .table td:first-child {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            grid-template-columns: none;
+        }
+        
+        .table td:first-child:before {
+            display: none;
+        }
+        
+        /* Ensure text content is properly displayed */
+        .table td > span,
+        .table td > small {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+        
+        .activity-expand-btn {
+            display: inline-block !important;
+            float: none !important;
+            margin: 0 !important;
+        }
+        
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination .page-link {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .filter-card .row {
+            flex-direction: column;
+        }
+        
+        .filter-card .col-md-6,
+        .filter-card .col-md-12 {
+            width: 100%;
+        }
+        
+        .user-activities-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .user-activities-header-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-activities-title {
+            font-size: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .user-activities-title i {
+            font-size: 1.3rem;
+        }
+
+        .user-activities-description {
+            font-size: 1rem;
+        }
+
+        .user-activities-header-actions {
+            width: 100%;
+        }
+
+        .btn-header-action {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .container-fluid {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .content-card {
+            margin-bottom: 15px;
+        }
+        
+        .content-card-body {
+            padding: 12px;
+        }
+        
+        .table td {
+            padding: 8px 10px;
+            line-height: 1.5;
+            white-space: normal;
+        }
+        
+        .table td::before {
+            font-size: 0.75rem;
+            min-width: 90px;
+        }
+        
+        .detail-value {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            padding-left: 8px;
+        }
+        
+        .detail-value strong,
+        .detail-value em {
+            display: block;
+            margin-top: 6px;
+            margin-bottom: 2px;
+        }
+        
+        .detail-value br {
+            display: block;
+            margin: 4px 0;
+        }
+        
+        .detail-label {
+            margin-bottom: 8px;
+            display: block;
+            clear: both;
+            font-size: 0.85rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 15px;
+            clear: both;
+            page-break-inside: avoid;
+        }
+        
+        .activity-info-badge {
+            display: block;
+            margin-bottom: 8px;
+            width: 100%;
+            box-sizing: border-box;
+            clear: both;
+        }
+        
+        .activity-detail-content .row {
+            margin-left: -5px;
+            margin-right: -5px;
+        }
+        
+        .activity-detail-content .col-md-6,
+        .activity-detail-content .col-12 {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+        
+        .detail-value br {
+            display: block;
+            content: '';
+            margin: 2px 0;
+        }
+        
+        .detail-value strong,
+        .detail-value em {
+            display: block;
+            margin-top: 4px;
+        }
+    }
+    
+    /* Alignment and spacing improvements */
+    .content-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    
+    .content-card-header {
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 2px solid #e9ecef;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .content-card-title {
+        margin: 0;
+        color: #333;
+        font-weight: 600;
+        font-size: 1.3rem;
+    }
+    
+    .content-card-body {
+        padding: 20px;
+    }
+    
+    /* Alignment for activity summary table */
+    .content-card .table {
+        margin-bottom: 0;
+    }
+    
+    .content-card .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+        padding: 12px 15px;
+        text-align: left;
+    }
+    
+    .content-card .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+    
+    /* Better alignment for badges and content */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .progress {
+        background-color: #e9ecef;
+    }
+    
+    .progress-bar {
+        background-color: #667eea;
+    }
+    
+    /* Responsive form styles */
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    .form-control,
+    .form-select {
+        border-color: #ddd;
+        border-radius: 6px;
+        padding: 0.6rem 0.75rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .btn {
+        border-radius: 6px;
+        padding: 0.6rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Footer Styles */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .main-content {
+        flex: 1 !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .src-footer {
+        margin-top: auto !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    .src-footer .container-fluid,
+    .footer-container {
+        padding-left: 300px !important;
+        padding-right: 50px !important;
+        margin: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+    }
+    
+    .footer-bottom {
+        background: transparent !important;
+    }
+    
+    .copyright-and-links {
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 25px !important;
+    }
+    
+    @media (max-width: 768px) {
+        .src-footer .container-fluid,
+        .footer-container {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+        
+        .copyright-and-links {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
+</style>
+
+<!-- Custom User Activities Header -->
+<div class="user-activities-header animate__animated animate__fadeInDown">
+    <div class="user-activities-header-content">
+        <div class="user-activities-header-main">
+            <h1 class="user-activities-title">
+                <i class="fas fa-chart-line me-3"></i>
+                User Activities
+            </h1>
+            <p class="user-activities-description">Monitor and manage user activity logs and system interactions</p>
+        </div>
+        <div class="user-activities-header-actions">
+            <button type="button" class="btn btn-header-action" data-bs-toggle="modal" data-bs-target="#createModal">
+                <i class="fas fa-plus me-2"></i>Create Activity
+            </button>
+            <button type="button" class="btn btn-header-action btn-header-danger" data-bs-toggle="modal" data-bs-target="#clearActivitiesModal">
+                <i class="fas fa-trash-alt me-2"></i>Clear Activities
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-activities-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+}
+
+.user-activities-header-content {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    width: 100%;
+}
+
+.user-activities-header-main {
+    flex: 0 1 auto;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.user-activities-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.8rem;
+    white-space: nowrap;
+}
+
+.user-activities-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.user-activities-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.user-activities-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    z-index: 10;
+    position: relative;
+    min-width: fit-content;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-header-danger {
+    background: rgba(220, 53, 69, 0.3);
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.btn-header-danger:hover {
+    background: rgba(220, 53, 69, 0.5);
+    border-color: rgba(220, 53, 69, 0.7);
+}
+
+@media (max-width: 1024px) {
+    .user-activities-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .user-activities-header-content {
+        gap: 1.5rem;
+    }
+
+    .user-activities-title {
+        font-size: 1.8rem;
+    }
+
+    .user-activities-description {
+        font-size: 1rem;
+    }
+
+    .btn-header-action {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.9rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-activities-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .user-activities-header-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .user-activities-header-main {
+        flex: 1;
+        text-align: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .user-activities-title {
+        font-size: 1.5rem;
+        gap: 0.6rem;
+        justify-content: center;
+        white-space: normal;
+    }
+
+    .user-activities-title i {
+        font-size: 1.4rem;
+    }
+
+    .user-activities-description {
+        font-size: 0.95rem;
+        white-space: normal;
+    }
+
+    .user-activities-header-actions {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+    }
+
+    .btn-header-action {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+</style>
+
+<!-- Page Content -->
+<div class="container-fluid px-4">
+    
+    <!-- Notification area -->
+    <?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i> <?php echo $_SESSION['success']; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> <?php echo $_SESSION['error']; ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
 <!-- Activity Summary -->
 <div class="row mb-4">
@@ -283,9 +1160,9 @@ $activityTypes = [
             <div class="content-card-body">
                 <form method="GET" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="row g-3">
                     <div class="col-md-6">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" 
-                               value="<?php echo isset($filters['username']) ? htmlspecialchars($filters['username']) : ''; ?>">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" 
+                               value="<?php echo isset($filters['email']) ? htmlspecialchars($filters['email']) : ''; ?>">
                     </div>
                     
                     <div class="col-md-6">
@@ -293,9 +1170,9 @@ $activityTypes = [
                         <select class="form-select" id="user_id" name="user_id">
                             <option value="">All Users</option>
                             <?php foreach ($users as $user): ?>
-                            <option value="<?php echo $user['user_id']; ?>" 
+                            <option value="<?php echo $user['user_id']; ?>"
                                 <?php echo (isset($filters['user_id']) && $filters['user_id'] == $user['user_id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($user['username'] . ' (' . $user['full_name'] . ')'); ?>
+                                <?php echo htmlspecialchars($user['email'] . ' (' . $user['full_name'] . ')'); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -306,7 +1183,7 @@ $activityTypes = [
                         <select class="form-select" id="activity_type" name="activity_type">
                             <option value="">All Activities</option>
                             <?php foreach ($activityTypes as $type => $label): ?>
-                            <option value="<?php echo $type; ?>" 
+                            <option value="<?php echo $type; ?>"
                                 <?php echo (isset($filters['activity_type']) && $filters['activity_type'] == $type) ? 'selected' : ''; ?>>
                                 <?php echo $label; ?>
                             </option>
@@ -372,78 +1249,144 @@ $activityTypes = [
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
+                        <th style="width: 30px;"></th>
                         <th>Date & Time</th>
                         <th>User</th>
                         <th>Role</th>
                         <th>Activity Type</th>
                         <th>Description</th>
                         <th>IP Address</th>
-                        <th>Page</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($activities as $activity): ?>
-                    <tr>
-                        <td><?php echo date('Y-m-d H:i:s', strtotime($activity['created_at'])); ?></td>
-                        <td>
+                    <?php foreach ($activities as $index => $activity): 
+                        $activityDesc = getActivityDescription($activity['activity_type'], $activity['activity_description']);
+                        $rowId = 'activity-' . $index;
+                    ?>
+                    <tr class="activity-row-expandable" data-activity-id="<?php echo $rowId; ?>" role="button" tabindex="0">
+                        <td style="text-align: center;">
+                            <i class="fas fa-chevron-down activity-expand-btn" data-toggle="collapse" data-target="#<?php echo $rowId; ?>"></i>
+                        </td>
+                        <td data-label="Date & Time"><?php echo date('Y-m-d H:i:s', strtotime($activity['created_at'])); ?></td>
+                        <td data-label="User">
                             <?php 
                                 $fullName = trim($activity['first_name'] . ' ' . $activity['last_name']);
-                                echo !empty($fullName) ? htmlspecialchars($fullName) : htmlspecialchars($activity['username']); 
+                                echo !empty($fullName) ? htmlspecialchars($fullName) : htmlspecialchars($activity['email']); 
                             ?>
                         </td>
-                        <td><?php echo htmlspecialchars(ucfirst($activity['role'] ?? 'Unknown')); ?></td>
-                        <td>
+                        <td data-label="Role"><span class="badge bg-light text-dark"><?php echo htmlspecialchars(ucfirst($activity['role'] ?? 'Unknown')); ?></span></td>
+                        <td data-label="Activity Type">
                             <?php 
-                                $activityTypeLabel = '';
                                 $badgeClass = 'bg-secondary';
                                 
                                 switch ($activity['activity_type']) {
                                     case 'login':
-                                        $activityTypeLabel = '<i class="fas fa-sign-in-alt me-1"></i> Login';
                                         $badgeClass = 'bg-success';
                                         break;
                                     case 'logout':
-                                        $activityTypeLabel = '<i class="fas fa-sign-out-alt me-1"></i> Logout';
                                         $badgeClass = 'bg-danger';
                                         break;
                                     case 'create':
-                                        $activityTypeLabel = '<i class="fas fa-plus me-1"></i> Create';
                                         $badgeClass = 'bg-primary';
                                         break;
                                     case 'update':
-                                        $activityTypeLabel = '<i class="fas fa-edit me-1"></i> Update';
                                         $badgeClass = 'bg-info';
                                         break;
                                     case 'delete':
-                                        $activityTypeLabel = '<i class="fas fa-trash me-1"></i> Delete';
                                         $badgeClass = 'bg-danger';
                                         break;
                                     case 'view':
-                                        $activityTypeLabel = '<i class="fas fa-eye me-1"></i> View';
                                         $badgeClass = 'bg-secondary';
                                         break;
-                                    default:
-                                        $activityTypeLabel = ucfirst($activity['activity_type']);
                                 }
                                 
-                                echo '<span class="badge ' . $badgeClass . '">' . $activityTypeLabel . '</span>';
+                                echo '<span class="badge ' . $badgeClass . '"><i class="fas ' . $activityDesc['icon'] . ' me-1"></i> ' . $activityDesc['title'] . '</span>';
                             ?>
                         </td>
-                        <td><?php echo htmlspecialchars($activity['activity_description']); ?></td>
-                        <td><?php echo htmlspecialchars($activity['ip_address'] ?? 'Unknown'); ?></td>
-                        <td>
-                            <?php 
-                                $pageUrl = $activity['page_url'];
-                                $pageName = basename($pageUrl);
-                                echo htmlspecialchars($pageName); 
-                            ?>
+                        <td data-label="Description">
+                            <small class="text-muted"><?php echo htmlspecialchars(substr($activity['activity_description'], 0, 50)); ?><?php echo strlen($activity['activity_description']) > 50 ? '...' : ''; ?></small>
+                        </td>
+                        <td data-label="IP Address"><?php echo htmlspecialchars($activity['ip_address'] ?? 'Unknown'); ?></td>
+                    </tr>
+                    <tr class="activity-detail-row" id="<?php echo $rowId; ?>">
+                        <td colspan="7">
+                            <div class="activity-detail-content">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas fa-user me-2"></i>User Information</div>
+                                            <div class="detail-value">
+                                                <strong><?php 
+                                                    $fullName = trim($activity['first_name'] . ' ' . $activity['last_name']);
+                                                    echo !empty($fullName) ? htmlspecialchars($fullName) : htmlspecialchars($activity['email']); 
+                                                ?></strong><br>
+                                                Email: <?php echo htmlspecialchars($activity['email']); ?><br>
+                                                Role: <span class="badge bg-light text-dark"><?php echo htmlspecialchars(ucfirst($activity['role'] ?? 'Unknown')); ?></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas fa-clock me-2"></i>Timestamp</div>
+                                            <div class="detail-value">
+                                                <?php echo date('l, F j, Y \a\t g:i A', strtotime($activity['created_at'])); ?><br>
+                                                <small class="text-muted"><?php echo date('Y-m-d H:i:s', strtotime($activity['created_at'])); ?></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas <?php echo $activityDesc['icon']; ?> me-2"></i>Activity Details</div>
+                                            <div class="detail-value">
+                                                <strong><?php echo $activityDesc['title']; ?></strong><br>
+                                                <em><?php echo $activityDesc['details']; ?></em>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas fa-network-wired me-2"></i>Network Information</div>
+                                            <div class="detail-value">
+                                                IP Address: <?php echo htmlspecialchars($activity['ip_address'] ?? 'Unknown'); ?><br>
+                                                <small class="text-muted">Connection from this IP address</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas fa-file-alt me-2"></i>Full Description</div>
+                                            <div class="detail-value">
+                                                <?php echo htmlspecialchars($activity['activity_description']); ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <?php if (!empty($activity['page_url'])): ?>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="detail-section">
+                                            <div class="detail-label"><i class="fas fa-link me-2"></i>Page Information</div>
+                                            <div class="detail-value">
+                                                Page: <code><?php echo htmlspecialchars($activity['page_url']); ?></code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; ?>
                     
                     <?php if (empty($activities)): ?>
                     <tr>
-                        <td colspan="7" class="text-center">No activities found</td>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                            No activities found
+                        </td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
@@ -506,7 +1449,7 @@ $activityTypes = [
 </div>
 
 <!-- Clear Activities Modal -->
-<div class="modal fade" id="clearActivitiesModal" tabindex="-1" aria-labelledby="clearActivitiesModalLabel" aria-hidden="true">
+<div class="modal fade" id="clearActivitiesModal" tabindex="-1" aria-labelledby="clearActivitiesModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -528,7 +1471,7 @@ $activityTypes = [
                             <option value="">All Users</option>
                             <?php foreach ($users as $user): ?>
                             <option value="<?php echo $user['user_id']; ?>">
-                                <?php echo htmlspecialchars($user['username'] . ' (' . $user['full_name'] . ')'); ?>
+                                <?php echo htmlspecialchars($user['email'] . ' (' . $user['full_name'] . ')'); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -568,7 +1511,7 @@ $activityTypes = [
 </div>
 
 <!-- Create Activity Modal -->
-<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true" data-bs-backdrop="false">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -583,7 +1526,7 @@ $activityTypes = [
                             <option value="">Select User</option>
                             <?php foreach ($users as $user): ?>
                             <option value="<?php echo $user['user_id']; ?>">
-                                <?php echo htmlspecialchars($user['username'] . ' (' . $user['full_name'] . ')'); ?>
+                                <?php echo htmlspecialchars($user['email'] . ' (' . $user['full_name'] . ')'); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -624,15 +1567,61 @@ $activityTypes = [
         </div>
     </div>
 </div>
-
-<?php
-// Include footer
-require_once 'includes/footer.php';
-?>
+</div>
 
 <script>
-// Add confirmation for clearing activities
+// Expandable activity rows functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Handle expandable rows
+    const expandableBtns = document.querySelectorAll('.activity-expand-btn');
+    expandableBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const row = this.closest('tr');
+            const activityId = row.dataset.activityId;
+            const detailRow = document.getElementById(activityId);
+            
+            if (detailRow) {
+                detailRow.classList.toggle('show');
+                btn.classList.toggle('expanded');
+            }
+        });
+    });
+    
+    // Handle row click to expand
+    const expandableRows = document.querySelectorAll('.activity-row-expandable');
+    expandableRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Don't trigger if clicking on the button itself
+            if (!e.target.closest('.activity-expand-btn')) {
+                const activityId = this.dataset.activityId;
+                const detailRow = document.getElementById(activityId);
+                const btn = this.querySelector('.activity-expand-btn');
+                
+                if (detailRow) {
+                    detailRow.classList.toggle('show');
+                    btn.classList.toggle('expanded');
+                }
+            }
+        });
+        
+        // Handle keyboard navigation
+        row.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                const activityId = this.dataset.activityId;
+                const detailRow = document.getElementById(activityId);
+                const btn = this.querySelector('.activity-expand-btn');
+                
+                if (detailRow) {
+                    detailRow.classList.toggle('show');
+                    btn.classList.toggle('expanded');
+                }
+            }
+        });
+    });
+    
+    // Add confirmation for clearing activities
     const clearActivitiesForm = document.querySelector('#clearActivitiesModal form');
     if (clearActivitiesForm) {
         clearActivitiesForm.addEventListener('submit', function(event) {
@@ -672,6 +1661,40 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Responsive behavior for tables
+    function adjustTableForMobile() {
+        const tables = document.querySelectorAll('.table');
+        const isMobile = window.innerWidth <= 768;
+        
+        tables.forEach(table => {
+            if (isMobile) {
+                table.classList.add('mobile-responsive');
+            } else {
+                table.classList.remove('mobile-responsive');
+            }
+        });
+    }
+    
+    // Call on load and window resize
+    adjustTableForMobile();
+    window.addEventListener('resize', adjustTableForMobile);
+    
+    // Smooth scrolling for pagination
+    const paginationLinks = document.querySelectorAll('.pagination a');
+    paginationLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Add smooth scroll animation
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    });
 });
 </script>
-?> 
+ 
+</div> <!-- Close container-fluid -->
+</div> <!-- Close main-content -->
+
+<?php require_once 'includes/footer.php'; ?>

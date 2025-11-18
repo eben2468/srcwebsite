@@ -1,0 +1,310 @@
+/* Nuclear Scroll Button Removal */
+/* This is an aggressive fix to completely remove any scroll buttons */
+/* Works in conjunction with universal-scroll-button-removal.css */
+/* Updated to provide backup removal for stubborn scroll elements */
+
+/* Hide ALL elements that could possibly be scroll buttons */
+*[class*="scroll"],
+*[id*="scroll"],
+*[class*="back-to-top"],
+*[id*="back-to-top"],
+*[class*="scroll-to-top"],
+*[id*="scroll-to-top"],
+*[class*="fab"],
+*[id*="fab"],
+*[class*="floating"],
+*[id*="floating"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    z-index: -9999 !important;
+}
+
+/* Target any fixed positioned elements on the right side */
+*[style*="position: fixed"][style*="right"],
+*[style*="position:fixed"][style*="right"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Target specific button patterns */
+button[style*="position: fixed"],
+.btn[style*="position: fixed"],
+a[style*="position: fixed"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Target elements with up/down arrows */
+*:has(i.fa-chevron-up),
+*:has(i.fa-chevron-down),
+*:has(i.fa-arrow-up),
+*:has(i.fa-arrow-down),
+*:has(i.fas.fa-chevron-up),
+*:has(i.fas.fa-chevron-down),
+*:has(i.fas.fa-arrow-up),
+*:has(i.fas.fa-arrow-down) {
+    display: none !important;
+}
+
+/* Fallback for browsers that don't support :has() */
+.fa-chevron-up,
+.fa-chevron-down,
+.fa-arrow-up,
+.fa-arrow-down,
+.fas.fa-chevron-up,
+.fas.fa-chevron-down,
+.fas.fa-arrow-up,
+.fas.fa-arrow-down {
+    display: none !important;
+}
+
+/* Target parent elements of arrow icons */
+button .fa-chevron-up,
+button .fa-chevron-down,
+button .fa-arrow-up,
+button .fa-arrow-down,
+.btn .fa-chevron-up,
+.btn .fa-chevron-down,
+.btn .fa-arrow-up,
+.btn .fa-arrow-down {
+    display: none !important;
+}
+
+/* Hide the parent button if it contains arrow icons */
+button:has(.fa-chevron-up),
+button:has(.fa-chevron-down),
+button:has(.fa-arrow-up),
+button:has(.fa-arrow-down),
+.btn:has(.fa-chevron-up),
+.btn:has(.fa-chevron-down),
+.btn:has(.fa-arrow-up),
+.btn:has(.fa-arrow-down) {
+    display: none !important;
+}
+
+/* Target any element with z-index > 1000 that's fixed positioned */
+*[style*="z-index"][style*="position: fixed"] {
+    display: none !important;
+}
+
+/* Target common scroll button containers */
+.scroll-container,
+.scroll-wrapper,
+.scroll-controls,
+.floating-buttons,
+.action-buttons,
+.page-controls {
+    display: none !important;
+}
+
+/* Target by common positioning patterns */
+*[style*="right: 0"],
+*[style*="right:0"],
+*[style*="right: 10px"],
+*[style*="right: 20px"],
+*[style*="right: 30px"] {
+    display: none !important;
+}
+
+/* Target elements with specific background colors that might be scroll buttons */
+*[style*="background"][style*="position: fixed"][style*="right"] {
+    display: none !important;
+}
+
+/* Target any circular buttons that might be scroll buttons */
+*[style*="border-radius: 50%"][style*="position: fixed"],
+*[style*="border-radius:50%"][style*="position: fixed"] {
+    display: none !important;
+}
+
+/* Target elements with box-shadow that are fixed positioned */
+*[style*="box-shadow"][style*="position: fixed"][style*="right"] {
+    display: none !important;
+}
+
+/* Nuclear option - hide ANY fixed positioned element on the right side */
+*[style*="position: fixed"][style*="right: "],
+*[style*="position:fixed"][style*="right: "],
+*[style*="position: fixed"][style*="right:"],
+*[style*="position:fixed"][style*="right:"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -10000px !important;
+    top: -10000px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    z-index: -10000 !important;
+}
+
+/* Target by content - elements containing up/down symbols */
+*:contains("▲"),
+*:contains("▼"),
+*:contains("↑"),
+*:contains("↓") {
+    display: none !important;
+}
+
+/* Target elements with specific widths/heights that might be scroll buttons */
+*[style*="width: 40px"][style*="height: 40px"][style*="position: fixed"],
+*[style*="width: 50px"][style*="height: 50px"][style*="position: fixed"],
+*[style*="width:40px"][style*="height:40px"][style*="position: fixed"],
+*[style*="width:50px"][style*="height:50px"][style*="position: fixed"] {
+    display: none !important;
+}
+
+/* Target any Bootstrap components that might be used as scroll buttons */
+.btn-floating,
+.btn-fixed,
+.fixed-action-btn,
+.floating-action-button,
+.fab-btn {
+    display: none !important;
+}
+
+/* Target elements with transform properties that might be scroll buttons */
+*[style*="transform"][style*="position: fixed"][style*="right"] {
+    display: none !important;
+}
+
+/* Target elements with transition properties that might be scroll buttons */
+*[style*="transition"][style*="position: fixed"][style*="right"] {
+    display: none !important;
+}
+
+/* Ensure no scroll buttons appear in any context */
+html *[class*="scroll"]:not(.overflow-scroll):not(.overflow-auto):not(.table-responsive):not(.scrollable-content):not(.scroll-x):not(.scroll-y) {
+    display: none !important;
+}
+
+/* Target by data attributes */
+*[data-scroll],
+*[data-scroll-btn],
+*[data-back-to-top],
+*[data-scroll-to-top],
+*[data-floating],
+*[data-fab] {
+    display: none !important;
+}
+
+/* Target by role attributes */
+*[role="button"][style*="position: fixed"][style*="right"] {
+    display: none !important;
+}
+
+/* Target by aria attributes */
+*[aria-label*="scroll"],
+*[aria-label*="back to top"],
+*[aria-label*="scroll to top"],
+*[title*="scroll"],
+*[title*="back to top"],
+*[title*="scroll to top"] {
+    display: none !important;
+}
+
+/* Final nuclear option - target ANY element positioned fixed on the right */
+body *[style*="position: fixed"] {
+    display: none !important;
+}
+
+/* Exception for legitimate fixed elements (modals, dropdowns, etc.) */
+.modal,
+.modal-backdrop,
+.dropdown-menu,
+.tooltip,
+.popover,
+.navbar-fixed-top,
+.navbar-fixed-bottom,
+.alert-fixed,
+.toast {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Restore legitimate navbar elements */
+.navbar *,
+.header *,
+.nav * {
+    display: initial !important;
+    visibility: initial !important;
+    opacity: initial !important;
+}
+
+/* But still hide scroll buttons in navbar */
+.navbar *[class*="scroll"],
+.navbar *[id*="scroll"],
+.header *[class*="scroll"],
+.header *[id*="scroll"] {
+    display: none !important;
+}
+
+/* Media queries to ensure it works on all screen sizes */
+@media (max-width: 1199px) {
+    *[style*="position: fixed"][style*="right"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    *[style*="position: fixed"][style*="right"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+}
+
+/* Force hide with maximum specificity */
+html body div *[style*="position: fixed"][style*="right"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -99999px !important;
+    top: -99999px !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    z-index: -99999 !important;
+}
+
+/* Animation override to prevent scroll buttons from animating in */
+*[class*="scroll"],
+*[id*="scroll"] {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Keyframe override */
+@keyframes fadeIn,
+@keyframes slideIn,
+@keyframes bounceIn,
+@keyframes zoomIn {
+    0%, 100% {
+        display: none !important;
+        opacity: 0 !important;
+    }
+}
+
+/* Print media - ensure no scroll buttons in print */
+@media print {
+    *[style*="position: fixed"] {
+        display: none !important;
+    }
+}

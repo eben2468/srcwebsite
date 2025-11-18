@@ -1,13 +1,13 @@
 <?php
-// Include authentication file
-require_once '../auth_functions.php';
-require_once '../settings_functions.php';
+// Include simple authentication and required files
+require_once __DIR__ . '/../includes/simple_auth.php';
+require_once __DIR__ . '/../includes/auth_functions.php';
+require_once __DIR__ . '/../includes/db_config.php';
+require_once __DIR__ . '/../includes/db_functions.php';
+require_once __DIR__ . '/../includes/settings_functions.php';
 
-// Force enable documents feature in session
-if (!isset($_SESSION['features'])) {
-    $_SESSION['features'] = [];
-}
-$_SESSION['features']['enable_documents'] = true;
+// Require login for this page
+requireLogin();
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -16,28 +16,30 @@ if (!isLoggedIn()) {
     exit();
 }
 
-// Get current user
-$currentUser = getCurrentUser();
-$isAdmin = isAdmin();
-$isMember = isMember();
-$canManageDocuments = $isAdmin || $isMember; // Allow both admins and members to manage documents
-
 // Check if documents feature is enabled
-if (!isFeatureEnabled('enable_documents', true)) {
+if (!hasFeaturePermission('enable_documents')) {
     $_SESSION['error'] = "The document repository feature is currently disabled.";
     header("Location: dashboard.php");
     exit();
 }
 
-// Check if user is trying to access upload document form and is not an admin
-if (isset($_GET['action']) && $_GET['action'] === 'new' && !$isAdmin) {
-    // Redirect non-admin users back to the documents page
+// Get current user
+$currentUser = getCurrentUser();
+$isAdmin = shouldUseAdminInterface();
+$isMember = isMember();
+$shouldUseAdminInterface = shouldUseAdminInterface();
+$canManageDocuments = $shouldUseAdminInterface || $isMember; // Allow admin interface users and members to manage documents
+
+// Check if user is trying to access upload document form and doesn't have admin interface access
+if (isset($_GET['action']) && $_GET['action'] === 'new' && !$shouldUseAdminInterface) {
+    // Redirect non-admin interface users back to the documents page
     header("Location: documents.php");
     exit();
 }
 
-// Set page title
+// Set page title and body class
 $pageTitle = "Documents - SRC Management System";
+$bodyClass = "page-documents"; // Add body class for CSS targeting
 
 // Build query for documents
 $sql = "SELECT d.*, u.first_name, u.last_name 
@@ -82,22 +84,50 @@ $fileTypesSql = "SELECT DISTINCT document_type FROM documents WHERE status = 'ac
 $fileTypesResult = fetchAll($fileTypesSql);
 $fileTypes = array_column($fileTypesResult, 'document_type');
 
+/**
+ * Format file size for display
+ *
+ * @param int $bytes File size in bytes
+ * @return string Formatted file size
+ */
+function formatFileSize($bytes) {
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+
+    $bytes /= pow(1024, $pow);
+
+    return round($bytes, 2) . ' ' . $units[$pow];
+}
+
 // Include header
 require_once 'includes/header.php';
 ?>
+
+<link rel="stylesheet" href="../css/documents-responsive.css">
 
 <script>
     document.body.classList.add('documents-page');
 </script>
 
-<div class="header">
-    <h1 class="page-title">Documents</h1>
-    
-    <div class="header-actions">
-        <?php if (hasPermission('create', 'documents')): ?>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
-                    <i class="fas fa-file-upload me-2"></i> Upload Document
-                </button>
+<!-- Custom Documents Header -->
+<div class="documents-header animate__animated animate__fadeInDown">
+    <div class="documents-header-content">
+        <div class="documents-header-main">
+            <h1 class="documents-title">
+                <i class="fas fa-file-alt me-3"></i>
+                Documents Management
+            </h1>
+            <p class="documents-description">Access and manage official SRC documents and resources</p>
+        </div>
+        <?php if ($shouldUseAdminInterface || $isMember): ?>
+        <div class="documents-header-actions">
+            <button type="button" class="btn btn-header-action" data-bs-toggle="modal" data-bs-target="#uploadDocumentModal">
+                <i class="fas fa-upload me-2"></i>Upload Document
+            </button>
+        </div>
         <?php endif; ?>
     </div>
 </div>
@@ -122,33 +152,61 @@ require_once 'includes/header.php';
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 <?php else: ?>
-    <?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
-<h3 class="mb-3">All Documents</h3>
+<!-- Main Documents Content Wrapper -->
+<div class="documents-content">
+    <!-- Display success/error messages -->
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?php 
+            echo $_SESSION['success']; 
+            unset($_SESSION['success']);
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
-<!-- Documents Table -->
-<div class="content-card">
-    <div class="content-card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>TITLE</th>
-                        <th>CATEGORY</th>
-                        <th>UPLOADED BY</th>
-                        <th>DATE</th>
-                        <th>FILE TYPE</th>
-                        <th>SIZE</th>
-                        <th>ACTIONS</th>
+    <?php if (isset($_SESSION['error']) && $_SESSION['error'] !== "The document repository feature is currently disabled."): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?php 
+            echo $_SESSION['error']; 
+            unset($_SESSION['error']);
+            ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php else: ?>
+        <?php unset($_SESSION['error']); ?>
+
+    <h3 class="documents-section-title">All Documents</h3>
+
+    <!-- Documents Table -->
+    <div class="content-card">
+        <div class="content-card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>TITLE</th>
+                            <th>CATEGORY</th>
+                            <th>UPLOADED BY</th>
+                            <th>DATE</th>
+                            <th>FILE TYPE</th>
+                            <th>SIZE</th>
+                            <th>ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php if (empty($documents)): ?>
-                        <tr>
-                            <td colspan="7" class="text-center">No documents found.</td>
-                        </tr>
-                    <?php else: ?>
+                    <tbody>
+                        <?php if (empty($documents)): ?>
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="no-documents-placeholder">
+                                        <i class="fas fa-file-alt"></i>
+                                        <p>No documents found. Check back soon for updates!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php else: ?>
                         <?php foreach ($documents as $document): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($document['title']); ?></td>
@@ -165,12 +223,12 @@ require_once 'includes/header.php';
                                 <td><?php echo date('M d, Y', strtotime($document['created_at'])); ?></td>
                                 <td><?php echo strtoupper(htmlspecialchars($document['document_type'])); ?></td>
                                 <td><?php echo formatFileSize($document['file_size']); ?></td>
-                                <td>
-                                    <a href="document_handler.php?action=download&id=<?php echo $document['document_id']; ?>" class="btn btn-sm btn-primary">
+                                <td style="white-space: nowrap;">
+                                    <a href="document_handler.php?action=download&id=<?php echo $document['document_id']; ?>" class="btn btn-sm btn-primary" title="Download">
                                         <i class="fas fa-download"></i> Download
                                     </a>
-                                    <?php if (isAdmin() || ($document['uploaded_by'] == getCurrentUser()['user_id'])): ?>
-                                        <a href="document_handler.php?action=delete&id=<?php echo $document['document_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this document?');">
+                                    <?php if (shouldUseAdminInterface() || ($document['uploaded_by'] == getCurrentUser()['user_id'])): ?>
+                                        <a href="document_handler.php?action=delete&id=<?php echo $document['document_id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this document?');" title="Delete">
                                             <i class="fas fa-trash"></i> Delete
                                         </a>
                                     <?php endif; ?>
@@ -182,7 +240,8 @@ require_once 'includes/header.php';
             </table>
         </div>
     </div>
-</div>
+    <?php endif; ?>
+</div><!-- Close documents-content -->
 
 <!-- Upload Document Modal -->
 <?php if (hasPermission('create', 'documents')): ?>
@@ -211,6 +270,8 @@ require_once 'includes/header.php';
                                 <option value="events">Events</option>
                                 <option value="reports">Reports</option>
                                 <option value="minutes">Minutes</option>
+                                <option value="bylaws">Bylaws</option>
+                                <option value="legislation">Legislation</option>
                                 <option value="other">Other</option>
                             </select>
                         </div>
@@ -231,24 +292,6 @@ require_once 'includes/header.php';
     </div>
 <?php endif; ?>
 
-<?php
-/**
- * Format file size for display
- *
- * @param int $bytes File size in bytes
- * @return string Formatted file size
- */
-function formatFileSize($bytes) {
-    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-    
-    $bytes = max($bytes, 0);
-    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
-    $pow = min($pow, count($units) - 1);
-    
-    $bytes /= pow(1024, $pow);
-    
-    return round($bytes, 2) . ' ' . $units[$pow];
-}
-?>
+</div> <!-- Close main content container -->
 
-<?php require_once 'includes/footer.php'; ?> 
+<?php require_once 'includes/footer.php'; ?>
