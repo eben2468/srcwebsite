@@ -559,6 +559,32 @@ include 'includes/modern_page_header.php';
     pointer-events: auto !important;
     cursor: pointer !important;
 }
+
+/* Mobile Full-Width Optimization for Portfolio Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure portfolio header has border-radius on mobile */
+    .header, .portfolio-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .content-card, .portfolio-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <div class="row">

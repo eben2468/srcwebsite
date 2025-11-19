@@ -517,6 +517,32 @@ pre {
     .animate__fadeInDown {
         animation-name: fadeInDown;
     }
+    
+    /* Mobile Full-Width Optimization for Minutes Page */
+    @media (max-width: 991px) {
+        [class*="col-md-"], [class*="col-xl-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Remove container padding on mobile for full width */
+        .container-fluid {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Ensure minutes header has border-radius on mobile */
+        .header, .minutes-header {
+            border-radius: 12px !important;
+        }
+        
+        /* Ensure content cards extend full width */
+        .card, .content-card, .modern-minutes-card {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+        }
+    }
     </style>
                 
     <div class="row mb-4">

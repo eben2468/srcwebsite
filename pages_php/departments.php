@@ -626,6 +626,32 @@ require_once 'includes/header.php';
         gap: 0.5rem;
     }
 }
+
+/* Mobile Full-Width Optimization for Departments Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure departments header has border-radius on mobile */
+    .header, .departments-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .department-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <?php require_once 'includes/footer.php'; ?>

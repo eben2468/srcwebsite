@@ -393,6 +393,26 @@ include_once '../includes/modern_page_header.php';
         padding: 2rem 1rem;
     }
 }
+
+/* Mobile Full-Width Optimization for Live Chat Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .chat-header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card, .chat-window, .chat-start-form, .chat-container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Main Content -->
@@ -654,6 +674,9 @@ class LiveChat {
                 this.lastMessageId = Math.max(...result.messages.map(m => parseInt(m.message_id)));
                 this.markMessagesRead();
             }
+            
+            // Also update session status
+            this.updateSessionStatus();
         } catch (error) {
             console.error('Error loading messages:', error);
         }
@@ -854,6 +877,21 @@ class LiveChat {
             default:
                 statusIndicator.classList.add('waiting');
                 statusText.textContent = 'Connecting...';
+        }
+    }
+
+    async updateSessionStatus() {
+        if (!this.sessionId) return;
+        
+        try {
+            const response = await fetch(`chat_api.php?action=get_session&session_id=${this.sessionId}`);
+            const result = await response.json();
+            
+            if (result.success && result.session) {
+                this.updateChatStatus(result.session.status);
+            }
+        } catch (error) {
+            console.error('Error updating session status:', error);
         }
     }
 

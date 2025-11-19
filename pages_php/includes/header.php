@@ -455,33 +455,69 @@ $primaryColorRGB = "$r, $g, $b";
             border-width: 2px;
         }
         
+        /* Navbar brand container to prevent overflow */
+        .navbar-brand {
+            display: flex !important;
+            align-items: center !important;
+            max-height: 55px !important;
+            overflow: hidden !important;
+            padding: 5px 0 !important;
+        }
+        
         /* System icon and navbar logo styles */
         .system-icon,
         .navbar-logo {
             height: 45px;
             width: auto;
             max-width: 50px;
+            max-height: 45px;
             object-fit: contain;
             margin-right: 10px;
             vertical-align: middle;
+            display: inline-block;
+            flex-shrink: 0;
         }
         
         /* Mobile responsiveness for logo */
         @media (max-width: 768px) {
+            .navbar-brand {
+                max-height: 50px !important;
+                padding: 3px 0 !important;
+            }
+            
             .system-icon,
             .navbar-logo {
                 height: 38px;
                 max-width: 42px;
+                max-height: 38px;
                 margin-right: 8px;
+            }
+            
+            .site-name {
+                font-size: 1rem !important;
             }
         }
         
         @media (max-width: 480px) {
+            .navbar-brand {
+                max-height: 45px !important;
+                padding: 2px 0 !important;
+            }
+            
             .system-icon,
             .navbar-logo {
-                height: 35px;
-                max-width: 38px;
+                height: 32px;
+                max-width: 35px;
+                max-height: 32px;
                 margin-right: 6px;
+            }
+            
+            .site-name {
+                font-size: 0.9rem !important;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
         }
         
@@ -797,7 +833,7 @@ $primaryColorRGB = "$r, $g, $b";
                     if ($logoType === 'custom' && !empty($logoUrl)) {
                         // Use custom logo from settings
                         if (file_exists($logoFileCheckPath)) {
-                            echo '<img src="' . htmlspecialchars($logoUrlAdjusted . $cacheBuster) . '" alt="Custom Logo" class="navbar-logo" style="height: 45px; width: auto; object-fit: contain; margin-right: 10px;">';
+                            echo '<img src="' . htmlspecialchars($logoUrlAdjusted . $cacheBuster) . '" alt="Custom Logo" class="navbar-logo" style="height: 45px; max-height: 45px; width: auto; max-width: 50px; object-fit: contain; margin-right: 10px; display: inline-block;">';
                         } else {
                             // Fallback to system icon if custom logo file not found
                             $freshSystemIcon = getSetting('system_icon', 'university');

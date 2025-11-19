@@ -778,6 +778,26 @@ include 'includes/header.php';
             transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out !important;
         }*/
 
+        /* Mobile Full-Width Optimization for Admin Password Reset Page */
+        @media (max-width: 991px) {
+            [class*="col-md-"], [class*="col-lg-"] {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .container-fluid {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .header, .page-hero, .modern-page-header {
+                border-radius: 12px !important;
+            }
+            .card, .table-container {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                border-radius: 0 !important;
+            }
+        }
+
     </style>
 
     <script>

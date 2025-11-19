@@ -462,6 +462,33 @@ require_once '../includes/header.php';
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
+    
+    /* Remove container padding on mobile for full width */
+    .notifications-container {
+        padding: 0 !important;
+    }
+    
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure page header extends full width */
+    .notifications-header {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .notification-card,
+    .stats-card,
+    .filter-tabs,
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
 }
 </style>
 

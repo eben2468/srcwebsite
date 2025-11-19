@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat System Test - VVU SRC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding: 2rem;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .test-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .test-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+        .btn-test {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+        }
+        .btn-test:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="text-center mb-4">
+            <h1><i class="fas fa-vial me-2"></i>Chat System Test Suite</h1>
+            <p class="text-muted">Verify that the chat system is properly configured and functional</p>
+        </div>
+
+        <!-- Database Test -->
+        <div class="test-card">
+            <h5><i class="fas fa-database me-2"></i>Database Tables Test</h5>
+            <p class="text-muted mb-2">Checking if all required database tables exist...</p>
+            <button class="btn btn-test" onclick="testDatabaseTables()">Run Test</button>
+            <div id="dbTestResult"></div>
+        </div>
+
+        <!-- Agent Status Test -->
+        <div class="test-card">
+            <h5><i class="fas fa-user-circle me-2"></i>Agent Status Test</h5>
+            <p class="text-muted mb-2">Testing agent status retrieval and update...</p>
+            <button class="btn btn-test" onclick="testAgentStatus()">Run Test</button>
+            <div id="agentTestResult"></div>
+        </div>
+
+        <!-- Session Creation Test -->
+        <div class="test-card">
+            <h5><i class="fas fa-comments me-2"></i>Session Creation Test</h5>
+            <p class="text-muted mb-2">Testing chat session creation...</p>
+            <button class="btn btn-test" onclick="testSessionCreation()">Run Test</button>
+            <div id="sessionTestResult"></div>
+        </div>
+
+        <!-- Message Test -->
+        <div class="test-card">
+            <h5><i class="fas fa-envelope me-2"></i>Message Sending Test</h5>
+            <p class="text-muted mb-2">Testing message sending and retrieval...</p>
+            <button class="btn btn-test" onclick="testMessaging()">Run Test</button>
+            <div id="messageTestResult"></div>
+        </div>
+
+        <!-- API Endpoints Test -->
+        <div class="test-card">
+            <h5><i class="fas fa-plug me-2"></i>API Endpoints Test</h5>
+            <p class="text-muted mb-2">Testing all API endpoints availability...</p>
+            <button class="btn btn-test" onclick="testAPIEndpoints()">Run Test</button>
+            <div id="apiTestResult"></div>
+        </div>
+
+        <!-- Quick Start Links -->
+        <div class="test-card">
+            <h5><i class="fas fa-link me-2"></i>Quick Links</h5>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="initialize_chat_system.php" class="btn btn-primary">
+                    <i class="fas fa-rocket me-1"></i>Initialize System
+                </a>
+                <a href="chat-management.php" class="btn btn-success">
+                    <i class="fas fa-cog me-1"></i>Chat Management
+                </a>
+                <a href="live-chat.php" class="btn btn-info text-white">
+                    <i class="fas fa-comments me-1"></i>Live Chat
+                </a>
+                <a href="setup_chat_database.php" class="btn btn-warning">
+                    <i class="fas fa-database me-1"></i>Setup Database
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `test-result test-${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle';
+            result.innerHTML = `<i class="fas fa-${icon} me-2"></i>${message}`;
+            
+            container.appendChild(result);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        async function testDatabaseTables() {
+            clearResults('dbTestResult');
+            addResult('dbTestResult', 'Testing database tables...', 'info');
+
+            const tables = [
+                'chat_sessions',
+                'chat_messages',
+                'chat_participants',
+                'chat_agent_status',
+                'chat_quick_responses',
+                'chat_files',
+                'chat_session_tags'
+            ];
+
+            try {
+                const response = await fetch('test_api.php?action=check_tables');
+                const result = await response.json();
+
+                if (result.success) {
+                    tables.forEach(table => {
+                        if (result.tables.includes(table)) {
+                            addResult('dbTestResult', `✓ Table ${table} exists`, 'success');
+                        } else {
+                            addResult('dbTestResult', `✗ Table ${table} NOT found`, 'error');
+                        }
+                    });
+                } else {
+                    addResult('dbTestResult', 'Error checking tables: ' + result.error, 'error');
+                }
+            } catch (error) {
+                addResult('dbTestResult', 'Connection error: ' + error.message, 'error');
+            }
+        }
+
+        async function testAgentStatus() {
+            clearResults('agentTestResult');
+            addResult('agentTestResult', 'Testing agent status...', 'info');
+
+            try {
+                // Test GET status
+                const getResponse = await fetch('chat_api.php?action=get_agent_status');
+                const getResult = await getResponse.json();
+
+                if (getResult.success) {
+                    addResult('agentTestResult', '✓ Agent status retrieved successfully', 'success');
+                    addResult('agentTestResult', `Current status: ${getResult.status.status}`, 'info');
+                } else {
+                    addResult('agentTestResult', '✗ Failed to get agent status: ' + getResult.error, 'error');
+                }
+
+                // Test UPDATE status
+                const updateResponse = await fetch('chat_api.php?action=update_agent_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: 'online',
+                        max_chats: 5,
+                        auto_assign: true
+                    })
+                });
+                const updateResult = await updateResponse.json();
+
+                if (updateResult.success) {
+                    addResult('agentTestResult', '✓ Agent status updated successfully', 'success');
+                } else {
+                    addResult('agentTestResult', '✗ Failed to update status: ' + updateResult.error, 'error');
+                }
+            } catch (error) {
+                addResult('agentTestResult', 'Connection error: ' + error.message, 'error');
+            }
+        }
+
+        async function testSessionCreation() {
+            clearResults('sessionTestResult');
+            addResult('sessionTestResult', 'Testing session creation...', 'info');
+
+            try {
+                const response = await fetch('chat_api.php?action=start_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: 'Test Session',
+                        priority: 'medium',
+                        department: 'general'
+                    })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    addResult('sessionTestResult', '✓ Session created successfully', 'success');
+                    addResult('sessionTestResult', `Session ID: ${result.session_id}`, 'info');
+                } else {
+                    addResult('sessionTestResult', '✗ Failed to create session: ' + result.error, 'error');
+                }
+            } catch (error) {
+                addResult('sessionTestResult', 'Connection error: ' + error.message, 'error');
+            }
+        }
+
+        async function testMessaging() {
+            clearResults('messageTestResult');
+            addResult('messageTestResult', 'Testing messaging...', 'info');
+
+            try {
+                // First create a session
+                const sessionResponse = await fetch('chat_api.php?action=start_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: 'Test Message Session',
+                        priority: 'medium',
+                        department: 'general'
+                    })
+                });
+                const sessionResult = await sessionResponse.json();
+
+                if (!sessionResult.success) {
+                    addResult('messageTestResult', '✗ Failed to create test session', 'error');
+                    return;
+                }
+
+                const sessionId = sessionResult.session_id;
+                addResult('messageTestResult', `✓ Test session created (ID: ${sessionId})`, 'success');
+
+                // Send a test message
+                const messageResponse = await fetch('chat_api.php?action=send_message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: 'This is a test message',
+                        type: 'text'
+                    })
+                });
+                const messageResult = await messageResponse.json();
+
+                if (messageResult.success) {
+                    addResult('messageTestResult', '✓ Message sent successfully', 'success');
+                } else {
+                    addResult('messageTestResult', '✗ Failed to send message: ' + messageResult.error, 'error');
+                }
+
+                // Get messages
+                const getResponse = await fetch(`chat_api.php?action=get_messages&session_id=${sessionId}`);
+                const getResult = await getResponse.json();
+
+                if (getResult.success) {
+                    addResult('messageTestResult', `✓ Retrieved ${getResult.messages.length} messages`, 'success');
+                } else {
+                    addResult('messageTestResult', '✗ Failed to get messages', 'error');
+                }
+            } catch (error) {
+                addResult('messageTestResult', 'Connection error: ' + error.message, 'error');
+            }
+        }
+
+        async function testAPIEndpoints() {
+            clearResults('apiTestResult');
+            addResult('apiTestResult', 'Testing API endpoints...', 'info');
+
+            const endpoints = [
+                { name: 'Get Session', url: 'chat_api.php?action=get_session&session_id=1' },
+                { name: 'Get Agent Status', url: 'chat_api.php?action=get_agent_status' },
+                { name: 'Get Quick Responses', url: 'chat_api.php?action=get_quick_responses' },
+                { name: 'Get Agent Sessions', url: 'chat_api.php?action=get_agent_sessions&status=active' }
+            ];
+
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(endpoint.url);
+                    if (response.ok) {
+                        addResult('apiTestResult', `✓ ${endpoint.name} - Accessible`, 'success');
+                    } else {
+                        addResult('apiTestResult', `⚠ ${endpoint.name} - HTTP ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    addResult('apiTestResult', `✗ ${endpoint.name} - Error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Run all tests on page load
+        window.addEventListener('load', () => {
+            console.log('Chat System Test Suite loaded');
+        });
+    </script>
+</body>
+</html>

@@ -494,3 +494,181 @@ MySQL Error: You have an error in your SQL syntax; check the manual that corresp
 SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
 MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
 
+[2025-11-18 19:20:51] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 19:54:21] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-11-18 22:07:21] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access IN ('all', 'member_admin', 'admin_only') AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-18 22:16:49] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access = 'all' AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-11-19 00:40:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture, is_default_password FROM users WHERE email = ? AND status = 'active' LIMIT 1
+Params: ["superadmin@vvusrc.edu.gh"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 00:41:28] Error: Unknown column 'is_default_password' in 'field list'
+SQL: SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture, is_default_password FROM users WHERE email = ? AND status = 'active' LIMIT 1
+Params: ["superadmin@vvusrc.edu.gh"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:34] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$bqzfARZ6sfhMtBA2cBsuFOpf9ZpibdBF\/lHVaeQuE3Ia.sAxjP5p6","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:34] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$lFUfQO4VOqOPHA4JT4Xs7uN2EDgsZWapvzfelusRmiVHzCBv8sYZm","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:34] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$dkAJPjpT6psZEcZOaBLrgekK7GUK.CxaYRjtaIGvaq16rzsTrDfS6","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:34] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$mXpPZVZvroD57uPW80nss.Xr\/QHeHgwryK50sP0H6EOAITrRbXVhq","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:54] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$ORvwuv5aTtECiTcKXhQpm.IKPm8IGYYqOUu9w1I5oTnjOckvJjr8S","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:54] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$n4lVceoe2.wHpWH5m19Ir.pH492SkCCokabW9oQkLmrn9caj8zHci","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:54] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$v52NjYE4kLPnTVr9pLN3yuu\/clHcqvsVa32ZExsmkexXsWNOIHrwi","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:07:54] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$VHtOty06mF2D8Q967N9J6OFZ9RNuSjANdzxLJ586iU8aBV\/FBwtGm","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$8cwwuB67yr1AiWxmI8lkN.vAuLhPfMgcgpMUI8HoOUFbRbTc77sFW","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$dk2SGaU.zEtphWoz9iSooOFHvrFS6CkNa6RpgnaoZ49d\/tePjGg2a","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$Pqsmt0WQVp7IVDjktP6dT.sNIWVgASpppj5PwRNm\/4j\/6xqc\/qM.u","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$.QDWzHr8n40yvv.RwgYvA.8tgjLRZpuuHAqBVjPu9vCDMMLOugWXy","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:32] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$WDXSrtWtV5bKp.CsoQElneSxqUgHc30LclyminZHBtezxnbnlCImy","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:32] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$WSJ2HM4.X66HLujpCkMjJuKgeJ1kOie9reSI1nIBirlI55pe74Mqy","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:32] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$0JVCUh9sNgbUBNHuAA99VeRhDtsd4Z4Ve567Uz1tPoJLX4i7ijIYG","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:32] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$WilNSixHKpyAqZolMmY02ekN9RTtqC1Zf1jfhT8pCJxoQ1vUFYaQm","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:49] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$w0rzHKV5hxGzKQAIiqVMRuvs\/xiHTjQ8gtzcDV1JnN7v9mcbSICoO","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:49] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$TBHLJ1tckC6NjaWHzYjVAuXWwkFZBMoojHL6cZJkQV4UQwls87Rge","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:49] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$nUQl9YppefxTM7Te..n.AeDDCwsZkybZx.RUiamRrnGHwUgpDIfA.","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:08:49] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$Q3p45eibT3w.TlplZR.s3.0WsW2Lb.lMYhSwKPlk8DEJPGUGZ8Fmu","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:09:13] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwame","$2y$10$seQKBZzophimfoBlYEzEi.Z8hhH7WTXUdc4IziHnKS4.v5VmAPPh2","kwame.owusu@example.com","Kwame","Owusu","member","0241234567"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:09:14] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwaku","$2y$10$eEodH60QFmkyAdTp04ppBeYwJjTupryqmmOiAxtkjy7t1Y0Lf3JXm","kwaku.yeboah@example.com","Kwaku","Yeboah","student","0241234568"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:09:14] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["kwesi","$2y$10$dT1uUXq43oXWBi8IvR74KOFK1GYgw657ENmdR4uWWuL5bd5NQYkYm","kwesi.amoah@example.com","Kwesi","Amoah","member","0241234569"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+
+[2025-11-19 01:09:14] Error: Unknown column 'is_default_password' in 'field list'
+SQL: INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())
+Params: ["ama","$2y$10$OQak71U17rUJyUCp\/vao6OeGbQMr9RLxgJakBTiMMkMOlH63uWGIK","ama.homeda@example.com","Ama","Homeda","student","0241234570"]
+MySQL Error: Unknown column 'is_default_password' in 'field list'
+

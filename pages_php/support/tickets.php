@@ -264,11 +264,14 @@ while ($row = mysqli_fetch_assoc($staff_result)) {
 ?>
 
 <style>
+/* Ensure light background for tickets page */
+body {
+    background-color: #f8f9fa !important;
+}
+
 .tickets-container {
     padding: 2rem 0;
 }
-
-
 
 .filter-card {
     background: white;
@@ -437,6 +440,181 @@ while ($row = mysqli_fetch_assoc($staff_result)) {
 
     .filter-card {
         padding: 1rem;
+    }
+    
+    /* Optimize stats cards for mobile */
+    .stats-card {
+        margin-bottom: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .stats-card h6 {
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stats-card .display-6 {
+        font-size: 1.75rem;
+    }
+    
+    /* Mobile ticket card layout */
+    .ticket-card .row {
+        margin: 0;
+    }
+    
+    .ticket-card .col-md-8,
+    .ticket-card .col-md-4 {
+        padding: 0;
+    }
+    
+    /* Ticket title and badges */
+    .ticket-card h5 {
+        font-size: 1rem;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+    
+    .ticket-card h5 a {
+        color: #0066cc;
+        word-break: break-word;
+    }
+    
+    /* Badge alignment */
+    .ticket-card .d-flex.gap-2 {
+        gap: 0.5rem !important;
+        flex-wrap: wrap;
+    }
+    
+    .priority-badge,
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    /* Description text */
+    .ticket-card p.text-muted {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* User info section */
+    .ticket-card .row.text-muted.small {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .ticket-card .row.text-muted.small .col-md-6 {
+        padding: 0;
+        margin-bottom: 0.25rem;
+    }
+    
+    /* Assigned info */
+    .ticket-card .mt-2.text-muted.small {
+        font-size: 0.75rem;
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Action buttons container */
+    .ticket-card .col-md-4.text-end {
+        text-align: left !important;
+        margin-top: 0.75rem;
+    }
+    
+    .ticket-card .d-flex.flex-column.gap-2 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Button styling for mobile */
+    .ticket-card .btn-action {
+        width: 100%;
+        font-size: 0.85rem;
+        padding: 0.6rem 1rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .ticket-card .btn-group {
+        width: 100%;
+        display: flex;
+    }
+    
+    .ticket-card .btn-group .btn {
+        flex: 1;
+        font-size: 0.85rem;
+    }
+    
+    .ticket-card .btn-group .dropdown-toggle-split {
+        flex: 0 0 auto;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    
+    /* Filter form mobile layout */
+    .filter-card .col-md-3 {
+        margin-bottom: 0.75rem;
+    }
+    
+    .filter-card .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+    
+    .filter-card .form-select {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .filter-card .btn-action {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        padding: 0.6rem 1rem;
+    }
+    
+    .filter-card .d-flex.align-items-end {
+        display: block !important;
+    }
+    
+    .filter-card .me-2 {
+        margin-right: 0 !important;
+    }
+    
+    /* Container spacing */
+    .container-fluid.px-4 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-top: 1rem !important;
+    }
+    
+    /* Alert messages */
+    .alert {
+        font-size: 0.85rem;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Mobile Full-Width Optimization for Tickets Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card, .ticket-card, .filter-card, .stats-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
     }
 }
 </style>

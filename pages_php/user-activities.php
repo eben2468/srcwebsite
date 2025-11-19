@@ -835,6 +835,26 @@ function getActivityDescription($activityType, $description) {
             gap: 15px;
         }
     }
+
+    /* Mobile Full-Width Optimization for User Activities Page */
+    @media (max-width: 991px) {
+        [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        .container-fluid {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        .user-activities-header, .page-hero, .modern-page-header {
+            border-radius: 12px !important;
+        }
+        .card, .activity-card, .filter-card, .chart-card {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+        }
+    }
 </style>
 
 <!-- Custom User Activities Header -->

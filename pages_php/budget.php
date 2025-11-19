@@ -290,6 +290,26 @@ require_once 'includes/header.php';
         transform: translateY(0) !important;
         box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
     }
+
+/* Mobile Full-Width Optimization for Budget Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .budget-header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .budget-card, .card, .chart-container, .budget-table-container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <?php

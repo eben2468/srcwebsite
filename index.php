@@ -202,10 +202,17 @@ if (empty($eventsItems)) {
             box-sizing: border-box;
         }
 
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             color: var(--text-dark);
             overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         /* Preloader */
@@ -338,11 +345,16 @@ if (empty($eventsItems)) {
             position: relative;
             height: 650px;
             overflow: hidden;
+            width: 100%;
         }
 
         .swiper {
             width: 100%;
             height: 100%;
+        }
+
+        .swiper-wrapper {
+            width: 100%;
         }
 
         .swiper-slide {
@@ -352,6 +364,7 @@ if (empty($eventsItems)) {
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
         }
 
         .swiper-slide::before {
@@ -905,6 +918,22 @@ if (empty($eventsItems)) {
 
         /* Responsive */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .container, .container-fluid {
+                overflow-x: hidden;
+                max-width: 100%;
+            }
+
+            .row {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
             .slide-content h1 {
                 font-size: 2rem;
             }
@@ -936,6 +965,13 @@ if (empty($eventsItems)) {
 
             .hero-slider {
                 height: 500px;
+                width: 100%;
+            }
+
+            /* Hide swiper navigation buttons on mobile */
+            .swiper-button-next,
+            .swiper-button-prev {
+                display: none !important;
             }
         }
     </style>
@@ -955,8 +991,8 @@ if (empty($eventsItems)) {
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center">
-                        <span><i class="fas fa-phone"></i> +233 123 456 789</span>&nbsp
-                        <span><i class="fas fa-envelope"></i> src@vvu.edu.gh</span>
+                        <span><i class="fas fa-phone"></i> +233 54 881 1774</span>&nbsp &nbsp
+                        <span><i class="fas fa-envelope"></i> officialsrcvvu@gmail.com</span>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">

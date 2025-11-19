@@ -195,6 +195,200 @@ include_once 'includes/modern_page_header.php';
     font-weight: 600;
     font-size: 0.875rem;
     flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.message-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.message-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Profile Popup Card */
+.profile-popup {
+    position: fixed;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    padding: 1.5rem;
+    z-index: 1000;
+    min-width: 280px;
+    max-width: 320px;
+    display: none;
+    animation: fadeInScale 0.2s ease;
+}
+
+.profile-popup.show {
+    display: block;
+}
+
+.profile-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 999;
+    display: none;
+}
+
+.profile-popup-overlay.show {
+    display: block;
+}
+
+.profile-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.profile-popup-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.profile-popup-close:hover {
+    color: #dc3545;
+}
+
+.profile-popup-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+
+.profile-popup-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-popup-name {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.profile-popup-status {
+    text-align: center;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1rem;
+}
+
+.profile-popup-status.online {
+    background: #d4edda;
+    color: #155724;
+}
+
+.profile-popup-status.offline {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.profile-popup-status i {
+    margin-right: 0.5rem;
+}
+
+.profile-popup-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.profile-popup-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.profile-popup-btn-primary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.profile-popup-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    color: white;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Dark mode support for profile popup */
+[data-bs-theme="dark"] .profile-popup {
+    background: #2d3748;
+    color: white;
+}
+
+[data-bs-theme="dark"] .profile-popup-name {
+    color: white;
+}
+
+[data-bs-theme="dark"] .profile-popup-close {
+    color: #cbd5e0;
+}
+
+[data-bs-theme="dark"] .profile-popup-close:hover {
+    color: #fc8181;
+}
+
+[data-bs-theme="dark"] .profile-popup-status.online {
+    background: rgba(72, 187, 120, 0.2);
+    color: #9ae6b4;
+}
+
+[data-bs-theme="dark"] .profile-popup-status.offline {
+    background: rgba(245, 101, 101, 0.2);
+    color: #fc8181;
 }
 
 .message.own .message-avatar {
@@ -473,6 +667,32 @@ include_once 'includes/modern_page_header.php';
         width: 250px;
     }
 }
+
+/* Mobile Full-Width Optimization for Public Chat Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure chat header has border-radius on mobile */
+    .chat-header, .chat-window-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .chat-window, .chat-container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Main Content -->
@@ -533,6 +753,29 @@ include_once 'includes/modern_page_header.php';
     </div>
 </div>
 
+<!-- Profile Popup Card -->
+<div class="profile-popup-overlay" id="profilePopupOverlay"></div>
+<div class="profile-popup" id="profilePopup">
+    <div class="profile-popup-header">
+        <div style="flex: 1;"></div>
+        <button class="profile-popup-close" id="profilePopupClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="profile-popup-avatar" id="popupAvatar"></div>
+    <div class="profile-popup-name" id="popupName"></div>
+    <div class="profile-popup-status" id="popupStatus">
+        <i class="fas fa-circle"></i>
+        <span id="popupStatusText">Loading...</span>
+    </div>
+    <div class="profile-popup-actions">
+        <a href="#" class="profile-popup-btn profile-popup-btn-primary" id="popupViewProfile">
+            <i class="fas fa-user"></i>
+            View Full Profile
+        </a>
+    </div>
+</div>
+
 <script>
 class PublicChat {
     constructor() {
@@ -541,8 +784,10 @@ class PublicChat {
         this.currentUser = <?php echo json_encode($currentUser); ?>;
         this.onlineUsers = new Set();
         this.messageReactions = {};
+        this.userCache = {}; // Cache user data for popups
         
         this.initializeEventListeners();
+        this.initializeProfilePopup();
         this.loadMessages();
         this.startPolling();
         this.updateOnlineUsers();
@@ -793,9 +1038,59 @@ class PublicChat {
 
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
+        avatar.setAttribute('data-user-id', message.sender_id);
+        avatar.setAttribute('title', `View ${message.first_name} ${message.last_name}'s profile`);
+        
+        // Store message data for popup
+        const userData = {
+            user_id: message.sender_id,
+            first_name: message.first_name,
+            last_name: message.last_name,
+            profile_picture: message.profile_picture,
+            last_activity: message.last_activity
+        };
+        
+        // Add click event to show profile popup
+        avatar.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.showProfilePopup(userData, e);
+        });
 
-        const initials = (message.first_name?.[0] || '') + (message.last_name?.[0] || '');
-        avatar.textContent = initials || '?';
+        // Check if profile picture exists
+        if (message.profile_picture && message.profile_picture !== 'default.jpg') {
+            const img = document.createElement('img');
+            // Try different possible paths for profile picture
+            const possiblePaths = [
+                `../images/profiles/${message.profile_picture}`,
+                `../uploads/profile_pictures/${message.profile_picture}`,
+                `../../uploads/profile_pictures/${message.profile_picture}`
+            ];
+            
+            // Use the first path by default, but we'll check via error handling
+            img.src = possiblePaths[0];
+            img.alt = `${message.first_name} ${message.last_name}`;
+            
+            // Try alternate paths if first one fails
+            let pathIndex = 0;
+            img.onerror = () => {
+                pathIndex++;
+                if (pathIndex < possiblePaths.length) {
+                    img.src = possiblePaths[pathIndex];
+                } else {
+                    // If all paths fail, show initials instead
+                    img.remove();
+                    const initials = (message.first_name?.[0] || '') + (message.last_name?.[0] || '');
+                    avatar.textContent = initials || '?';
+                }
+            };
+            
+            avatar.appendChild(img);
+        } else {
+            // No profile picture, show initials
+            const initials = (message.first_name?.[0] || '') + (message.last_name?.[0] || '');
+            avatar.textContent = initials || '?';
+        }
 
         const content = document.createElement('div');
         content.className = 'message-content';
@@ -971,6 +1266,151 @@ class PublicChat {
                 notification.parentNode.removeChild(notification);
             }
         }, 5000);
+    }
+
+    initializeProfilePopup() {
+        const overlay = document.getElementById('profilePopupOverlay');
+        const popup = document.getElementById('profilePopup');
+        const closeBtn = document.getElementById('profilePopupClose');
+
+        // Close popup when clicking overlay
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                this.closeProfilePopup();
+            });
+        }
+
+        // Close popup when clicking close button
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.closeProfilePopup();
+            });
+        }
+
+        // Close popup on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeProfilePopup();
+            }
+        });
+    }
+
+    showProfilePopup(userData, clickEvent) {
+        const popup = document.getElementById('profilePopup');
+        const overlay = document.getElementById('profilePopupOverlay');
+        const popupAvatar = document.getElementById('popupAvatar');
+        const popupName = document.getElementById('popupName');
+        const popupStatus = document.getElementById('popupStatus');
+        const popupStatusText = document.getElementById('popupStatusText');
+        const popupViewProfile = document.getElementById('popupViewProfile');
+
+        if (!popup || !overlay) return;
+
+        // Set user data
+        popupName.textContent = `${userData.first_name} ${userData.last_name}`;
+        
+        // Set avatar
+        popupAvatar.innerHTML = '';
+        if (userData.profile_picture && userData.profile_picture !== 'default.jpg') {
+            const img = document.createElement('img');
+            const possiblePaths = [
+                `../images/profiles/${userData.profile_picture}`,
+                `../uploads/profile_pictures/${userData.profile_picture}`,
+                `../../uploads/profile_pictures/${userData.profile_picture}`
+            ];
+            
+            img.src = possiblePaths[0];
+            img.alt = `${userData.first_name} ${userData.last_name}`;
+            
+            let pathIndex = 0;
+            img.onerror = () => {
+                pathIndex++;
+                if (pathIndex < possiblePaths.length) {
+                    img.src = possiblePaths[pathIndex];
+                } else {
+                    img.remove();
+                    const initials = (userData.first_name?.[0] || '') + (userData.last_name?.[0] || '');
+                    popupAvatar.textContent = initials || '?';
+                }
+            };
+            
+            popupAvatar.appendChild(img);
+        } else {
+            const initials = (userData.first_name?.[0] || '') + (userData.last_name?.[0] || '');
+            popupAvatar.textContent = initials || '?';
+        }
+
+        // Set online status
+        const isOnline = this.onlineUsers.has(userData.user_id);
+        if (isOnline) {
+            popupStatus.className = 'profile-popup-status online';
+            popupStatusText.textContent = 'Online';
+        } else if (userData.last_activity) {
+            popupStatus.className = 'profile-popup-status offline';
+            const lastSeen = this.formatLastSeen(userData.last_activity);
+            popupStatusText.textContent = `Last seen ${lastSeen}`;
+        } else {
+            popupStatus.className = 'profile-popup-status offline';
+            popupStatusText.textContent = 'Offline';
+        }
+
+        // Set profile link
+        popupViewProfile.href = `profile.php?user_id=${userData.user_id}`;
+
+        // Position popup near clicked element
+        const rect = clickEvent.target.getBoundingClientRect();
+        const popupWidth = 300;
+        const popupHeight = 350;
+        
+        let left = rect.right + 10;
+        let top = rect.top;
+
+        // Adjust if popup would go off screen
+        if (left + popupWidth > window.innerWidth) {
+            left = rect.left - popupWidth - 10;
+        }
+        if (top + popupHeight > window.innerHeight) {
+            top = window.innerHeight - popupHeight - 20;
+        }
+        if (top < 20) {
+            top = 20;
+        }
+
+        popup.style.left = `${left}px`;
+        popup.style.top = `${top}px`;
+
+        // Show popup
+        overlay.classList.add('show');
+        popup.classList.add('show');
+    }
+
+    closeProfilePopup() {
+        const popup = document.getElementById('profilePopup');
+        const overlay = document.getElementById('profilePopupOverlay');
+        
+        if (popup) popup.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    formatLastSeen(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) {
+            return 'just now';
+        } else if (diffMins < 60) {
+            return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+        } else if (diffHours < 24) {
+            return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+        } else if (diffDays < 7) {
+            return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+        } else {
+            return date.toLocaleDateString();
+        }
     }
 }
 

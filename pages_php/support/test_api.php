@@ -15,11 +15,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Get action parameter
+$action = $_GET['action'] ?? 'default';
+
 try {
     // Test database connection
     $conn = new mysqli('localhost', 'root', '', 'vvusrc');
     if ($conn->connect_error) {
         throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
+
+    if ($action === 'check_tables') {
+        // Check if specific tables exist
+        $tables = ['chat_sessions', 'chat_messages', 'chat_participants', 'chat_agent_status', 
+                   'chat_quick_responses', 'chat_files', 'chat_session_tags'];
+        $existingTables = [];
+        
+        foreach ($tables as $table) {
+            $result = $conn->query("SHOW TABLES LIKE '$table'");
+            if ($result && $result->num_rows > 0) {
+                $existingTables[] = $table;
+            }
+        }
+
+        $response = [
+            'success' => true,
+            'tables' => $existingTables,
+            'all_exist' => count($existingTables) === count($tables),
+            'missing' => array_diff($tables, $existingTables)
+        ];
+
+        echo json_encode($response);
+        exit;
     }
 
     // Test if chat tables exist

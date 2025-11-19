@@ -169,9 +169,20 @@ function handleImport() {
         $firstName = $nameParts[0];
         $lastName = isset($nameParts[1]) ? $nameParts[1] : '';
         
-        // Insert user
-        $sql = "INSERT INTO users (username, password, email, first_name, last_name, role, phone, status, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())";
+        // Check if is_default_password column exists
+        $column_check_sql = "SHOW COLUMNS FROM users LIKE 'is_default_password'";
+        $column_exists = mysqli_num_rows(mysqli_query($conn, $column_check_sql)) > 0;
+        
+        // Insert user with optional is_default_password flag
+        if ($column_exists) {
+            // Insert with is_default_password flag set to 1 (they must change password on first login)
+            $sql = "INSERT INTO users (username, password, is_default_password, email, first_name, last_name, role, phone, status, created_at) 
+                    VALUES (?, ?, 1, ?, ?, ?, ?, ?, 'active', NOW())";
+        } else {
+            // Insert without is_default_password column (fallback for before migration)
+            $sql = "INSERT INTO users (username, password, email, first_name, last_name, role, phone, status, created_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW())";
+        }
         
         try {
             if (executeQuery($sql, [$username, $hashedPassword, $email, $firstName, $lastName, $role, $phone])) {

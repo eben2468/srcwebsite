@@ -331,6 +331,32 @@ if (fileContainsString($votePath, 'INSERT INTO votes (election_id, position_id, 
 .animate__fadeInDown {
     animation-name: fadeInDown;
 }
+
+/* Mobile Full-Width Optimization for Vote Privacy Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure page header has border-radius on mobile */
+    .header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <div class="container-fluid" style="margin-top: 1.5rem;">

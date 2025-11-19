@@ -494,6 +494,26 @@ function saveSystemSetting($name, $value) {
 .animate__fadeInDown {
     animation-name: fadeInDown;
 }
+
+/* Mobile Full-Width Optimization for Messaging Settings Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <div class="container-fluid px-4">

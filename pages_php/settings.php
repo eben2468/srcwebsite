@@ -653,6 +653,27 @@ function applySystemIconChange() {
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure page header extends full width */
+    .settings-header {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .content-card,
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
 }
 </style>
 

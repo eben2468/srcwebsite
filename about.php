@@ -459,8 +459,8 @@ try {
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center">
-                        <span><i class="fas fa-phone"></i> +233 123 456 789</span>
-                        <span><i class="fas fa-envelope"></i> src@vvu.edu.gh</span>
+                        <span><i class="fas fa-phone"></i> +233 54 881 1774</span>&nbsp &nbsp
+                        <span><i class="fas fa-envelope"></i> officialsrcvvu@gmail.com</span>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
@@ -565,28 +565,28 @@ try {
                 <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="stat-box">
                         <i class="fas fa-users"></i>
-                        <h3>5000+</h3>
+                        <h3>1500+</h3>
                         <p>Active Students</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="stat-box">
                         <i class="fas fa-calendar-alt"></i>
-                        <h3>50+</h3>
+                        <h3>20+</h3>
                         <p>Events Annually</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="stat-box">
                         <i class="fas fa-award"></i>
-                        <h3>15</h3>
+                        <h3>10+</h3>
                         <p>SRC Portfolios</p>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="400">
                     <div class="stat-box">
                         <i class="fas fa-hands-helping"></i>
-                        <h3>100+</h3>
+                        <h3>50+</h3>
                         <p>Projects Completed</p>
                     </div>
                 </div>

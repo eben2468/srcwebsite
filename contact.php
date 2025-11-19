@@ -16,18 +16,110 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
     $subject = trim($_POST['subject'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    // Validate
-    if (empty($name) || empty($email) || empty($subject) || empty($message)) {
-        $errorMessage = "All fields are required.";
+    // Validate inputs
+    $errors = [];
+    
+    if (empty($name)) {
+        $errors[] = "Name is required.";
+    } elseif (strlen($name) < 2) {
+        $errors[] = "Name must be at least 2 characters long.";
+    } elseif (!preg_match("/^[a-zA-Z\s'-]+$/", $name)) {
+        $errors[] = "Name can only contain letters, spaces, hyphens and apostrophes.";
+    }
+    
+    if (empty($email)) {
+        $errors[] = "Email is required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errorMessage = "Invalid email address.";
+        $errors[] = "Invalid email address format.";
+    }
+    
+    if (empty($subject)) {
+        $errors[] = "Subject is required.";
+    } elseif (strlen($subject) < 3) {
+        $errors[] = "Subject must be at least 3 characters long.";
+    }
+    
+    if (empty($message)) {
+        $errors[] = "Message is required.";
+    } elseif (strlen($message) < 10) {
+        $errors[] = "Message must be at least 10 characters long.";
+    }
+    
+    if (!empty($errors)) {
+        $errorMessage = implode('<br>', $errors);
     } else {
-        // Here you can save to database or send email
-        // For now, we'll just show success message
-        $successMessage = "Thank you for contacting us! We'll get back to you soon.";
-
-        // Clear form
-        $name = $email = $subject = $message = '';
+        // Sanitize inputs
+        $name_sanitized = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+        $email_sanitized = filter_var($email, FILTER_SANITIZE_EMAIL);
+        $subject_sanitized = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+        $message_sanitized = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+        
+        // Save to database for record keeping
+        $db_saved = false;
+        $insert_sql = "INSERT INTO contact_messages (name, email, subject, message, ip_address, submitted_at) 
+                      VALUES (?, ?, ?, ?, ?, NOW())";
+        $stmt = @mysqli_prepare($conn, $insert_sql);
+        if ($stmt) {
+            $ip_address = $_SERVER['REMOTE_ADDR'];
+            mysqli_stmt_bind_param($stmt, "sssss", $name_sanitized, $email_sanitized, $subject_sanitized, $message_sanitized, $ip_address);
+            if (@mysqli_stmt_execute($stmt)) {
+                $db_saved = true;
+            }
+            mysqli_stmt_close($stmt);
+        }
+        
+        // Recipient email
+        $to = "officialsrcvvu@gmail.com";
+        
+        // Email subject
+        $email_subject = "[VVU SRC Contact Form] " . $subject_sanitized;
+        
+        // Email headers - simplified for better compatibility
+        $headers = "From: noreply@vvusrc.local" . "\r\n";
+        $headers .= "Reply-To: " . $email_sanitized . "\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        
+        // Email body (HTML format)
+        $email_body = "<!DOCTYPE html>";
+        $email_body .= "<html><head><style>";
+        $email_body .= "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }";
+        $email_body .= ".container { max-width: 600px; margin: 0 auto; padding: 20px; background: #f9f9f9; }";
+        $email_body .= ".header { background: #1a5490; color: white; padding: 20px; text-align: center; }";
+        $email_body .= ".content { background: white; padding: 30px; margin: 20px 0; border-radius: 5px; }";
+        $email_body .= ".field { margin-bottom: 15px; }";
+        $email_body .= ".label { font-weight: bold; color: #1a5490; }";
+        $email_body .= ".footer { text-align: center; padding: 20px; color: #777; font-size: 12px; }";
+        $email_body .= "</style></head><body>";
+        $email_body .= "<div class='container'>";
+        $email_body .= "<div class='header'><h2>New Contact Form Submission</h2></div>";
+        $email_body .= "<div class='content'>";
+        $email_body .= "<div class='field'><span class='label'>Name:</span> " . $name_sanitized . "</div>";
+        $email_body .= "<div class='field'><span class='label'>Email:</span> " . $email_sanitized . "</div>";
+        $email_body .= "<div class='field'><span class='label'>Subject:</span> " . $subject_sanitized . "</div>";
+        $email_body .= "<div class='field'><span class='label'>Message:</span><br>" . nl2br($message_sanitized) . "</div>";
+        $email_body .= "<hr style='margin: 20px 0; border: none; border-top: 1px solid #ddd;'>";
+        $email_body .= "<div class='field'><span class='label'>Submitted:</span> " . date('F j, Y g:i A') . "</div>";
+        $email_body .= "<div class='field'><span class='label'>IP Address:</span> " . $_SERVER['REMOTE_ADDR'] . "</div>";
+        $email_body .= "</div>";
+        $email_body .= "<div class='footer'>This email was sent from the VVU SRC Contact Form<br>Valley View University SRC</div>";
+        $email_body .= "</div></body></html>";
+        
+        // Try to send email
+        $mail_sent = @mail($to, $email_subject, $email_body, $headers);
+        
+        // If database saved successfully, show success even if email fails
+        if ($db_saved) {
+            $successMessage = "Thank you for contacting us, " . $name_sanitized . "! Your message has been received and saved. Our team will review it and get back to you as soon as possible.";
+            if (!$mail_sent) {
+                $successMessage .= " <small class='text-muted'>(Note: Email notification may be delayed due to server configuration, but your message has been recorded.)</small>";
+            }
+            
+            // Clear form
+            $name = $email = $subject = $message = '';
+        } else {
+            $errorMessage = "Sorry, there was a problem processing your message. Please try again later or contact us directly at officialsrcvvu@gmail.com or call +233 123 456 789.";
+        }
     }
 }
 ?>
@@ -480,8 +572,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center">
-                        <span><i class="fas fa-phone"></i> +233 123 456 789</span>
-                        <span><i class="fas fa-envelope"></i> src@vvu.edu.gh</span>
+                        <span><i class="fas fa-phone"></i> +233 54 881 1774</span>&nbsp &nbsp
+                        <span><i class="fas fa-envelope"></i> officialsrcvvu@gmail.com</span>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
@@ -558,8 +650,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                             <i class="fas fa-phone"></i>
                         </div>
                         <h4>Phone Number</h4>
-                        <p><a href="tel:+233123456789">+233 123 456 789</a></p>
-                        <p><a href="tel:+233987654321">+233 987 654 321</a></p>
+                        <p><a href="tel:+233548811774">+233 54 881 1774</a></p>
+                        <p><a href="tel:+233245849246">+233 24 584 9246</a></p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
@@ -568,8 +660,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                             <i class="fas fa-envelope"></i>
                         </div>
                         <h4>Email Address</h4>
-                        <p><a href="mailto:src@vvu.edu.gh">src@vvu.edu.gh</a></p>
-                        <p><a href="mailto:info@vvusrc.edu.gh">info@vvusrc.edu.gh</a></p>
+                        <p><a href="mailto:officialsrcvvu@gmail.com">officialsrcvvu@gmail.com</a></p>
+                        <p><a href="mailto:vvusrc1@gmail.com">vvusrc1@gmail.com</a></p>
                     </div>
                 </div>
             </div>
@@ -620,7 +712,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                     <div class="map-container">
                         <!-- Google Maps Embed - Replace with actual coordinates -->
                         <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3970.8267471524896!2d-0.10679168573799682!3d5.589574996041669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf93ccf8d7b9bb%3A0x3f5e8f8e8e8e8e8e!2sValley%20View%20University!5e0!3m2!1sen!2sgh!4v1234567890123!5m2!1sen!2sgh"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9807.672676648304!2d-0.12025663881670771!3d5.8029920883633475!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf7991589a6c09%3A0xfb9d9343410f73c4!2sValley%20View%20University!5e0!3m2!1sen!2sgh!4v1763516113321!5m2!1sen!2sgh" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
                             allowfullscreen=""
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">
@@ -725,7 +817,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Valley View University SRC. All Rights Reserved. | Designed with <i class="fas fa-heart" style="color: var(--secondary-color);"></i> for Students</p>
+                <p>&copy; 2024 Valley View University SRC. All Rights Reserved. | Designed by Ebenezer Owusu, SRC Editor for 2025/26 SRC Administration <i class="fas fa-heart" style="color: var(--secondary-color);"></i></p>
             </div>
         </div>
     </footer>

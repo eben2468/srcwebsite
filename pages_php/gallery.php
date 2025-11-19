@@ -589,6 +589,32 @@ if (function_exists('trackPageView')) {
 .animate__fadeInDown {
     animation-name: fadeInDown;
 }
+
+/* Mobile Full-Width Optimization for Gallery Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid, .gallery-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure gallery header has border-radius on mobile */
+    .gallery-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .gallery-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Alert message if upload succeeded or failed -->

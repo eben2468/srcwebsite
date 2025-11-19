@@ -436,6 +436,32 @@ require_once 'includes/header.php';
 .animate__fadeInDown {
     animation-name: fadeInDown;
 }
+
+/* Mobile Full-Width Optimization for Profile Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure profile header has border-radius on mobile */
+    .profile-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <div class="container-fluid">

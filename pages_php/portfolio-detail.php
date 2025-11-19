@@ -387,4 +387,32 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <!-- End Container -->
 
+<style>
+/* Mobile Full-Width Optimization for Portfolio Detail Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure page header has border-radius on mobile */
+    .header, .d-flex.justify-content-between {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+</style>
+
 <?php require_once 'includes/footer.php'; ?>

@@ -324,6 +324,34 @@ require_once 'includes/header.php';
             .animate__fadeInDown {
                 animation-name: fadeInDown;
             }
+            
+            /* Mobile Full-Width Optimization for Create User Page */
+            @media (max-width: 991px) {
+                [class*="col-md-"] {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                }
+                
+                /* Remove container padding on mobile for full width */
+                .container-fluid {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                }
+                
+                /* Ensure page header extends full width */
+                .create-user-header {
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                    border-radius: 12px !important;
+                }
+                
+                /* Ensure content cards extend full width */
+                .card {
+                    margin-left: 0 !important;
+                    margin-right: 0 !important;
+                    border-radius: 0 !important;
+                }
+            }
             </style>
             
             <?php if ($successMessage): ?>

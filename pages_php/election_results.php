@@ -957,6 +957,32 @@ echo '<script src="../js/election-results-print.js?v=' . $version . '"></script>
         font-size: 16px;
         color: #5a5c69;
     }
+    
+    /* Mobile Full-Width Optimization for Election Results Page */
+    @media (max-width: 991px) {
+        [class*="col-md-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Remove container padding on mobile for full width */
+        .container-fluid {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Ensure page header has border-radius on mobile */
+        .header, .page-hero, .modern-page-header {
+            border-radius: 12px !important;
+        }
+        
+        /* Ensure content cards extend full width */
+        .card {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+        }
+    }
 </style>
 
 <?php

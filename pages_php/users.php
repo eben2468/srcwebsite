@@ -206,8 +206,8 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $roleFilter = isset($_GET['role']) ? trim($_GET['role']) : '';
 $statusFilter = isset($_GET['status']) ? trim($_GET['status']) : '';
 
-// Build query
-$sql = "SELECT u.*, p.phone FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE 1=1";
+// Build query - Use COALESCE to get phone from either user_profiles or users table
+$sql = "SELECT u.*, COALESCE(p.phone, u.phone) as phone FROM users u LEFT JOIN user_profiles p ON u.user_id = p.user_id WHERE 1=1";
 $params = [];
 
 if (!empty($search)) {
@@ -788,6 +788,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<style>
+/* Table header styling - make text white for better visibility */
+#usersTable thead th {
+    color: white !important;
+}
+
+/* Mobile Full-Width Optimization for Users Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure page header has border-radius on mobile */
+    .header, .users-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+</style>
 
 </div> <!-- Close container-fluid -->
 

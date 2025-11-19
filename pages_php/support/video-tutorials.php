@@ -357,6 +357,26 @@ include_once '../includes/modern_page_header.php';
         display: none;
     }
 }
+
+/* Mobile Full-Width Optimization for Video Tutorials Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .section-header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card, .tutorial-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Main Content -->

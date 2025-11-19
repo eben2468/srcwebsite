@@ -113,6 +113,18 @@ try {
             }
             break;
             
+        case 'get_agent_status':
+            if ($method === 'GET' && $isAgent) {
+                getAgentStatus();
+            }
+            break;
+            
+        case 'get_session_stats':
+            if ($method === 'GET' && $isAgent) {
+                getSessionStats();
+            }
+            break;
+            
         default:
             http_response_code(400);
             echo json_encode(['error' => 'Invalid action']);
@@ -653,6 +665,71 @@ function markMessagesRead() {
         echo json_encode(['success' => true, 'message' => 'Messages marked as read']);
     } else {
         throw new Exception('Failed to mark messages as read');
+    }
+}
+
+/**
+ * Get current agent status
+ */
+function getAgentStatus() {
+    global $conn, $currentUser;
+    
+    $sql = "SELECT * FROM chat_agent_status WHERE agent_id = {$currentUser['user_id']}";
+    $result = mysqli_query($conn, $sql);
+    
+    if ($row = mysqli_fetch_assoc($result)) {
+        echo json_encode(['success' => true, 'status' => $row]);
+    } else {
+        // If no status exists, create default one
+        $insertSql = "INSERT INTO chat_agent_status (agent_id, status, max_concurrent_chats, auto_assign)
+                     VALUES ({$currentUser['user_id']}, 'offline', 5, 1)";
+        
+        if (mysqli_query($conn, $insertSql)) {
+            $sql = "SELECT * FROM chat_agent_status WHERE agent_id = {$currentUser['user_id']}";
+            $result = mysqli_query($conn, $sql);
+            $row = mysqli_fetch_assoc($result);
+            echo json_encode(['success' => true, 'status' => $row]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to initialize agent status']);
+        }
+    }
+}
+
+/**
+ * Get session statistics for agents
+ */
+function getSessionStats() {
+    global $conn, $currentUser, $isSuperAdmin, $hasFullAccess;
+    
+    // Super admins and full access users can see all stats
+    if ($isSuperAdmin || $hasFullAccess) {
+        $sql = "SELECT 
+                    COUNT(*) as total_sessions,
+                    SUM(CASE WHEN status = 'waiting' THEN 1 ELSE 0 END) as waiting_sessions,
+                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_sessions,
+                    SUM(CASE WHEN status = 'ended' THEN 1 ELSE 0 END) as ended_sessions,
+                    AVG(rating) as average_rating
+                FROM chat_sessions
+                WHERE DATE(started_at) = CURDATE()";
+    } else {
+        // Regular agents see only their stats
+        $sql = "SELECT 
+                    COUNT(*) as total_sessions,
+                    SUM(CASE WHEN status = 'waiting' THEN 1 ELSE 0 END) as waiting_sessions,
+                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_sessions,
+                    SUM(CASE WHEN status = 'ended' THEN 1 ELSE 0 END) as ended_sessions,
+                    AVG(rating) as average_rating
+                FROM chat_sessions
+                WHERE assigned_agent_id = {$currentUser['user_id']}
+                AND DATE(started_at) = CURDATE()";
+    }
+    
+    $result = mysqli_query($conn, $sql);
+    
+    if ($row = mysqli_fetch_assoc($result)) {
+        echo json_encode(['success' => true, 'stats' => $row]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Failed to get statistics']);
     }
 }
 ?>

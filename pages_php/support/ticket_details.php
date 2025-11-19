@@ -173,6 +173,26 @@ while ($row = mysqli_fetch_assoc($staff_result)) {
     border-color: #667eea;
     box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
 }
+
+/* Mobile Full-Width Optimization for Ticket Details Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .ticket-detail-header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card, .response-item {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <div class="ticket-detail-header">

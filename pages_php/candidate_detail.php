@@ -276,6 +276,34 @@ require_once 'includes/header.php';
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+/* Mobile Full-Width Optimization for Candidate Detail Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .modern-page-header {
+        border-radius: 12px !important;
+    }
+    
+    .card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    .breadcrumb {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+}
 </style>
 
 <?php require_once 'includes/footer.php'; ?>

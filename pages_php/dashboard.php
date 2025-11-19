@@ -1344,6 +1344,29 @@ if (function_exists('trackPageView')) {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 }
+
+/* Mobile Full-Width Optimization for Dashboard Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"], [class*="col-xl-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .dashboard-header {
+        border-radius: 12px !important;
+    }
+    
+    .card, .content-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <script>

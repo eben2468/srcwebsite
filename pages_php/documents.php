@@ -108,6 +108,34 @@ require_once 'includes/header.php';
 
 <link rel="stylesheet" href="../css/documents-responsive.css">
 
+<style>
+/* Mobile Full-Width Optimization for Documents Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure documents header has border-radius on mobile */
+    .documents-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .content-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+</style>
+
 <script>
     document.body.classList.add('documents-page');
 </script>

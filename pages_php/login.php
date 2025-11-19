@@ -37,8 +37,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             recordLoginAttempt($email, false, "Account locked");
         } else {
             // Check if user exists and password is correct
-            $sql =
-                "SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture FROM users WHERE email = ? AND status = 'active' LIMIT 1";
+            // First check if is_default_password column exists
+            $column_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'is_default_password'");
+            $has_default_password_column = mysqli_num_rows($column_check) > 0;
+            
+            if ($has_default_password_column) {
+                $sql =
+                    "SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture, is_default_password FROM users WHERE email = ? AND status = 'active' LIMIT 1";
+            } else {
+                $sql =
+                    "SELECT user_id, username, email, first_name, last_name, role, status, password, profile_picture FROM users WHERE email = ? AND status = 'active' LIMIT 1";
+            }
             $user = fetchOne($sql, [$email]);
 
             if ($user && password_verify($password, $user["password"])) {
@@ -65,6 +74,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     "Successful login from IP: {$ip_address}",
                     "low",
                 );
+
+                // Check if user is using default password (from CSV import) - only if column exists
+                if ($has_default_password_column && isset($user["is_default_password"]) && $user["is_default_password"] == 1) {
+                    $_SESSION["force_password_change"] = true;
+                    $_SESSION["is_default_password"] = true;
+                    header("Location: change-password.php");
+                    exit();
+                }
 
                 // Check if password needs to be changed
                 $force_change = getSecuritySetting(
@@ -382,6 +399,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             background: white;
             font-family: 'Poppins', sans-serif;
         }
+        
+        /* Add padding-right for password input to make room for toggle button */
+        .password-wrapper .form-control-modern {
+            padding-right: 3rem;
+        }
 
         .form-control-modern:focus {
             outline: none;
@@ -396,23 +418,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         /* Password Toggle */
         .password-wrapper {
             position: relative;
+            display: block;
+        }
+        
+        .password-wrapper input {
+            position: relative;
+            z-index: 1;
         }
 
         .password-toggle {
             position: absolute;
-            right: 1rem;
+            right: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
+            background: transparent;
             border: none;
-            color: var(--text-light);
+            color: #6b7280;
             cursor: pointer;
             padding: 0.5rem;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            z-index: 100;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 8px;
         }
 
         .password-toggle:hover {
             color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .password-toggle:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .password-toggle i {
+            font-size: 1.1rem;
         }
 
         /* Checkbox and Links */
@@ -663,8 +708,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             required
                             minlength="6"
                         >
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            <i class="fas fa-eye"></i>
+                        <button type="button" class="password-toggle" id="togglePassword" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye" id="toggleIcon"></i>
                         </button>
                     </div>
                     <div class="invalid-feedback">
@@ -706,81 +751,94 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <script>
+        // Password toggle function - defined globally for onclick handler
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput && toggleIcon) {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.classList.remove('fa-eye');
+                    toggleIcon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.classList.remove('fa-eye-slash');
+                    toggleIcon.classList.add('fa-eye');
+                }
+            }
+        }
+        
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form Validation
+            const loginForm = document.getElementById('loginForm');
+            const loginBtn = document.getElementById('loginBtn');
 
-        // Password Toggle
-        const togglePassword = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('password');
+            if (loginForm && loginBtn) {
+                loginForm.addEventListener('submit', function(event) {
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
+                    let isValid = true;
 
-            const icon = this.querySelector('i');
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
-        });
+                    // Reset validation states
+                    emailInput.classList.remove('is-invalid');
+                    passwordInput.classList.remove('is-invalid');
 
-        // Form Validation
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
+                    // Validate email
+                    if (!emailInput.value || !emailInput.validity.valid) {
+                        emailInput.classList.add('is-invalid');
+                        isValid = false;
+                    }
 
-        loginForm.addEventListener('submit', function(event) {
+                    // Validate password
+                    if (!passwordInput.value || passwordInput.value.length < 6) {
+                        passwordInput.classList.add('is-invalid');
+                        isValid = false;
+                    }
+
+                    if (!isValid) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        // Add loading state
+                        loginBtn.classList.add('loading');
+                        loginBtn.querySelector('.btn-text').textContent = 'Signing In...';
+                    }
+                });
+            }
+
+            // Real-time validation
             const emailInput = document.getElementById('email');
             const passwordInput = document.getElementById('password');
 
-            let isValid = true;
-
-            // Reset validation states
-            emailInput.classList.remove('is-invalid');
-            passwordInput.classList.remove('is-invalid');
-
-            // Validate email
-            if (!emailInput.value || !emailInput.validity.valid) {
-                emailInput.classList.add('is-invalid');
-                isValid = false;
+            if (emailInput) {
+                emailInput.addEventListener('blur', function() {
+                    if (this.value && this.validity.valid) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
             }
 
-            // Validate password
-            if (!passwordInput.value || passwordInput.value.length < 6) {
-                passwordInput.classList.add('is-invalid');
-                isValid = false;
+            if (passwordInput) {
+                passwordInput.addEventListener('blur', function() {
+                    if (this.value && this.value.length >= 6) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
             }
 
-            if (!isValid) {
-                event.preventDefault();
-                event.stopPropagation();
-            } else {
-                // Add loading state
-                loginBtn.classList.add('loading');
-                loginBtn.querySelector('.btn-text').textContent = 'Signing In...';
-            }
-        });
+            // Input focus effects
+            const inputs = document.querySelectorAll('.form-control-modern');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
 
-        // Real-time validation
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-
-        emailInput.addEventListener('blur', function() {
-            if (this.value && this.validity.valid) {
-                this.classList.remove('is-invalid');
-            }
-        });
-
-        passwordInput.addEventListener('blur', function() {
-            if (this.value && this.value.length >= 6) {
-                this.classList.remove('is-invalid');
-            }
-        });
-
-        // Input focus effects
-        const inputs = document.querySelectorAll('.form-control-modern');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
             });
         });
     </script>

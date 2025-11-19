@@ -494,6 +494,32 @@ if (isset($createEventModal) && $createEventModal === true) {
 .animate__fadeInDown {
     animation-name: fadeInDown;
 }
+
+/* Mobile Full-Width Optimization for Events Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid, .container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure events header has border-radius on mobile */
+    .header, .events-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .event-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Notification area -->

@@ -231,6 +231,26 @@ include_once '../includes/modern_page_header.php';
         font-size: 1.5rem;
     }
 }
+
+/* Mobile Full-Width Optimization for Help Center Page */
+@media (max-width: 991px) {
+    [class*="col-md-"], [class*="col-lg-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .help-header, .page-hero, .modern-page-header {
+        border-radius: 12px !important;
+    }
+    .card, .help-card, .help-category {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Main Content -->

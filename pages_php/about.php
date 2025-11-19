@@ -1114,6 +1114,32 @@ include 'includes/modern_page_header.php';
         margin-top: 90px !important; /* 60px navbar + 30px spacing */
     }
 }
+
+/* Mobile Full-Width Optimization for About Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid, .container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure about header has border-radius on mobile */
+    .header, .about-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards and sections extend full width */
+    .card, .section, .department-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
 </style>
 
 <!-- Add custom JS for smooth scrolling and animations -->

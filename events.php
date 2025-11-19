@@ -452,8 +452,8 @@ if ($pastResult) {
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center">
-                        <span><i class="fas fa-phone"></i> +233 123 456 789</span>
-                        <span><i class="fas fa-envelope"></i> src@vvu.edu.gh</span>
+                        <span><i class="fas fa-phone"></i> +233 54 881 1774</span>&nbsp &nbsp
+                        <span><i class="fas fa-envelope"></i> officialsrcvvu@gmail.com</span>
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
@@ -666,14 +666,14 @@ if ($pastResult) {
                             <i class="fas fa-map-marker-alt" style="margin-top: 5px;"></i>
                             <span>Valley View University<br>Oyibi, Accra, Ghana</span>
                         </li>
-                        <li><i class="fas fa-phone"></i> +233 123 456 789</li>
-                        <li><i class="fas fa-envelope"></i> src@vvu.edu.gh</li>
-                        <li><i class="fas fa-clock"></i> Mon - Fri: 8AM - 5PM</li>
+                        <li><i class="fas fa-phone"></i> +233 54 881 1774</li>
+                        <li><i class="fas fa-envelope"></i> officialsrcvvu@gmail.com</li>
+                        <li><i class="fas fa-clock"></i> Mon - Thu: 8AM - 5PM <br> Fri: 9AM - 1PM</li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Valley View University SRC. All Rights Reserved. | Designed with <i class="fas fa-heart" style="color: var(--secondary-color);"></i> for Students</p>
+                <p>&copy; 2024 Valley View University SRC. All Rights Reserved. | Designed by Ebenezer Owusu, SRC Editor for 2025/26 SRC Administration <i class="fas fa-heart" style="color: var(--secondary-color);"></i></p>
             </div>
         </div>
     </footer>

@@ -86,11 +86,24 @@ function getCurrentUser() {
 
 /**
  * Require login - redirect to login page if not logged in
+ * Also redirects to change-password page if user has default password
  */
 function requireLogin() {
     if (!isLoggedIn()) {
         header("Location: login.php");
         exit;
+    }
+    
+    // Check if user must change default password
+    // Allow access to change-password.php and logout functionality
+    $current_page = basename($_SERVER['PHP_SELF']);
+    $allowed_pages = ['change-password.php', 'logout.php'];
+    
+    if (!in_array($current_page, $allowed_pages)) {
+        if (isset($_SESSION['is_default_password']) && $_SESSION['is_default_password']) {
+            header("Location: change-password.php");
+            exit;
+        }
     }
 }
 

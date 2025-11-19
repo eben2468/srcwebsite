@@ -127,7 +127,7 @@ function getPublicMessages() {
     $lastMessageId = intval($_GET['last_message_id'] ?? 0);
     
     // Get messages with user info
-    $sql = "SELECT pcm.*, u.first_name, u.last_name, u.user_id as sender_id
+    $sql = "SELECT pcm.*, u.first_name, u.last_name, u.user_id as sender_id, u.profile_picture, u.last_activity
             FROM public_chat_messages pcm
             JOIN users u ON pcm.sender_id = u.user_id";
     

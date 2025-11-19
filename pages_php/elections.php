@@ -512,6 +512,32 @@ include 'includes/modern_page_header.php';
         color: #1a73e8;
         text-decoration: underline;
     }
+    
+    /* Mobile Full-Width Optimization for Elections Page */
+    @media (max-width: 991px) {
+        [class*="col-md-"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Remove container padding on mobile for full width */
+        .container-fluid, .elections-container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        /* Ensure elections header has border-radius on mobile */
+        .header, .elections-header {
+            border-radius: 12px !important;
+        }
+        
+        /* Ensure content cards extend full width */
+        .card, .content-panel {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            border-radius: 0 !important;
+        }
+    }
     </style>
 
     <div class="elections-container">
