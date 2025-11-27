@@ -312,6 +312,7 @@ $users = fetchAll($sql, $params);
                         <option value="admin" <?php echo $roleFilter === 'admin' ? 'selected' : ''; ?>>Admin</option>
                         <option value="member" <?php echo $roleFilter === 'member' ? 'selected' : ''; ?>>Member</option>
                         <option value="finance" <?php echo $roleFilter === 'finance' ? 'selected' : ''; ?>>Finance</option>
+                        <option value="electoral_commission" <?php echo $roleFilter === 'electoral_commission' ? 'selected' : ''; ?>>Electoral Commission</option>
                         <option value="student" <?php echo $roleFilter === 'student' ? 'selected' : ''; ?>>Student</option>
                     </select>
                 </div>
@@ -409,9 +410,13 @@ $users = fetchAll($sql, $params);
                                 echo $user['role'] === 'super_admin' ? 'dark' :
                                     ($user['role'] === 'admin' ? 'danger' :
                                     ($user['role'] === 'member' ? 'primary' :
-                                    ($user['role'] === 'finance' ? 'success' : 'secondary')));
+                                    ($user['role'] === 'finance' ? 'success' : 
+                                    ($user['role'] === 'electoral_commission' ? 'info' : 'secondary'))));
                             ?>">
-                                <?php echo $user['role'] === 'super_admin' ? 'ADMIN' : strtoupper($user['role']); ?>
+                                <?php 
+                                    echo $user['role'] === 'super_admin' ? 'ADMIN' : 
+                                        ($user['role'] === 'electoral_commission' ? 'ELECTORAL' : strtoupper($user['role']));
+                                ?>
                             </span>
                         </td>
                         <td>
@@ -501,9 +506,13 @@ $users = fetchAll($sql, $params);
                             echo $user['role'] === 'super_admin' ? 'dark' :
                                 ($user['role'] === 'admin' ? 'danger' :
                                 ($user['role'] === 'member' ? 'primary' :
-                                ($user['role'] === 'finance' ? 'success' : 'secondary')));
+                                ($user['role'] === 'finance' ? 'success' : 
+                                ($user['role'] === 'electoral_commission' ? 'info' : 'secondary'))));
                         ?>" style="white-space: nowrap; display: inline-block;">
-                            <?php echo $user['role'] === 'super_admin' ? 'ADMIN' : strtoupper($user['role']); ?>
+                            <?php 
+                                echo $user['role'] === 'super_admin' ? 'ADMIN' : 
+                                    ($user['role'] === 'electoral_commission' ? 'ELECTORAL' : strtoupper($user['role']));
+                            ?>
                         </span>
                         <br>
                         <span class="badge bg-<?php 
@@ -655,6 +664,7 @@ $users = fetchAll($sql, $params);
                                 <option value="admin">Admin</option>
                                 <option value="member">Member</option>
                                 <option value="finance">Finance</option>
+                                <option value="electoral_commission">Electoral Commission</option>
                                 <option value="student" selected>Student</option>
                             </select>
                             <div class="invalid-feedback">Please select a role.</div>

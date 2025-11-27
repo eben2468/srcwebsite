@@ -117,6 +117,7 @@ require_once '../includes/header.php';
     margin-bottom: 2rem;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
 }
 
 .support-header .container-fluid {
@@ -137,6 +138,12 @@ require_once '../includes/header.php';
     text-align: center;
     margin-bottom: 0;
     opacity: 0.9;
+}
+
+.back-button-wrapper {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
 }
 
 .support-card {
@@ -259,7 +266,50 @@ require_once '../includes/header.php';
 
 @media (max-width: 768px) {
     .support-header {
-        padding: 2rem 0;
+        padding: 1.5rem 1rem;
+        margin-top: 70px;
+    }
+    
+    .support-header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .support-header h1 i {
+        margin-right: 0 !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .support-header .lead {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        padding: 0 0.5rem;
+    }
+    
+    .back-button-wrapper {
+        position: static;
+        text-align: center;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .back-button-wrapper .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .support-header .d-flex.gap-2 {
+        flex-direction: column;
+        gap: 0.5rem !important;
+        align-items: stretch;
+    }
+    
+    .support-header .btn-sm {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
     }
     
     .support-card {
@@ -303,7 +353,7 @@ require_once '../includes/header.php';
 <div class="support-header">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12 position-relative">
+            <div class="col-12">
                 <div class="text-center">
                     <h1 class="display-4 mb-3">
                         <i class="fas fa-headset me-3"></i>Contact Support
@@ -311,13 +361,12 @@ require_once '../includes/header.php';
                     <p class="lead">Get help from our support team - we're here to assist you</p>
                 </div>
 
-                <!-- Back Button - Centered Right -->
-                <div class="position-absolute top-50 end-0 translate-middle-y">
+                <!-- Back Button -->
+                <div class="back-button-wrapper">
                     <a href="index.php" class="btn btn-outline-light">
                         <i class="fas fa-arrow-left me-2"></i>Back to Support
                     </a>
                 </div>
-            </div>
 
                 <!-- Quick Access Navigation -->
                 <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">

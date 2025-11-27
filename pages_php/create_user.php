@@ -130,6 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_user'])) {
                     case 'finance':
                         $roleText = "Finance accounts have member access plus financial management features and budget oversight.";
                         break;
+                    case 'electoral_commission':
+                        $roleText = "Electoral Commission accounts have student-level access to all pages, but with full super admin privileges for election management (creating elections, managing candidates, and publishing results).";
+                        break;
                     case 'student':
                         $roleText = "Student accounts have limited access to view content and submit feedback.";
                         break;
@@ -418,6 +421,7 @@ require_once 'includes/header.php';
                                             <option value="admin">Admin</option>
                                             <option value="member" selected>Member</option>
                                             <option value="finance">Finance</option>
+                                            <option value="electoral_commission">Electoral Commission</option>
                                             <option value="student">Student</option>
                                         </select>
                                     </div>
@@ -471,6 +475,18 @@ require_once 'includes/header.php';
 
                                 <h5 class="card-title">Finance Role</h5>
                                 <p>Finance users have member access plus financial management features and budget oversight.</p>
+                                <hr>
+
+                                <h5 class="card-title">Electoral Commission Role</h5>
+                                <p>Electoral Commission users have <strong>student-level access</strong> to all non-election pages, but <strong>full super admin privileges</strong> for election management:</p>
+                                <ul class="small mb-0">
+                                    <li><strong>Election Management:</strong> Full CRUD access</li>
+                                    <li>Create and manage elections</li>
+                                    <li>Approve/reject candidates</li>
+                                    <li>Manage voting process</li>
+                                    <li>Publish election results</li>
+                                    <li><strong>Other Pages:</strong> Student-level (read-only)</li>
+                                </ul>
                                 <hr>
 
                                 <h5 class="card-title">Student Role</h5>

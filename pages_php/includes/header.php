@@ -51,6 +51,7 @@ $isAdmin = isAdmin();
 $isMember = isMember();
 $isStudent = isStudent();
 $isFinance = isFinance();
+$isElectoralCommission = isElectoralCommission();
 $hasAdminPrivileges = hasAdminPrivileges();
 $hasMemberPrivileges = hasMemberPrivileges();
 
@@ -61,7 +62,13 @@ if ($currentUser && isset($currentUser['first_name']) && isset($currentUser['las
 }
 $userInitial = strtoupper(substr($fullName, 0, 1));
 $userName = $fullName;
-$userRole = ucfirst($currentUser['role'] ?? 'Guest');
+// Format role name for display
+$roleDisplay = $currentUser['role'] ?? 'Guest';
+if ($roleDisplay === 'electoral_commission') {
+    $userRole = 'Electoral Commission';
+} else {
+    $userRole = ucfirst(str_replace('_', ' ', $roleDisplay));
+}
 
 // Get current page for active menu highlighting
 $currentPage = basename($_SERVER['PHP_SELF']);
@@ -985,7 +992,33 @@ $primaryColorRGB = "$r, $g, $b";
         } else {
             $basePath = '';
         }
+        
+        // Special sidebar for Electoral Commission - only show 4 specific pages
+        if ($isElectoralCommission):
         ?>
+        <!-- Dashboard - Available to all users -->
+        <a href="<?php echo $basePath; ?>dashboard.php" class="sidebar-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
+            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+        </a>
+
+        <!-- Elections - Available to electoral commission -->
+        <a href="<?php echo $basePath; ?>elections.php" class="sidebar-link <?php echo $currentPage === 'elections.php' ? 'active' : ''; ?>">
+            <i class="fas fa-vote-yea me-2"></i> Elections
+        </a>
+
+        <!-- Live Election Monitor - Available to electoral commission -->
+        <a href="<?php echo $basePath; ?>live_election_monitor.php" class="sidebar-link <?php echo $currentPage === 'live_election_monitor.php' ? 'active' : ''; ?>">
+            <i class="fas fa-chart-line me-2"></i> Live Election Monitor
+        </a>
+
+        <!-- Public Chat - Available to electoral commission -->
+        <?php if (hasFeaturePermission('enable_public_chat')): ?>
+        <a href="<?php echo $basePath; ?>public_chat.php" class="sidebar-link <?php echo $currentPage === 'public_chat.php' ? 'active' : ''; ?>">
+            <i class="fas fa-comments me-2"></i> Public Chat
+        </a>
+        <?php endif; ?>
+        
+        <?php else: // Normal sidebar for other users ?>
         <!-- Dashboard - Available to all users -->
         <a href="<?php echo $basePath; ?>dashboard.php" class="sidebar-link <?php echo $currentPage === 'dashboard.php' ? 'active' : ''; ?>">
             <i class="fas fa-tachometer-alt me-2"></i> Dashboard
@@ -1134,7 +1167,7 @@ $primaryColorRGB = "$r, $g, $b";
 
        
 
-        <!-- Live Election Monitor - Only for super admin -->
+        <!-- Live Election Monitor - Only for super admin (electoral commission sees it in main menu) -->
         <?php if ($isSuperAdmin): ?>
         <a href="<?php echo $basePath; ?>live_election_monitor.php" class="sidebar-link management-link <?php echo $currentPage === 'live_election_monitor.php' ? 'active' : ''; ?>" style="padding: 0.85rem 1.5rem !important; display: flex !important; align-items: center !important;">
             <i class="fas fa-chart-line me-2" style="margin-right: 12px !important; width: 24px !important; text-align: center !important; font-size: 1.1rem !important;"></i> Live Election Monitor
@@ -1154,7 +1187,8 @@ $primaryColorRGB = "$r, $g, $b";
             <i class="fas fa-cog me-2" style="margin-right: 12px !important; width: 24px !important; text-align: center !important; font-size: 1.1rem !important;"></i> Settings
         </a>
         <?php endif; ?>
-        <?php endif; ?>
+        <?php endif; // End $hasMemberPrivileges ?>
+        <?php endif; // End $isElectoralCommission check - close normal sidebar ?>
     </div>
     <?php endif; ?>
 

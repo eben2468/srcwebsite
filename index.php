@@ -254,7 +254,7 @@ if (empty($eventsItems)) {
             background: var(--dark-blue);
             color: var(--white);
             padding: 10px 0;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
         }
 
         .top-bar a {
@@ -270,6 +270,53 @@ if (empty($eventsItems)) {
 
         .top-bar i {
             margin-right: 5px;
+        }
+
+        /* Container adjustments for less side spacing */
+        .container {
+            max-width: 1400px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 95%;
+            }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .top-bar {
+                font-size: 0.85rem;
+                padding: 8px 0;
+            }
+
+            .top-bar .d-flex {
+                flex-wrap: wrap;
+            }
+
+            .top-bar span {
+                font-size: 0.85rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand img {
+                height: 35px;
+            }
+
+            .nav-link {
+                font-size: 1.1rem;
+                margin: 5px 0;
+            }
         }
 
         /* Navigation */
@@ -301,6 +348,7 @@ if (empty($eventsItems)) {
         .nav-link {
             color: var(--text-dark) !important;
             font-weight: 500;
+            font-size: 1.3rem;
             margin: 0 15px;
             transition: color 0.3s;
             position: relative;
@@ -343,7 +391,7 @@ if (empty($eventsItems)) {
         /* Hero Slider */
         .hero-slider {
             position: relative;
-            height: 650px;
+            height: 850px;
             overflow: hidden;
             width: 100%;
         }
@@ -361,9 +409,7 @@ if (empty($eventsItems)) {
             position: relative;
             background-size: cover;
             background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-repeat: no-repeat;
             width: 100%;
         }
 
@@ -378,18 +424,133 @@ if (empty($eventsItems)) {
         }
 
         .slide-content {
-            position: relative;
+            position: absolute;
             z-index: 10;
             color: var(--white);
-            text-align: center;
             max-width: 900px;
-            padding: 20px;
+            padding: 40px;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
         }
 
+        /* Text Alignment Positions */
+        .slide-content.align-top-left {
+            top: 80px !important;
+            left: 60px !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: none !important;
+            text-align: left !important;
+        }
+
+        .slide-content.align-top-center {
+            top: 80px !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: translateX(-50%) !important;
+            text-align: center !important;
+        }
+
+        .slide-content.align-top-right {
+            top: 80px !important;
+            left: auto !important;
+            right: 60px !important;
+            bottom: auto !important;
+            transform: none !important;
+            text-align: right !important;
+        }
+
+        .slide-content.align-center-left {
+            top: 50% !important;
+            left: 60px !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            text-align: left !important;
+        }
+
+        .slide-content.align-center {
+            top: 50% !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: translate(-50%, -50%) !important;
+            text-align: center !important;
+        }
+
+        .slide-content.align-center-right {
+            top: 50% !important;
+            left: auto !important;
+            right: 60px !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            text-align: right !important;
+        }
+
+        .slide-content.align-bottom-left {
+            top: auto !important;
+            left: 60px !important;
+            right: auto !important;
+            bottom: 80px !important;
+            transform: none !important;
+            text-align: left !important;
+        }
+
+        .slide-content.align-bottom-center {
+            top: auto !important;
+            left: 50% !important;
+            right: auto !important;
+            bottom: 80px !important;
+            transform: translateX(-50%) !important;
+            text-align: center !important;
+        }
+
+        .slide-content.align-bottom-right {
+            top: auto !important;
+            left: auto !important;
+            right: 60px !important;
+            bottom: 80px !important;
+            transform: none !important;
+            text-align: right !important;
+        }
+
+        /* Responsive adjustments for alignment */
+        @media (max-width: 768px) {
+            .slide-content {
+                padding: 20px;
+                max-width: 90%;
+            }
+
+            .slide-content.align-top-left,
+            .slide-content.align-center-left,
+            .slide-content.align-bottom-left {
+                left: 20px;
+            }
+
+            .slide-content.align-top-right,
+            .slide-content.align-center-right,
+            .slide-content.align-bottom-right {
+                right: 20px;
+            }
+
+            .slide-content.align-top-left,
+            .slide-content.align-top-center,
+            .slide-content.align-top-right {
+                top: 40px;
+            }
+
+            .slide-content.align-bottom-left,
+            .slide-content.align-bottom-center,
+            .slide-content.align-bottom-right {
+                bottom: 40px;
+            }
+        }
+
+
+
         .slide-content h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
+            font-family: 'Argentum Sans', serif;
+            font-size: var(--title-size, 4rem);
             font-weight: 900;
             margin-bottom: 20px;
             line-height: 1.2;
@@ -397,16 +558,26 @@ if (empty($eventsItems)) {
         }
 
         .slide-content p {
-            font-size: 1.3rem;
+            font-size: var(--subtitle-size, 1.3rem);
             margin-bottom: 30px;
             opacity: 0.95;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.7);
         }
 
+        /* Responsive font sizes */
+        @media (max-width: 768px) {
+            .slide-content h1 {
+                font-size: calc(var(--title-size, 4rem) * 0.6);
+            }
+            .slide-content p {
+                font-size: calc(var(--subtitle-size, 1.3rem) * 0.8);
+            }
+        }
+
         .slide-content .btn {
             padding: 15px 40px;
             font-size: 1.1rem;
-            border-radius: 50px;
+            border-radius: 10px;
             margin: 0 10px;
             font-weight: 600;
             transition: all 0.3s;
@@ -1011,8 +1182,8 @@ if (empty($eventsItems)) {
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-university"></i>
-                <span>VVU SRC</span>
+                <img src="IMG_0375[1].jpg" alt="VVU Logo">
+                <span>VALLEY VIEW UNIVERSITY SRC</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -1042,11 +1213,23 @@ if (empty($eventsItems)) {
             <div class="swiper-wrapper">
                 <?php foreach ($sliderImages as $index => $slide): ?>
                 <!-- Slide <?php echo $index + 1; ?> -->
-                <div class="swiper-slide" style="background-image: linear-gradient(rgba(26, 84, 144, 0.6), rgba(13, 59, 102, 0.5)), url('<?php echo htmlspecialchars($slide['image_path']); ?>');">
-
-                    <div class="slide-content" data-aos="fade-up">
+                <div class="swiper-slide" style="background-image: url('<?php echo htmlspecialchars($slide['image_path']); ?>');">
+                    <?php 
+                    // Get text alignment, default to 'center' if not set
+                    $textAlignment = $slide['text_alignment'] ?? 'center';
+                    $alignmentClass = 'align-' . $textAlignment;
+                    
+                    // Get font sizes, default to standard values if not set
+                    $titleFontSize = $slide['title_font_size'] ?? '4';
+                    $subtitleFontSize = $slide['subtitle_font_size'] ?? '1.3';
+                    ?>
+                    <div class="slide-content <?php echo $alignmentClass; ?>" data-aos="fade-up" style="--title-size: <?php echo htmlspecialchars($titleFontSize); ?>rem; --subtitle-size: <?php echo htmlspecialchars($subtitleFontSize); ?>rem;">
+                        <?php if (!empty($slide['title'])): ?>
                         <h1><?php echo htmlspecialchars($slide['title']); ?></h1>
+                        <?php endif; ?>
+                        <?php if (!empty($slide['subtitle'])): ?>
                         <p><?php echo htmlspecialchars($slide['subtitle']); ?></p>
+                        <?php endif; ?>
                         <div class="mt-4">
                             <?php if (!empty($slide['button1_text']) && !empty($slide['button1_link'])): ?>
                                 <?php
@@ -1345,7 +1528,7 @@ if (empty($eventsItems)) {
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025/2026 Valley View University SRC. All Rights Reserved. | Designed with <i class="fas fa-heart" style="color: var(--secondary-color);"></i> for Students</p>
+                <p>&copy; 2025/2026 Valley View University SRC. All Rights Reserved. | Designed by Ebenezer Owusu, SRC Editor for 2025/26 SRC Administration <i class="fas fa-heart" style="color: var(--secondary-color);"></i></p>
             </div>
         </div>
     </footer>

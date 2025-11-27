@@ -126,6 +126,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['settings_section'])) {
                     $button1_link = $_POST['button1_link'] ?? '';
                     $button2_text = $_POST['button2_text'] ?? '';
                     $button2_link = $_POST['button2_link'] ?? '';
+                    $text_alignment = $_POST['text_alignment'] ?? 'center';
+                    $title_font_size = $_POST['title_font_size'] ?? '4';
+                    $subtitle_font_size = $_POST['subtitle_font_size'] ?? '1.3';
 
                     // Handle image upload
                     if ($_FILES['slider_image']['error'] === UPLOAD_ERR_OK) {
@@ -146,10 +149,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['settings_section'])) {
                             $newOrder = ($orderRow['max_order'] ?? 0) + 1;
 
                             // Insert into database
-                            $insertSql = "INSERT INTO slider_images (image_path, title, subtitle, button1_text, button1_link, button2_text, button2_link, slide_order, is_active)
-                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)";
+                            $insertSql = "INSERT INTO slider_images (image_path, title, subtitle, button1_text, button1_link, button2_text, button2_link, text_alignment, title_font_size, subtitle_font_size, slide_order, is_active)
+                                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
                             $stmt = mysqli_prepare($conn, $insertSql);
-                            mysqli_stmt_bind_param($stmt, 'sssssssi', $imagePath, $title, $subtitle, $button1_text, $button1_link, $button2_text, $button2_link, $newOrder);
+                            mysqli_stmt_bind_param($stmt, 'ssssssssddi', $imagePath, $title, $subtitle, $button1_text, $button1_link, $button2_text, $button2_link, $text_alignment, $title_font_size, $subtitle_font_size, $newOrder);
                             $formSuccess = mysqli_stmt_execute($stmt);
                             mysqli_stmt_close($stmt);
                         }
@@ -163,11 +166,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['settings_section'])) {
                     $button1_link = $_POST['button1_link'] ?? '';
                     $button2_text = $_POST['button2_text'] ?? '';
                     $button2_link = $_POST['button2_link'] ?? '';
+                    $text_alignment = $_POST['text_alignment'] ?? 'center';
+                    $title_font_size = $_POST['title_font_size'] ?? '4';
+                    $subtitle_font_size = $_POST['subtitle_font_size'] ?? '1.3';
                     $is_active = isset($_POST['is_active']) ? 1 : 0;
 
-                    $updateSql = "UPDATE slider_images SET title = ?, subtitle = ?, button1_text = ?, button1_link = ?, button2_text = ?, button2_link = ?, is_active = ? WHERE id = ?";
+                    $updateSql = "UPDATE slider_images SET title = ?, subtitle = ?, button1_text = ?, button1_link = ?, button2_text = ?, button2_link = ?, text_alignment = ?, title_font_size = ?, subtitle_font_size = ?, is_active = ? WHERE id = ?";
                     $stmt = mysqli_prepare($conn, $updateSql);
-                    mysqli_stmt_bind_param($stmt, 'ssssssii', $title, $subtitle, $button1_text, $button1_link, $button2_text, $button2_link, $is_active, $slideId);
+                    mysqli_stmt_bind_param($stmt, 'sssssssddii', $title, $subtitle, $button1_text, $button1_link, $button2_text, $button2_link, $text_alignment, $title_font_size, $subtitle_font_size, $is_active, $slideId);
                     $formSuccess = mysqli_stmt_execute($stmt);
                     mysqli_stmt_close($stmt);
 
@@ -1072,14 +1078,43 @@ function applySystemIconChange() {
                                     <div class="form-text">Recommended size: 1920x650px</div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="slider_title" class="form-label">Title <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="slider_title" name="slider_title" required>
+                                    <label for="slider_title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="slider_title" name="slider_title">
                                 </div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="slider_subtitle" class="form-label">Subtitle</label>
                                 <input type="text" class="form-control" id="slider_subtitle" name="slider_subtitle">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="text_alignment" class="form-label">Text & Button Alignment</label>
+                                <select class="form-select" id="text_alignment" name="text_alignment">
+                                    <option value="top-left">Top Left Corner</option>
+                                    <option value="top-center">Top Center</option>
+                                    <option value="top-right">Top Right Corner</option>
+                                    <option value="center-left">Center Left</option>
+                                    <option value="center" selected>Center (Default)</option>
+                                    <option value="center-right">Center Right</option>
+                                    <option value="bottom-left">Bottom Left Corner</option>
+                                    <option value="bottom-center">Bottom Center</option>
+                                    <option value="bottom-right">Bottom Right Corner</option>
+                                </select>
+                                <div class="form-text">Choose where the text and buttons should appear on the slider image</div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="title_font_size" class="form-label">Title Font Size (rem)</label>
+                                    <input type="number" class="form-control" id="title_font_size" name="title_font_size" value="4" step="0.1" min="1" max="10">
+                                    <div class="form-text">Default: 4. Adjust for larger/smaller title text.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="subtitle_font_size" class="form-label">Subtitle Font Size (rem)</label>
+                                    <input type="number" class="form-control" id="subtitle_font_size" name="subtitle_font_size" value="1.3" step="0.1" min="0.5" max="5">
+                                    <div class="form-text">Default: 1.3. Adjust for larger/smaller subtitle text.</div>
+                                </div>
                             </div>
 
                             <div class="row">
@@ -1144,12 +1179,51 @@ function applySystemIconChange() {
                                                                 <div class="col-md-6">
                                                                     <label class="form-label">Title</label>
                                                                     <input type="text" class="form-control" name="slider_title"
-                                                                           value="<?php echo htmlspecialchars($slider['title']); ?>" required>
+                                                                           value="<?php echo htmlspecialchars($slider['title']); ?>">
                                                                 </div>
                                                                 <div class="col-md-6">
                                                                     <label class="form-label">Subtitle</label>
                                                                     <input type="text" class="form-control" name="slider_subtitle"
                                                                            value="<?php echo htmlspecialchars($slider['subtitle']); ?>">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Text & Button Alignment</label>
+                                                                <select class="form-select" name="text_alignment">
+                                                                    <?php
+                                                                    $currentAlignment = $slider['text_alignment'] ?? 'center';
+                                                                    $alignmentOptions = [
+                                                                        'top-left' => 'Top Left Corner',
+                                                                        'top-center' => 'Top Center',
+                                                                        'top-right' => 'Top Right Corner',
+                                                                        'center-left' => 'Center Left',
+                                                                        'center' => 'Center (Default)',
+                                                                        'center-right' => 'Center Right',
+                                                                        'bottom-left' => 'Bottom Left Corner',
+                                                                        'bottom-center' => 'Bottom Center',
+                                                                        'bottom-right' => 'Bottom Right Corner'
+                                                                    ];
+                                                                    foreach ($alignmentOptions as $value => $label):
+                                                                    ?>
+                                                                        <option value="<?php echo $value; ?>" <?php echo $currentAlignment === $value ? 'selected' : ''; ?>>
+                                                                            <?php echo $label; ?>
+                                                                        </option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                                <div class="form-text">Choose where the text and buttons should appear on the slider image</div>
+                                                            </div>
+
+                                                            <div class="row mb-3">
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Title Font Size (rem)</label>
+                                                                    <input type="number" class="form-control" name="title_font_size" 
+                                                                           value="<?php echo htmlspecialchars($slider['title_font_size'] ?? '4'); ?>" step="0.1" min="1" max="10">
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label class="form-label">Subtitle Font Size (rem)</label>
+                                                                    <input type="number" class="form-control" name="subtitle_font_size" 
+                                                                           value="<?php echo htmlspecialchars($slider['subtitle_font_size'] ?? '1.3'); ?>" step="0.1" min="0.5" max="5">
                                                                 </div>
                                                             </div>
 

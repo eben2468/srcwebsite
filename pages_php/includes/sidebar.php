@@ -180,8 +180,8 @@ function isActive($pageName) {
         <i class="fas fa-comments me-2"></i> Feedback Dashboard
     </a>
     
-    <!-- Live Election Monitor - Super Admin only -->
-    <?php if (isSuperAdmin()): ?>
+    <!-- Live Election Monitor - Super Admin and Electoral Commission only -->
+    <?php if (isSuperAdmin() || isElectoralCommission()): ?>
     <a href="live_election_monitor.php" class="sidebar-link <?php echo isActive('live_election_monitor.php'); ?>">
         <i class="fas fa-chart-line me-2"></i> Live Election Monitor
     </a>

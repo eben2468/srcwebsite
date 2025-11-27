@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_role'])) {
     $userId = (int)$_POST['user_id'];
     
     // Validate role
-    $validRoles = ['admin', 'member', 'student'];
+    $validRoles = ['admin', 'member', 'student', 'finance', 'electoral_commission'];
     if (!in_array($newRole, $validRoles)) {
         $errorMessage = "Invalid role selected.";
     } else {
@@ -139,6 +139,8 @@ require_once 'includes/header.php';
                                     <select class="form-select" id="role" name="role" required>
                                         <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
                                         <option value="member" <?php echo $user['role'] === 'member' ? 'selected' : ''; ?>>Member</option>
+                                        <option value="finance" <?php echo $user['role'] === 'finance' ? 'selected' : ''; ?>>Finance</option>
+                                        <option value="electoral_commission" <?php echo $user['role'] === 'electoral_commission' ? 'selected' : ''; ?>>Electoral Commission</option>
                                         <option value="student" <?php echo $user['role'] === 'student' ? 'selected' : ''; ?>>Student</option>
                                     </select>
                                 </div>

@@ -391,6 +391,7 @@ require_once 'includes/header.php';
     @media (max-width: 768px) {
         .event-detail-header {
             padding: 2rem 1.5rem;
+            margin-top: 12px;
         }
 
         .event-detail-header-content {

@@ -49,12 +49,13 @@ if (!$candidate) {
 // Check permissions for different actions
 $isSuperAdmin = isSuperAdmin();
 $isAdmin = isAdmin();
+$isElectoralCommission = isElectoralCommission();
 $isOwner = ($userId == $candidate['user_id']);
 
 switch ($action) {
     case 'approve':
-        // Only super admins and admins can approve candidates
-        if (!$isSuperAdmin && !$isAdmin) {
+        // Only super admins, admins, and electoral commission can approve candidates
+        if (!$isSuperAdmin && !$isAdmin && !$isElectoralCommission) {
             $_SESSION['error'] = "You don't have permission to approve candidates.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();
@@ -74,8 +75,8 @@ switch ($action) {
         exit();
 
     case 'reject':
-        // Only super admins and admins can reject candidates
-        if (!$isSuperAdmin && !$isAdmin) {
+        // Only super admins, admins, and electoral commission can reject candidates
+        if (!$isSuperAdmin && !$isAdmin && !$isElectoralCommission) {
             $_SESSION['error'] = "You don't have permission to reject candidates.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();
@@ -95,8 +96,8 @@ switch ($action) {
         exit();
 
     case 'withdraw':
-        // Only the candidate themselves can withdraw
-        if (!$isOwner && !$isSuperAdmin && !$isAdmin) {
+        // Only the candidate themselves, super admins, admins, or electoral commission can withdraw
+        if (!$isOwner && !$isSuperAdmin && !$isAdmin && !$isElectoralCommission) {
             $_SESSION['error'] = "You don't have permission to withdraw this candidacy.";
             header("Location: election_detail.php?id=" . $candidate['election_id']);
             exit();

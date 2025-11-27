@@ -156,6 +156,9 @@ function handleImport() {
             case 'finance':
                 $password = 'finance123';
                 break;
+            case 'electoral_commission':
+                $password = 'electoral123';
+                break;
             case 'student':
                 $password = 'student123';
                 break;

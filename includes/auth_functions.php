@@ -109,6 +109,30 @@ function hasPermission($action, $resource) {
             'settings' => [],
             'admin_feedback' => []
         ],
+        'electoral_commission' => [
+            // Electoral Commission has STUDENT-LEVEL access for all non-election resources
+            // SUPER ADMIN access ONLY for election-related resources
+            'users' => [], // No access to users management (same as student)
+            'events' => ['read'], // Student-level: Read-only access
+            'news' => ['read'], // Student-level: Read-only access
+            'documents' => ['read'], // Student-level: Read-only access
+            'gallery' => ['read'], // Student-level: Read-only access
+            'elections' => ['create', 'read', 'update', 'delete'], // FULL election access (super admin level)
+            'minutes' => ['read'], // Student-level: Read-only access
+            'reports' => ['read'], // Student-level: Read-only access
+            'budget' => ['read'], // Student-level: Read-only access
+            'finance' => [], // No access to finance page (same as student)
+            'feedback' => ['create', 'read'], // Student-level: Create and read only
+            'settings' => [], // No access to settings (same as student)
+            'admin_feedback' => [], // No access to admin feedback (same as student)
+            
+            // Full election-related permissions (SUPER ADMIN level for elections only)
+            'election_positions' => ['create', 'read', 'update', 'delete'],
+            'election_candidates' => ['create', 'read', 'update', 'delete'],
+            'election_votes' => ['create', 'read', 'update', 'delete'],
+            'election_results' => ['create', 'read', 'update', 'delete'],
+            'election_settings' => ['create', 'read', 'update', 'delete']
+        ],
         'student' => [
             'users' => [],
             'events' => ['read'],
@@ -254,6 +278,18 @@ function hasResourcePermission($action, $resource, $resourceId) {
         }
     }
     
+    // Electoral Commission users have super admin access ONLY to election-related resources
+    if (isElectoralCommission()) {
+        $electionResources = [
+            'elections', 'election_positions', 'election_candidates', 
+            'election_votes', 'election_results', 'election_settings'
+        ];
+
+        if (in_array($resource, $electionResources)) {
+            return hasPermission($action, $resource);
+        }
+    }
+    
     // For regular users, check general permission first
     if (!hasPermission($action, $resource)) {
         return false;
@@ -276,6 +312,7 @@ function hasResourcePermission($action, $resource, $resourceId) {
 /**
  * Check if user should use admin interface
  * Returns true for super admin, admin, and finance users
+ * Electoral commission users should NOT use admin interface (student-level for non-election pages)
  * @return bool True if user should see admin interface
  */
 function shouldUseAdminInterface() {
@@ -311,7 +348,7 @@ function canManageResource($resource) {
  * @return bool True if user can manage elections
  */
 function canManageElections() {
-    return isSuperAdmin();
+    return isSuperAdmin() || isElectoralCommission();
 }
 
 /**

@@ -9,9 +9,9 @@ require_once __DIR__ . '/../includes/settings_functions.php';
 // Require login for this page
 requireLogin();
 
-// Check if user is super admin (only super admins can access this page)
-if (!isSuperAdmin()) {
-    $_SESSION['error'] = "Access denied. Only super administrators can access this page.";
+// Check if user is super admin or electoral commission (only they can access this page)
+if (!isSuperAdmin() && !isElectoralCommission()) {
+    $_SESSION['error'] = "Access denied. Only super administrators and electoral commission can access this page.";
     header("Location: dashboard.php");
     exit();
 }

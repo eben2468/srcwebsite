@@ -52,6 +52,13 @@ function isFinance() {
 }
 
 /**
+ * Check if current user is electoral commission
+ */
+function isElectoralCommission() {
+    return isLoggedIn() && isset($_SESSION['role']) && $_SESSION['role'] === 'electoral_commission';
+}
+
+/**
  * Check if current user has admin-level privileges (super admin or admin)
  */
 function hasAdminPrivileges() {
@@ -146,6 +153,17 @@ function requireMemberOrAdmin() {
 function requireFinanceAccess() {
     requireLogin();
     if (!isSuperAdmin() && !isFinance()) {
+        header("Location: dashboard.php");
+        exit;
+    }
+}
+
+/**
+ * Require electoral commission access (super admin or electoral commission)
+ */
+function requireElectoralAccess() {
+    requireLogin();
+    if (!isSuperAdmin() && !isElectoralCommission()) {
         header("Location: dashboard.php");
         exit;
     }

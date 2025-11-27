@@ -69,7 +69,7 @@ try {
             background: var(--dark-blue);
             color: var(--white);
             padding: 10px 0;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
         }
 
         .top-bar a {
@@ -85,6 +85,53 @@ try {
 
         .top-bar i {
             margin-right: 5px;
+        }
+
+        /* Container adjustments for less side spacing */
+        .container {
+            max-width: 1400px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        @media (min-width: 1400px) {
+            .container {
+                max-width: 95%;
+            }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .top-bar {
+                font-size: 0.85rem;
+                padding: 8px 0;
+            }
+
+            .top-bar .d-flex {
+                flex-wrap: wrap;
+            }
+
+            .top-bar span {
+                font-size: 0.85rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand img {
+                height: 35px;
+            }
+
+            .nav-link {
+                font-size: 1.1rem;
+                margin: 5px 0;
+            }
         }
 
         /* Navigation */
@@ -110,6 +157,7 @@ try {
         .nav-link {
             color: var(--text-dark) !important;
             font-weight: 500;
+            font-size: 1.3rem;
             margin: 0 15px;
             transition: color 0.3s;
             position: relative;
@@ -479,8 +527,8 @@ try {
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">
-                <i class="fas fa-university"></i>
-                <span>VVU SRC</span>
+                <img src="IMG_0375[1].jpg" alt="VVU Logo">
+                <span>VALLEY VIEW UNIVERSITY SRC</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
