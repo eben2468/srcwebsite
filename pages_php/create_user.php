@@ -170,15 +170,7 @@ require_once 'includes/header.php';
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="users.php">Users</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Create User</li>
-                </ol>
-            </nav>
-            
+        <div class="col-12">         
             <!-- Custom Create User Header -->
             <div class="create-user-header animate__animated animate__fadeInDown">
                 <div class="create-user-header-content">

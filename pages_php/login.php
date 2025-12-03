@@ -185,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); Removed for video background */
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -195,73 +195,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             overflow: hidden;
         }
 
-        /* Animated Background Particles */
-        .bg-animation {
+        /* Video Background */
+        #bg-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -2;
+            object-fit: cover;
+        }
+
+        .video-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .particle:nth-child(1) {
-            width: 80px;
-            height: 80px;
-            left: 10%;
-            top: 20%;
-            animation-delay: 0s;
-        }
-
-        .particle:nth-child(2) {
-            width: 60px;
-            height: 60px;
-            right: 15%;
-            top: 40%;
-            animation-delay: 2s;
-        }
-
-        .particle:nth-child(3) {
-            width: 100px;
-            height: 100px;
-            left: 70%;
-            top: 70%;
-            animation-delay: 4s;
-        }
-
-        .particle:nth-child(4) {
-            width: 50px;
-            height: 50px;
-            left: 30%;
-            bottom: 20%;
-            animation-delay: 6s;
-        }
-
-        .particle:nth-child(5) {
-            width: 70px;
-            height: 70px;
-            right: 25%;
-            bottom: 30%;
-            animation-delay: 8s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0.3;
-            }
-            50% {
-                transform: translateY(-30px) rotate(180deg);
-                opacity: 0.6;
-            }
+            background: rgba(0, 0, 0, 0.6); /* Dark overlay for readability */
+            z-index: -1;
         }
 
         /* Login Container */
@@ -637,14 +591,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="bg-animation">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="../assets/LoginVideo2.mp4" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+    <div class="video-overlay"></div>
 
     <!-- Login Container -->
     <div class="login-container" data-aos="fade-up" data-aos-duration="800">

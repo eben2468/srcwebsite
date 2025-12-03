@@ -111,17 +111,93 @@ require_once __DIR__ . '/includes/header.php';
 }
 
 .contact-info {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: transparent;
+    color: #333;
+    border: none;
     border-radius: 15px;
     padding: 2rem;
     text-align: center;
+}
+
+.contact-info h4,
+.contact-info h6 {
+    color: #333;
+}
+
+.contact-info p {
+    color: #555;
+}
+
+.contact-info i {
+    color: #667eea;
+}
+
+.contact-info .btn-light {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.contact-info .btn-light:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    color: white;
+}
+
+/* Desktop spacing - only on larger screens */
+@media (min-width: 992px) {
+    .container-fluid {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
 }
 
 .back-button {
     position: absolute;
     top: 20px;
     right: 20px;
+}
+
+
+/* Mobile Full-Width Optimization */
+@media (max-width: 991px) {
+    /* Remove all column padding on mobile */
+    [class*="col-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove row margin */
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Adjust cards for full width on mobile */
+    .guidelines-card {
+        border-radius: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Add border radius to header on mobile */
+    .guidelines-header {
+        border-radius: 12px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    /* Contact info card full width */
+    .contact-info {
+        border-radius: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
 }
 
 @media (max-width: 768px) {
@@ -144,7 +220,7 @@ require_once __DIR__ . '/includes/header.php';
 </style>
 
 <div class="welfare-guidelines-container">
-    <div class="container-fluid px-4">
+    <div class="container-fluid">
         <!-- Page Header -->
         <div class="guidelines-header position-relative">
             <!-- Back Button -->

@@ -8,7 +8,6 @@ require_once __DIR__ . '/../includes/settings_functions.php';
 
 // Require login for this page
 requireLogin();
-require_once __DIR__ . '/../includes/db_config.php';
 
 // Check if user is logged in
 if (!isLoggedIn()) {
@@ -17,14 +16,14 @@ if (!isLoggedIn()) {
     exit();
 }
 
+// Get current user
+$currentUser = getCurrentUser();
+$isAdmin = shouldUseAdminInterface();
+$isMember = isMember();
+$canManageEvents = $isAdmin || $isMember;
+
 // Set page title
 $pageTitle = "Event Details - SRC Management System";
-
-// Get current user info
-$currentUser = getCurrentUser();
-$isAdmin = shouldUseAdminInterface(); // Use unified admin interface check for super admin users
-$isMember = isMember();
-$canManageEvents = $isAdmin || $isMember; // Allow both admins and members to manage events
 
 // Get event ID from URL
 $eventId = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -33,230 +32,68 @@ $eventId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $successMessage = '';
 $errorMessage = '';
 
-// Fetch event from database
+// Fetch event details
 $event = fetchOne("SELECT * FROM events WHERE event_id = ?", [$eventId]);
 
-// Check if user can edit this specific event (admin or event organizer)
-$canEditEvent = $isAdmin || ($isMember && $event && $event['organizer_id'] == $currentUser['user_id']);
-
-// Handle delete action - MUST be before any output
-if (isset($_GET['delete']) && $_GET['delete'] == 'confirm') {
-    if ($event) {
-        // Check if user is admin or the event organizer
-        if ($isAdmin || ($isMember && $event['organizer_id'] == $currentUser['user_id'])) {
-            $result = delete("DELETE FROM events WHERE event_id = ?", [$eventId]);
-            
-            if ($result) {
-                header("Location: events.php?deleted=true");
-                exit;
-            } else {
-                $errorMessage = "Error deleting event. Please try again.";
-            }
-        } else {
-            $errorMessage = "You don't have permission to delete this event.";
-        }
-    }
+// Check if event exists
+if (!$event) {
+    $_SESSION['error'] = "Event not found.";
+    header("Location: events.php");
+    exit();
 }
 
-// Handle image and document deletion - MUST be before any output
-if ($canEditEvent) {
-    // Handle image deletion
-    if (isset($_GET['delete_image']) && $_GET['delete_image'] == 1 && !empty($event['image_path'])) {
-        $imagePath = '../' . $event['image_path'];
-        
-        // Check if file exists before attempting to delete
-        if (file_exists($imagePath)) {
-            // Try to delete the file
-            if (unlink($imagePath)) {
-                // Update the database to remove the reference
-                $updateSql = "UPDATE events SET image_path = NULL WHERE event_id = ?";
-                $result = update($updateSql, [$eventId]);
-                
-                if ($result) {
-                    // Redirect to remove the GET parameter
-                    header("Location: event-detail.php?id={$eventId}&success=image_deleted");
-                    exit;
-                } else {
-                    $errorMessage = "Error updating database after deleting image.";
-                }
-            } else {
-                $errorMessage = "Error deleting image file. Check file permissions.";
-            }
-        } else {
-            // File doesn't exist, just update the database
-            $updateSql = "UPDATE events SET image_path = NULL WHERE event_id = ?";
-            $result = update($updateSql, [$eventId]);
-            
-            if ($result) {
-                header("Location: event-detail.php?id={$eventId}&success=image_deleted");
-                exit;
-            } else {
-                $errorMessage = "Error updating database.";
-            }
-        }
-    }
-    
-    // Handle document deletion
-    if (isset($_GET['delete_document']) && $_GET['delete_document'] == 1 && !empty($event['document_path'])) {
-        $documentPath = '../' . $event['document_path'];
-        
-        // Check if file exists before attempting to delete
-        if (file_exists($documentPath)) {
-            // Try to delete the file
-            if (unlink($documentPath)) {
-                // Update the database to remove the reference
-                $updateSql = "UPDATE events SET document_path = NULL WHERE event_id = ?";
-                $result = update($updateSql, [$eventId]);
-                
-                if ($result) {
-                    // Redirect to remove the GET parameter
-                    header("Location: event-detail.php?id={$eventId}&success=document_deleted");
-                    exit;
-                } else {
-                    $errorMessage = "Error updating database after deleting document.";
-                }
-            } else {
-                $errorMessage = "Error deleting document file. Check file permissions.";
-            }
-        } else {
-            // File doesn't exist, just update the database
-            $updateSql = "UPDATE events SET document_path = NULL WHERE event_id = ?";
-            $result = update($updateSql, [$eventId]);
-            
-            if ($result) {
-                header("Location: event-detail.php?id={$eventId}&success=document_deleted");
-                exit;
-            } else {
-                $errorMessage = "Error updating database.";
-            }
-        }
-    }
+// Extract portfolio from description if exists
+$eventDescription = $event['description'];
+$portfolio = '';
+if (preg_match('/\n\nPortfolio: ([^\n]+)/', $eventDescription, $matches)) {
+    $portfolio = trim($matches[1]);
+    $eventDescription = preg_replace('/\n\nPortfolio: [^\n]+/', '', $eventDescription);
 }
 
-// Calculate registration percentage if event exists
-$registrationPercentage = 0;
-$registrations = 0; // Default value
+// Get organizer information
+$organizer = fetchOne("SELECT * FROM users WHERE user_id = ?", [$event['organizer_id']]);
+$organizerName = $organizer ? ($organizer['first_name'] . ' ' . $organizer['last_name']) : 'Unknown';
 
-if ($event) {
-    // Check if event_attendees table exists
-    $tableExists = false;
-    try {
-        $result = $conn->query("SHOW TABLES LIKE 'event_attendees'");
-        $tableExists = $result->num_rows > 0;
-    } catch (Exception $e) {
-        // Table doesn't exist, use default value of 0
-    }
-    
-    // If table exists, count attendees
-    if ($tableExists) {
-        $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
-        if ($attendeeCount) {
-            $registrations = $attendeeCount['count'];
-        }
-    }
-    
-    if ($event['capacity'] > 0) {
-        $registrationPercentage = round(($registrations / $event['capacity']) * 100);
-    } else {
-        // If capacity is 0 (unlimited), set percentage to 0
-        $registrationPercentage = 0;
-    }
-    
-    // Determine progress bar color based on percentage
-    if ($registrationPercentage > 90) {
-        $progressBarClass = 'bg-danger';
-    } elseif ($registrationPercentage > 75) {
-        $progressBarClass = 'bg-warning';
-    } else {
-        $progressBarClass = 'bg-success';
-    }
+// Get event attendees count
+$attendeesResult = fetchOne("SELECT COUNT(*) as count FROM event_registrations WHERE event_id = ?", [$eventId]);
+$attendeesCount = $attendeesResult ? $attendeesResult['count'] : 0;
+
+// Check if current user is registered
+$isRegistered = false;
+$registrationResult = fetchOne("SELECT * FROM event_registrations WHERE event_id = ? AND user_id = ?", [$eventId, $currentUser['user_id']]);
+if ($registrationResult) {
+    $isRegistered = true;
 }
 
-// Handle event registration (if implemented)
-if (isset($_POST['register']) && $event) {
-    // Check if event_attendees table exists, create if it doesn't
-    try {
-        $createTableSql = "CREATE TABLE IF NOT EXISTS event_attendees (
-            id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            event_id INT(11) NOT NULL,
-            user_id INT(11) DEFAULT NULL,
-            name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL,
-            phone VARCHAR(50) DEFAULT NULL,
-            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            status ENUM('registered', 'attended', 'cancelled', 'no_show') DEFAULT 'registered',
-            notes TEXT,
-            FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
-            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-        
-        $conn->query($createTableSql);
-        
-        // Check if user is already registered
-        $existingRegistration = fetchOne(
-            "SELECT * FROM event_attendees WHERE event_id = ? AND user_id = ?", 
-            [$eventId, $currentUser['user_id']]
-        );
-        
-        if ($existingRegistration) {
-            $errorMessage = "You are already registered for this event.";
-        } else if ($event['capacity'] == 0 || $registrations < $event['capacity']) {
-            // Register the user
-            $insertSql = "INSERT INTO event_attendees (event_id, user_id, name, email, phone, status) 
-                         VALUES (?, ?, ?, ?, ?, 'registered')";
-            
-            $name = $currentUser['first_name'] . ' ' . $currentUser['last_name'];
-            $email = $currentUser['email'];
-            $phone = $currentUser['phone'] ?? '';
-            
-            $result = insert($insertSql, [$eventId, $currentUser['user_id'], $name, $email, $phone]);
+// Handle event registration/unregistration
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
+    if ($_POST['action'] === 'register' && !$isRegistered) {
+        // Check capacity
+        if ($event['capacity'] > 0 && $attendeesCount >= $event['capacity']) {
+            $errorMessage = "Event is at full capacity. Registration closed.";
+        } else {
+            $sql = "INSERT INTO event_registrations (event_id, user_id, registration_date) VALUES (?, ?, NOW())";
+            $result = insert($sql, [$eventId, $currentUser['user_id']]);
             
             if ($result) {
-                $successMessage = "You have successfully registered for this event!";
-                // Refresh registration count
-                $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
-                if ($attendeeCount) {
-                    $registrations = $attendeeCount['count'];
-                }
+                $successMessage = "Successfully registered for the event!";
+                $isRegistered = true;
+                $attendeesCount++;
             } else {
-                $errorMessage = "Error registering for the event. Please try again.";
+                $errorMessage = "Error registering for event. Please try again.";
             }
-        } else {
-            $errorMessage = "This event has reached its capacity. Registration is closed.";
         }
-    } catch (Exception $e) {
-        $errorMessage = "Error: " . $e->getMessage();
-    }
-}
-
-// Handle event cancellation - MUST be before any output
-if (isset($_POST['cancel']) && isset($_POST['cancel_registration']) && $event) {
-    try {
-        // Update registration to cancelled
-        $updateSql = "UPDATE event_attendees SET status = 'cancelled' WHERE event_id = ? AND user_id = ?";
-        $result = update($updateSql, [$eventId, $currentUser['user_id']]);
+    } elseif ($_POST['action'] === 'unregister' && $isRegistered) {
+        $sql = "DELETE FROM event_registrations WHERE event_id = ? AND user_id = ?";
+        $result = delete($sql, [$eventId, $currentUser['user_id']]);
         
         if ($result) {
-            $successMessage = "Your registration has been cancelled.";
-            // Refresh registration count
-            $attendeeCount = fetchOne("SELECT COUNT(*) as count FROM event_attendees WHERE event_id = ? AND status != 'cancelled'", [$eventId]);
-            if ($attendeeCount) {
-                $registrations = $attendeeCount['count'];
-            }
+            $successMessage = "Successfully unregistered from the event.";
+            $isRegistered = false;
+            $attendeesCount--;
         } else {
-            $errorMessage = "Error cancelling your registration. Please try again.";
+            $errorMessage = "Error unregistering from event. Please try again.";
         }
-    } catch (Exception $e) {
-        $errorMessage = "Error: " . $e->getMessage();
-    }
-}
-
-// Set success message if action was successful
-if (isset($_GET['success'])) {
-    if ($_GET['success'] == 'image_deleted') {
-        $successMessage = "Event image was successfully deleted.";
-    } elseif ($_GET['success'] == 'document_deleted') {
-        $successMessage = "Event document was successfully deleted.";
     }
 }
 
@@ -264,470 +101,755 @@ if (isset($_GET['success'])) {
 require_once 'includes/header.php';
 ?>
 
-<!-- Page Content -->
-<div class="container-fluid">
-    <?php if (!$event): ?>
-    <div class="alert alert-danger">
-        <h4 class="alert-heading">Event Not Found</h4>
-        <p>The event you are looking for does not exist or has been removed.</p>
-        <a href="events.php" class="btn btn-outline-danger">
-            <i class="fas fa-arrow-left me-2"></i> Back to Events
-        </a>
-    </div>
-    <?php else: ?>
-
-    <!-- Custom Event Detail Header -->
-    <div class="event-detail-header animate__animated animate__fadeInDown">
-        <div class="event-detail-header-content">
-            <div class="event-detail-header-main">
-                <h1 class="event-detail-title">
-                    <i class="fas fa-calendar-check me-3"></i>
-                    <?php echo htmlspecialchars($event['title']); ?>
-                </h1>
-                <p class="event-detail-description">Event Details and Information</p>
-            </div>
-            <div class="event-detail-header-actions">
-                <a href="events.php" class="btn btn-header-action">
-                    <i class="fas fa-arrow-left me-2"></i>Back to Events
-                </a>
-                <?php if ($canEditEvent): ?>
-                <a href="event-edit.php?id=<?php echo $event['event_id']; ?>" class="btn btn-header-action">
-                    <i class="fas fa-edit me-2"></i>Edit Event
-                </a>
-                <button type="button" class="btn btn-header-action btn-header-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">
-                    <i class="fas fa-trash me-2"></i>Delete Event
-                </button>
-                <?php endif; ?>
-            </div>
+<!-- Custom Event Detail Header -->
+<div class="event-detail-header animate__animated animate__fadeInDown">
+    <div class="event-detail-header-content">
+        <div class="event-detail-header-main">
+            <h1 class="event-detail-title">
+                <i class="fas fa-calendar-check me-3"></i>
+                Event Details
+            </h1>
+            <p class="event-detail-description">View comprehensive event information</p>
         </div>
-    </div>
-
-    <style>
-    .event-detail-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2.5rem 2rem;
-        border-radius: 12px;
-        margin-top: 60px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .event-detail-header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-    }
-
-    .event-detail-header-main {
-        flex: 1;
-        text-align: center;
-    }
-
-    .event-detail-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0 0 1rem 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.8rem;
-    }
-
-    .event-detail-title i {
-        font-size: 2.2rem;
-        opacity: 0.9;
-    }
-
-    .event-detail-description {
-        margin: 0;
-        opacity: 0.95;
-        font-size: 1.2rem;
-        font-weight: 400;
-        line-height: 1.4;
-    }
-
-    .event-detail-header-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }
-
-    .btn-header-action {
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: white;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    .btn-header-action:hover {
-        background: rgba(255, 255, 255, 0.3);
-        border-color: rgba(255, 255, 255, 0.5);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        text-decoration: none;
-    }
-
-    .btn-header-danger {
-        background: rgba(220, 53, 69, 0.3);
-        border-color: rgba(220, 53, 69, 0.5);
-    }
-
-    .btn-header-danger:hover {
-        background: rgba(220, 53, 69, 0.5);
-        border-color: rgba(220, 53, 69, 0.7);
-    }
-
-    @media (max-width: 768px) {
-        .event-detail-header {
-            padding: 2rem 1.5rem;
-            margin-top: 12px;
-        }
-
-        .event-detail-header-content {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .event-detail-title {
-            font-size: 2rem;
-            gap: 0.6rem;
-        }
-
-        .event-detail-title i {
-            font-size: 1.8rem;
-        }
-
-        .event-detail-description {
-            font-size: 1.1rem;
-        }
-
-        .event-detail-header-actions {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .btn-header-action {
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
-        }
-    }
-
-    /* Animation classes */
-    @keyframes fadeInDown {
-        from {
-            opacity: 0;
-            transform: translate3d(0, -100%, 0);
-        }
-        to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-        }
-    }
-
-    .animate__animated {
-        animation-duration: 0.6s;
-        animation-fill-mode: both;
-    }
-
-    .animate__fadeInDown {
-        animation-name: fadeInDown;
-    }
-    
-    /* Mobile Full-Width Optimization for Event Detail Page */
-    @media (max-width: 991px) {
-        [class*="col-md-"] {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-        
-        /* Remove container padding on mobile for full width */
-        .container-fluid, .container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-        
-        /* Ensure event detail header has border-radius on mobile */
-        .header, .event-detail-header {
-            border-radius: 12px !important;
-        }
-        
-        /* Ensure content cards extend full width */
-        .card {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-            border-radius: 0 !important;
-        }
-    }
-    </style>
-    </div>
-    
-    <!-- Notification area -->
-    <?php if (!empty($successMessage)): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i> <?php echo $successMessage; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <?php endif; ?>
-    
-    <?php if (!empty($errorMessage)): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i> <?php echo $errorMessage; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    <?php endif; ?>
-
-    <!-- Event Details -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-8">
-                    <h2><?php echo htmlspecialchars($event['title']); ?></h2>
-                    <div class="d-flex flex-wrap gap-3 mb-3">
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="fas fa-calendar-alt me-2"></i> 
-                            <?php echo date('M j, Y', strtotime($event['date'])); ?>
-                        </div>
-                        <div class="d-flex align-items-center text-muted">
-                            <i class="fas fa-map-marker-alt me-2"></i> <?php echo htmlspecialchars($event['location']); ?>
-                        </div>
-                        <span class="badge bg-<?php 
-                            echo $event['status'] === 'upcoming' ? 'success' : 
-                                ($event['status'] === 'planning' ? 'warning' : 
-                                ($event['status'] === 'ongoing' ? 'primary' :
-                                ($event['status'] === 'cancelled' ? 'danger' : 'secondary'))); 
-                        ?>">
-                            <?php echo htmlspecialchars($event['status']); ?>
-                        </span>
-                    </div>
-                    <p><?php echo nl2br(htmlspecialchars($event['description'])); ?></p>
-                    
-                    <?php if (!empty($event['image_path'])): ?>
-                    <div class="event-image mb-4">
-                        <h5>Event Image</h5>
-                        <img src="<?php echo '../' . htmlspecialchars($event['image_path']); ?>" alt="Event Image" class="img-fluid rounded" style="max-height: 450px; width: auto;">
-                        <div class="mt-3">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                <i class="fas fa-eye me-2"></i> View
-                            </button>
-                            <a href="<?php echo '../' . htmlspecialchars($event['image_path']); ?>" class="btn btn-success" download>
-                                <i class="fas fa-download me-2"></i> Download
-                            </a>
-                            <?php if ($canEditEvent): ?>
-                            <a href="event-detail.php?id=<?php echo $event['event_id']; ?>&delete_image=1" 
-                               class="btn btn-danger"
-                               onclick="return confirm('Are you sure you want to delete this image?');">
-                                <i class="fas fa-trash me-2"></i> Delete
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                </div>
-                <div class="col-md-4">
-                    <div class="card bg-light h-100">
-                        <div class="card-body">
-                            <h5 class="mb-3">Event Details</h5>
-                            <table class="table table-sm">
-                                <tbody>
-                                    <tr>
-                                        <td class="text-muted">Organizer:</td>
-                                        <td><?php echo htmlspecialchars($event['organizer_id']); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Capacity:</td>
-                                        <td><?php echo $event['capacity'] > 0 ? $event['capacity'] . ' attendees' : 'Unlimited'; ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-muted">Registrations:</td>
-                                        <td><?php echo $registrations; ?> attendees</td>
-                                    </tr>
-                                    <?php 
-                                    // Extract and display portfolio if it exists
-                                    if (preg_match('/Portfolio: ([^\n]+)/', $event['description'], $matches)) {
-                                        $portfolioInfo = trim($matches[1]);
-                                        echo "<tr>
-                                            <td class=\"text-muted\">Portfolio:</td>
-                                            <td>" . htmlspecialchars($portfolioInfo) . "</td>
-                                        </tr>";
-                                    }
-                                    ?>
-                                    <?php if (!empty($event['document_path'])): ?>
-                                    <tr>
-                                        <td class="text-muted">Document:</td>
-                                        <td>
-                                            <div>
-                                                <a href="<?php echo '../' . htmlspecialchars($event['document_path']); ?>" class="btn btn-primary" target="_blank">
-                                                    <i class="fas fa-eye me-2"></i> View
-                                                </a>
-                                                <a href="<?php echo '../' . htmlspecialchars($event['document_path']); ?>" class="btn btn-success" download>
-                                                    <i class="fas fa-download me-2"></i> Download
-                                                </a>
-                                                <?php if ($canEditEvent): ?>
-                                                <a href="event-detail.php?id=<?php echo $event['event_id']; ?>&delete_document=1" 
-                                                   class="btn btn-danger"
-                                                   onclick="return confirm('Are you sure you want to delete this document?');">
-                                                    <i class="fas fa-trash me-2"></i> Delete
-                                                </a>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php endif; ?>
-                                    <?php if ($isAdmin): ?>
-                                    <tr>
-                                        <td class="text-muted">Created:</td>
-                                        <td><?php echo date('M j, Y', strtotime($event['created_at'])); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                            
-                            <?php if ($event['status'] === 'upcoming' || $event['status'] === 'ongoing'): ?>
-                            <div class="mt-3">
-                                <?php
-                                // Check if user is already registered
-                                $existingRegistration = null;
-                                $tableExists = false;
-                                
-                                try {
-                                    $result = $conn->query("SHOW TABLES LIKE 'event_attendees'");
-                                    $tableExists = $result->num_rows > 0;
-                                    
-                                    if ($tableExists) {
-                                        $existingRegistration = fetchOne(
-                                            "SELECT * FROM event_attendees WHERE event_id = ? AND user_id = ? AND status != 'cancelled'", 
-                                            [$eventId, $currentUser['user_id']]
-                                        );
-                                    }
-                                } catch (Exception $e) {
-                                    // Ignore errors, treat as not registered
-                                }
-                                
-                                if ($existingRegistration): 
-                                ?>
-                                <form method="post" action="">
-                                    <input type="hidden" name="cancel_registration" value="1">
-                                    <button type="submit" name="cancel" class="btn btn-warning w-100">
-                                        <i class="fas fa-calendar-times me-2"></i> Cancel Registration
-                                    </button>
-                                </form>
-                                <?php elseif ($event['capacity'] == 0 || $registrations < $event['capacity']): ?>
-                                <form method="post" action="">
-                                    <button type="submit" name="register" class="btn btn-primary w-100">
-                                        <i class="fas fa-user-plus me-2"></i> Register for Event
-                                    </button>
-                                </form>
-                                <?php else: ?>
-                                <button class="btn btn-secondary w-100" disabled>
-                                    <i class="fas fa-ban me-2"></i> Registration Full
-                                </button>
-                                <?php endif; ?>
-                            </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Registration Status -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">Registration Status</h5>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <div class="d-flex justify-content-between mb-2">
-                    <span>Registration Progress</span>
-                    <span><?php echo $event['capacity'] > 0 ? $registrationPercentage . '%' : 'Unlimited'; ?></span>
-                </div>
-                <?php if ($event['capacity'] > 0): ?>
-                <div class="progress">
-                    <div class="progress-bar <?php echo $progressBarClass; ?>" role="progressbar" style="width: <?php echo $registrationPercentage; ?>%"></div>
-                </div>
-                <div class="text-muted small mt-1">
-                    <?php echo $registrations; ?> out of <?php echo $event['capacity']; ?> spots filled
-                </div>
-                <?php else: ?>
-                <div class="progress">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: 100%">Unlimited Capacity</div>
-                </div>
-                <div class="text-muted small mt-1">
-                    <?php echo $registrations; ?> registrations so far
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <?php if ($isAdmin): ?>
-            <div class="d-flex gap-2">
-                <a href="event_attendees.php?event_id=<?php echo $event['event_id']; ?>" class="btn btn-primary">
-                    <i class="fas fa-users me-2"></i> Manage Attendees
-                </a>
-                <a href="export_attendees.php?event_id=<?php echo $event['event_id']; ?>" class="btn btn-outline-secondary">
-                    <i class="fas fa-file-export me-2"></i> Export Attendee List
-                </a>
-            </div>
+        <div class="event-detail-header-actions">
+            <a href="events.php" class="btn btn-header-action">
+                <i class="fas fa-arrow-left me-2"></i>Back to Events
+            </a>
+            <?php if ($canManageEvents && ($isAdmin || $event['organizer_id'] == $currentUser['user_id'])): ?>
+            <a href="event-edit.php?id=<?php echo $eventId; ?>" class="btn btn-header-action">
+                <i class="fas fa-edit me-2"></i>Edit Event
+            </a>
             <?php endif; ?>
         </div>
     </div>
-    <?php endif; ?>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<?php if ($event && $canEditEvent): ?>
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete the event "<strong><?php echo htmlspecialchars($event['title']); ?></strong>"?</p>
-                <p class="text-danger">This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <a href="event-detail.php?id=<?php echo $event['event_id']; ?>&delete=confirm" class="btn btn-danger">Delete Event</a>
-            </div>
-        </div>
-    </div>
+<style>
+.event-detail-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-radius: 12px;
+    margin-top: 60px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.event-detail-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.event-detail-header-main {
+    flex: 1;
+    text-align: center;
+}
+
+.event-detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.event-detail-title i {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.event-detail-description {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.event-detail-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.btn-header-action {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-header-action:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .event-detail-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .event-detail-header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .event-detail-title {
+        font-size: 2rem;
+        gap: 0.6rem;
+    }
+
+    .event-detail-title i {
+        font-size: 1.8rem;
+    }
+
+    .event-detail-description {
+        font-size: 1.1rem;
+    }
+
+    .event-detail-header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-header-action {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Animation classes */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+
+/* Mobile Full-Width Optimization for Event Detail Page */
+@media (max-width: 991px) {
+    [class*="col-md-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Remove container padding on mobile for full width */
+    .container-fluid, .container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ensure event detail header has border-radius on mobile */
+    .header, .event-detail-header {
+        border-radius: 12px !important;
+    }
+    
+    /* Ensure content cards extend full width */
+    .card, .content-card {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        border-radius: 0 !important;
+    }
+}
+</style>
+
+<!-- Notification area -->
+<?php if (!empty($successMessage)): ?>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i> <?php echo $successMessage; ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 <?php endif; ?>
 
-<!-- Image Modal -->
-<?php if ($event && !empty($event['image_path'])): ?>
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel"><?php echo htmlspecialchars($event['title']); ?> - Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<?php if (!empty($errorMessage)): ?>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i> <?php echo $errorMessage; ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<!-- Event Details Content -->
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Event Main Information Card -->
+        <div class="card event-info-card mb-4">
+            <!-- Event Image -->
+            <?php if (!empty($event['image_path'])): ?>
+            <div class="event-image-container">
+                <img src="../<?php echo htmlspecialchars($event['image_path']); ?>" 
+                     class="card-img-top event-image" 
+                     alt="<?php echo htmlspecialchars($event['title']); ?>"
+                     data-bs-toggle="modal" 
+                     data-bs-target="#imageViewModal"
+                     style="cursor: pointer;"
+                     title="Click to view full size">
+                <div class="event-status-overlay">
+                    <span class="badge bg-<?php 
+                        echo $event['status'] === 'upcoming' ? 'success' : 
+                            ($event['status'] === 'planning' ? 'warning' : 
+                            ($event['status'] === 'ongoing' ? 'primary' :
+                            ($event['status'] === 'cancelled' ? 'danger' : 'secondary'))); 
+                    ?>">
+                        <?php echo strtoupper(htmlspecialchars($event['status'])); ?>
+                    </span>
+                </div>
+                <div class="image-hover-overlay">
+                    <i class="fas fa-search-plus"></i>
+                    <span>Click to view full size</span>
+                </div>
+                <div class="image-actions-overlay">
+                    <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#imageViewModal" title="View Full Size">
+                        <i class="fas fa-expand-alt"></i>
+                    </button>
+                    <a href="../<?php echo htmlspecialchars($event['image_path']); ?>" 
+                       download="<?php echo htmlspecialchars($event['title']); ?>-image.jpg" 
+                       class="btn btn-sm btn-light" 
+                       title="Download Image">
+                        <i class="fas fa-download"></i>
+                    </a>
+                </div>
             </div>
-            <div class="modal-body text-center">
-                <img src="<?php echo '../' . htmlspecialchars($event['image_path']); ?>" alt="Event Image" class="img-fluid" style="max-height: 80vh; max-width: 100%;">
+            <?php endif; ?>
+            
+            <div class="card-body">
+                <h2 class="event-title"><?php echo htmlspecialchars($event['title']); ?></h2>
+                
+                <!-- Event Meta Information -->
+                <div class="event-meta">
+                    <div class="event-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>
+                            <?php 
+                            echo date('l, F j, Y', strtotime($event['date']));
+                            if (!empty($event['end_date']) && $event['end_date'] !== $event['date']) {
+                                echo ' - ' . date('F j, Y', strtotime($event['end_date']));
+                            }
+                            ?>
+                        </span>
+                    </div>
+                    <div class="event-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span><?php echo htmlspecialchars($event['location']); ?></span>
+                    </div>
+                    <?php if (!empty($portfolio)): ?>
+                    <div class="event-meta-item">
+                        <i class="fas fa-briefcase"></i>
+                        <span><?php echo htmlspecialchars($portfolio); ?></span>
+                    </div>
+                    <?php endif; ?>
+                    <div class="event-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span>Organized by: <?php echo htmlspecialchars($organizerName); ?></span>
+                    </div>
+                    <?php if ($event['capacity'] > 0): ?>
+                    <div class="event-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>
+                            Capacity: <?php echo $attendeesCount; ?>/<?php echo $event['capacity']; ?>
+                            <?php if ($attendeesCount >= $event['capacity']): ?>
+                                <span class="badge bg-danger ms-2">FULL</span>
+                            <?php endif; ?>
+                        </span>
+                    </div>
+                    <?php else: ?>
+                    <div class="event-meta-item">
+                        <i class="fas fa-users"></i>
+                        <span>Attendees: <?php echo $attendeesCount; ?> (Unlimited capacity)</span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <hr class="my-4">
+                
+                <!-- Event Description -->
+                <div class="event-description">
+                    <h4 class="mb-3"><i class="fas fa-info-circle me-2"></i>Event Description</h4>
+                    <p><?php echo nl2br(htmlspecialchars($eventDescription)); ?></p>
+                </div>
+                
+                <!-- Event Document -->
+                <?php if (!empty($event['document_path'])): ?>
+                <div class="event-document mt-4">
+                    <h5><i class="fas fa-file-alt me-2"></i>Event Document</h5>
+                    <a href="../<?php echo htmlspecialchars($event['document_path']); ?>" 
+                       target="_blank" 
+                       class="btn btn-outline-primary mt-2">
+                        <i class="fas fa-download me-2"></i>Download Document
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
-            <div class="modal-footer">
-                <a href="<?php echo '../' . htmlspecialchars($event['image_path']); ?>" class="btn btn-success" download>
-                    <i class="fas fa-download me-2"></i> Download
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Registration Card -->
+        <?php if ($event['status'] === 'upcoming' || $event['status'] === 'planning'): ?>
+        <div class="card registration-card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Event Registration</h5>
+            </div>
+            <div class="card-body">
+                <?php if ($isRegistered): ?>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>You are registered for this event!
+                    </div>
+                    <form method="POST" action="">
+                        <input type="hidden" name="action" value="unregister">
+                        <button type="submit" class="btn btn-danger btn-block w-100">
+                            <i class="fas fa-times-circle me-2"></i>Unregister
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <?php if ($event['capacity'] > 0 && $attendeesCount >= $event['capacity']): ?>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            This event is at full capacity.
+                        </div>
+                    <?php else: ?>
+                        <p>Register to attend this event</p>
+                        <form method="POST" action="">
+                            <input type="hidden" name="action" value="register">
+                            <button type="submit" class="btn btn-primary btn-block w-100">
+                                <i class="fas fa-check-circle me-2"></i>Register Now
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Event Statistics Card -->
+        <div class="card stats-card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Event Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="stat-item">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h6>Total Registrations</h6>
+                        <h3><?php echo $attendeesCount; ?></h3>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="stat-item">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h6>Created On</h6>
+                        <p><?php echo date('M j, Y', strtotime($event['created_at'])); ?></p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="stat-item">
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-details">
+                        <h6>Last Updated</h6>
+                        <p><?php echo date('M j, Y', strtotime($event['updated_at'])); ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions Card -->
+        <?php if ($canManageEvents && ($isAdmin || $event['organizer_id'] == $currentUser['user_id'])): ?>
+        <div class="card quick-actions-card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="event-edit.php?id=<?php echo $eventId; ?>" class="btn btn-primary btn-block w-100 mb-2">
+                    <i class="fas fa-edit me-2"></i>Edit Event
                 </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="event_attendees.php?event_id=<?php echo $eventId; ?>" class="btn btn-info btn-block w-100 mb-2">
+                    <i class="fas fa-users me-2"></i>View Attendees
+                </a>
+                <a href="events.php?action=delete&id=<?php echo $eventId; ?>" 
+                   class="btn btn-danger btn-block w-100"
+                   onclick="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+                    <i class="fas fa-trash me-2"></i>Delete Event
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<!-- Image View Modal -->
+<?php if (!empty($event['image_path'])): ?>
+<div class="modal fade" id="imageViewModal" tabindex="-1" aria-labelledby="imageViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="imageViewModalLabel">
+                    <i class="fas fa-image me-2"></i><?php echo htmlspecialchars($event['title']); ?>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img src="../<?php echo htmlspecialchars($event['image_path']); ?>" 
+                     class="img-fluid" 
+                     alt="<?php echo htmlspecialchars($event['title']); ?>"
+                     style="max-height: 80vh; width: auto;">
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <a href="../<?php echo htmlspecialchars($event['image_path']); ?>" 
+                   download="<?php echo htmlspecialchars($event['title']); ?>-image.jpg" 
+                   class="btn btn-light">
+                    <i class="fas fa-download me-2"></i>Download Image
+                </a>
+                <a href="../<?php echo htmlspecialchars($event['image_path']); ?>" 
+                   target="_blank" 
+                   class="btn btn-light">
+                    <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
             </div>
         </div>
     </div>
 </div>
 <?php endif; ?>
+
+<style>
+/* Event Info Card Styles */
+.event-info-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.event-image-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+}
+
+.event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-status-overlay {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.event-status-overlay .badge {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Image Hover Overlay */
+.image-hover-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.event-image-container:hover .image-hover-overlay {
+    opacity: 1;
+}
+
+.image-hover-overlay i {
+    font-size: 3rem;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.image-hover-overlay span {
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Image Action Buttons */
+.image-actions-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.event-image-container:hover .image-actions-overlay {
+    opacity: 1;
+}
+
+.image-actions-overlay .btn {
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.image-actions-overlay .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.event-image:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.event-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.event-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+    color: #555;
+}
+
+.event-meta-item i {
+    color: #667eea;
+    font-size: 1.2rem;
+    width: 24px;
+    text-align: center;
+}
+
+.event-description {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #444;
+}
+
+.event-description h4 {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Registration Card Styles */
+.registration-card,
+.stats-card,
+.quick-actions-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.registration-card .card-header,
+.stats-card .card-header,
+.quick-actions-card .card-header {
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+}
+
+/* Stats Card Styles */
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.stat-details h6 {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.stat-details h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.stat-details p {
+    margin: 0;
+    color: #444;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .event-image-container {
+        height: 300px;
+    }
+    
+    .event-title {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-image-container {
+        height: 250px;
+    }
+    
+    .event-title {
+        font-size: 1.5rem;
+    }
+    
+    .event-meta-item {
+        font-size: 0.9rem;
+    }
+    
+    .event-status-overlay {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .event-status-overlay .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .stat-details h3 {
+        font-size: 1.5rem;
+    }
+    
+    /* Mobile adjustments for image overlays */
+    .image-hover-overlay i {
+        font-size: 2rem;
+    }
+    
+    .image-hover-overlay span {
+        font-size: 0.9rem;
+    }
+    
+    .image-actions-overlay {
+        bottom: 10px;
+        left: 10px;
+    }
+    
+    .image-actions-overlay .btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .event-image-container {
+        height: 200px;
+    }
+    
+    .event-title {
+        font-size: 1.25rem;
+    }
+    
+    .event-meta-item {
+        font-size: 0.85rem;
+        gap: 0.75rem;
+    }
+    
+    .event-meta-item i {
+        font-size: 1rem;
+    }
+}
+
+/* Touch Device Support - Always show action buttons on mobile */
+@media (max-width: 992px) and (hover: none) {
+    .image-actions-overlay {
+        opacity: 1;
+    }
+    
+    .image-hover-overlay {
+        display: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .event-detail-header,
+    .event-detail-header-actions,
+    .registration-card,
+    .quick-actions-card,
+    .btn,
+    .alert {
+        display: none !important;
+    }
+    
+    .event-info-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
+</style>
 
 <?php require_once 'includes/footer.php'; ?>

@@ -696,3 +696,19 @@ SQL:
     
 MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
 
+[2025-12-02 23:26:43] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-12-02 23:27:31] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-12-03 00:44:43] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access = 'all' AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+

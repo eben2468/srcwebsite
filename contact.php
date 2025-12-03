@@ -187,6 +187,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
             margin-right: 5px;
         }
 
+        .top-bar-btn {
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-left: 10px !important;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .top-bar-btn:hover {
+            background: var(--white);
+            color: var(--primary-color) !important;
+            border-color: var(--white);
+            transform: translateY(-2px);
+        }
+
         /* Container adjustments for less side spacing */
         .container {
             max-width: 1400px;
@@ -218,6 +238,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
 
             .top-bar span {
                 font-size: 0.85rem;
+            }
+
+            .top-bar a {
+                margin-left: 10px;
             }
 
             .navbar-brand {
@@ -598,19 +622,193 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
             opacity: 0.8;
         }
 
+        /* Mobile responsiveness for tablets and phones */
         @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+                overflow-x: hidden;
+                max-width: 100%;
+            }
+
+            .top-bar {
+                font-size: 0.75rem;
+                padding: 10px 0;
+            }
+
+            .top-bar .row {
+                margin: 0;
+            }
+
+            .top-bar .col-md-6 {
+                padding: 5px 10px;
+            }
+
+            .top-bar .d-flex {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
+            }
+
+            .top-bar span {
+                font-size: 0.75rem;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .top-bar span i {
+                font-size: 0.7rem;
+                margin-right: 3px;
+            }
+
+            .top-bar a {
+                margin-left: 5px !important;
+                margin-right: 5px;
+            }
+
+            .top-bar-btn {
+                padding: 6px 12px !important;
+                font-size: 0.75rem !important;
+                margin: 3px 3px !important;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .top-bar-btn i {
+                font-size: 0.7rem;
+            }
+
+            .top-bar .text-end {
+                text-align: center !important;
+                justify-content: center;
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand img {
+                height: 35px;
+            }
+
+            .nav-link {
+                font-size: 1.1rem;
+                margin: 5px 0;
+            }
+
+            .page-header {
+                padding: 60px 0 40px;
+            }
+
             .page-header h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
             }
 
             .contact-form {
-                padding: 30px 20px;
+                padding: 25px 15px;
             }
 
             .section-title {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+
+            .contact-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+
+            .contact-card .icon {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+
+            .map-container {
+                height: 300px;
             }
         }
+
+        /* Extra small screens (iPhone SE 375px and similar) */
+        @media (max-width: 480px) {
+            .top-bar {
+                font-size: 0.7rem;
+                padding: 8px 0;
+            }
+
+            .top-bar-btn {
+                padding: 5px 10px !important;
+                font-size: 0.7rem !important;
+                margin: 2px !important;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .contact-form {
+                padding: 20px 15px;
+            }
+
+            .contact-card {
+                padding: 25px 15px;
+            }
+
+            .contact-card .icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .contact-card h4 {
+                font-size: 1.1rem;
+            }
+
+            .btn-submit {
+                padding: 12px 30px;
+                font-size: 1rem;
+                width: 100%;
+            }
+        }
+
+        /* iPhone SE and smaller (375px) */
+        @media (max-width: 375px) {
+            .top-bar-btn {
+                padding: 4px 8px !important;
+                font-size: 0.65rem !important;
+            }
+
+            .page-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .map-container {
+                height: 250px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -625,11 +823,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
+                    <a href="https://learning.vvu.edu.gh/" target="_blank" class="top-bar-btn"><i class="fas fa-laptop-code"></i> E-Learning</a>
+                    <a href="https://ischool.vvu.edu.gh/Default.aspx" target="_blank" class="top-bar-btn"><i class="fas fa-graduation-cap"></i> iSchool</a>
                     <?php if ($isLoggedIn): ?>
-                        <a href="pages_php/dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                        <a href="pages_php/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <a href="pages_php/dashboard.php" class="top-bar-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="pages_php/logout.php" class="top-bar-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     <?php else: ?>
-                        <a href="pages_php/login.php"><i class="fas fa-sign-in-alt"></i> Student Portal</a>
+                        <a href="pages_php/login.php" class="top-bar-btn"><i class="fas fa-sign-in-alt"></i> Student Portal</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -845,8 +1045,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['contact_submit'])) {
                     <h5>Services</h5>
                     <ul>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Student Welfare</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Events Management</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Scholarships</a></li>
+                        <li><a href="pages_php/public_chat.php"><i class="fas fa-chevron-right"></i> Public Chat</a></li>
+                        <li><a href="pages_php/elections.php"><i class="fas fa-chevron-right"></i> Election</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Feedback System</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Support</a></li>
                     </ul>

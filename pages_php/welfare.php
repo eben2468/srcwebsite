@@ -156,64 +156,72 @@ require_once 'includes/header.php';
     $approvedRequests = is_array($approvedRequests) ? 0 : (int) $approvedRequests;
     $rejectedRequests = is_array($rejectedRequests) ? 0 : (int) $rejectedRequests;
     ?>
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0"><?php echo $totalRequests; ?></h4>
-                            <p class="mb-0">Total Requests</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-clipboard-list fa-2x"></i>
-                        </div>
+    <div class="row mb-4 g-3">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-primary">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-clipboard-list"></i>
                     </div>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number" data-count="<?php echo $totalRequests; ?>">0</h2>
+                    <p class="stat-label">Total Requests</p>
+                </div>
+                <div class="stat-trend">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>All Time</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0"><?php echo $pendingRequests; ?></h4>
-                            <p class="mb-0">Pending</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-clock fa-2x"></i>
-                        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-warning">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number" data-count="<?php echo $pendingRequests; ?>">0</h2>
+                    <p class="stat-label">Pending</p>
+                </div>
+                <div class="stat-trend">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span>In Queue</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0"><?php echo $approvedRequests; ?></h4>
-                            <p class="mb-0">Approved</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-check fa-2x"></i>
-                        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-success">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
                     </div>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number" data-count="<?php echo $approvedRequests; ?>">0</h2>
+                    <p class="stat-label">Approved</p>
+                </div>
+                <div class="stat-trend">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span>Completed</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <h4 class="mb-0"><?php echo $rejectedRequests; ?></h4>
-                            <p class="mb-0">Rejected</p>
-                        </div>
-                        <div class="align-self-center">
-                            <i class="fas fa-times fa-2x"></i>
-                        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card stat-danger">
+                <div class="stat-icon-wrapper">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
                     </div>
+                </div>
+                <div class="stat-content">
+                    <h2 class="stat-number" data-count="<?php echo $rejectedRequests; ?>">0</h2>
+                    <p class="stat-label">Rejected</p>
+                </div>
+                <div class="stat-trend">
+                    <i class="fas fa-ban"></i>
+                    <span>Declined</span>
                 </div>
             </div>
         </div>
@@ -692,9 +700,274 @@ function exportData() {
 </script>
 
 <style>
+/* Modern Statistics Cards */
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.stat-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-card.stat-warning {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.stat-card.stat-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.stat-card.stat-danger {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.stat-icon-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.stat-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+
+.stat-content {
+    margin-bottom: 1rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 1rem;
+    margin: 0.5rem 0 0 0;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.stat-trend i {
+    font-size: 0.75rem;
+}
+
+/* Enhanced Announcements Card */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 1.25rem 1.5rem;
+}
+
+.card-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Announcements List */
+.border-bottom {
+    border-color: #e9ecef !important;
+    padding: 1.25rem 0;
+    transition: all 0.3s ease;
+}
+
+.border-bottom:hover {
+    background: #f8f9fa;
+    padding: 1.25rem 1rem;
+    margin: 0 -1rem;
+    border-radius: 8px;
+}
+
+.border-bottom h6 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.border-bottom p {
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Enhanced Quick Actions */
+.d-grid .btn {
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.d-grid .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+}
+
+.d-grid .btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.d-grid .btn-outline-secondary {
+    border-color: #e9ecef;
+    color: #666;
+}
+
+.d-grid .btn-outline-secondary:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+.d-grid .btn-outline-info {
+    border-color: #e9ecef;
+    color: #666;
+}
+
+.d-grid .btn-outline-info:hover {
+    background: #4facfe;
+    border-color: #4facfe;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.3);
+}
+
+/* Enhanced Table Styling */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table {
+    margin: 0;
+}
+
+.table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.table thead th {
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-color: #e9ecef;
+}
+
+.table .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.table .btn-sm {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.table .btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Counter Animation */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-number {
+    animation: countUp 0.6s ease-out;
+}
+
 /* Mobile Full-Width Optimization for Welfare Page */
 @media (max-width: 991px) {
-    [class*="col-md-"] {
+    [class*="col-md-"], [class*="col-sm-"] {
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
@@ -705,9 +978,24 @@ function exportData() {
         padding-right: 0 !important;
     }
     
+    .row {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .row.g-3 {
+        gap: 0.75rem !important;
+    }
+    
     /* Ensure page header has border-radius on mobile */
     .header, .page-hero, .modern-page-header {
         border-radius: 12px !important;
+    }
+    
+    /* Stat cards on mobile */
+    .stat-card {
+        margin-bottom: 1rem;
+        border-radius: 0 !important;
     }
     
     /* Ensure content cards extend full width */
@@ -715,8 +1003,72 @@ function exportData() {
         margin-left: 0 !important;
         margin-right: 0 !important;
         border-radius: 0 !important;
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        border-radius: 0 !important;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .stat-icon i {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
     }
 }
 </style>
+
+<script>
+// Animated Counter for Statistics
+document.addEventListener('DOMContentLoaded', function() {
+    const counters = document.querySelectorAll('.stat-number');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.getAttribute('data-count'));
+        const duration = 1500; // Animation duration in ms
+        const increment = target / (duration / 16); // 60 FPS
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                counter.textContent = Math.floor(current);
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target;
+            }
+        };
+        
+        // Start animation when element is in view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(counter);
+    });
+});
+</script>
 
 <?php include 'includes/footer.php'; ?>

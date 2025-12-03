@@ -272,6 +272,26 @@ if (empty($eventsItems)) {
             margin-right: 5px;
         }
 
+        .top-bar-btn {
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-left: 10px !important; /* Override generic link margin */
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--white);
+        }
+
+        .top-bar-btn:hover {
+            background: var(--white);
+            color: var(--primary-color) !important;
+            border-color: var(--white);
+            transform: translateY(-2px);
+        }
+
         /* Container adjustments for less side spacing */
         .container {
             max-width: 1400px;
@@ -293,16 +313,60 @@ if (empty($eventsItems)) {
             }
 
             .top-bar {
-                font-size: 0.85rem;
-                padding: 8px 0;
+                font-size: 0.75rem;
+                padding: 10px 0;
+            }
+
+            .top-bar .row {
+                margin: 0;
+            }
+
+            .top-bar .col-md-6 {
+                padding: 5px 10px;
             }
 
             .top-bar .d-flex {
                 flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
             }
 
             .top-bar span {
-                font-size: 0.85rem;
+                font-size: 0.75rem;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            .top-bar span i {
+                font-size: 0.7rem;
+                margin-right: 3px;
+            }
+
+            .top-bar a {
+                margin-left: 5px !important;
+                margin-right: 5px;
+            }
+
+            .top-bar-btn {
+                padding: 6px 12px !important;
+                font-size: 0.75rem !important;
+                margin: 3px 3px !important;
+                white-space: nowrap;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .top-bar-btn i {
+                font-size: 0.7rem;
+            }
+
+            .top-bar .text-end {
+                text-align: center !important;
+                justify-content: center;
+                display: flex;
+                flex-wrap: wrap;
             }
 
             .navbar-brand {
@@ -388,6 +452,36 @@ if (empty($eventsItems)) {
             color: var(--primary-color);
         }
 
+        /* Custom Swiper Navigation Buttons */
+        .swiper-button-next,
+        .swiper-button-prev {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            color: var(--white);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .swiper-button-next:after,
+        .swiper-button-prev:after {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .swiper-button-next:hover,
+        .swiper-button-prev:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(26, 84, 144, 0.6);
+            color: var(--white);
+        }
+
         /* Hero Slider */
         .hero-slider {
             position: relative;
@@ -408,9 +502,12 @@ if (empty($eventsItems)) {
         .swiper-slide {
             position: relative;
             background-size: cover;
-            background-position: center;
+            background-position: center center;
             background-repeat: no-repeat;
             width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .swiper-slide::before {
@@ -517,34 +614,45 @@ if (empty($eventsItems)) {
         /* Responsive adjustments for alignment */
         @media (max-width: 768px) {
             .slide-content {
-                padding: 20px;
-                max-width: 90%;
+                padding: 15px;
+                max-width: 95%;
+                width: 95% !important;
             }
 
             .slide-content.align-top-left,
             .slide-content.align-center-left,
             .slide-content.align-bottom-left {
-                left: 20px;
+                left: 15px !important;
+                right: 15px;
             }
 
             .slide-content.align-top-right,
             .slide-content.align-center-right,
             .slide-content.align-bottom-right {
-                right: 20px;
+                right: 15px !important;
+                left: 15px;
+            }
+
+            .slide-content.align-top-center,
+            .slide-content.align-center,
+            .slide-content.align-bottom-center {
+                left: 50% !important;
+                right: auto;
             }
 
             .slide-content.align-top-left,
             .slide-content.align-top-center,
             .slide-content.align-top-right {
-                top: 40px;
+                top: 30px !important;
             }
 
             .slide-content.align-bottom-left,
             .slide-content.align-bottom-center,
             .slide-content.align-bottom-right {
-                bottom: 40px;
+                bottom: 30px !important;
             }
         }
+
 
 
 
@@ -605,6 +713,29 @@ if (empty($eventsItems)) {
             background: var(--white);
             color: var(--primary-color);
         }
+
+        /* Mobile button improvements */
+        @media (max-width: 768px) {
+            .slide-content .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+                margin: 5px 0 !important;
+                font-weight: 600;
+                display: block;
+                width: 100%;
+                max-width: 280px;
+                text-align: center;
+            }
+
+            .slide-content .mt-4 {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+
 
         /* Quick Links */
         .quick-links {
@@ -1106,15 +1237,19 @@ if (empty($eventsItems)) {
             }
 
             .slide-content h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+                line-height: 1.3;
+                margin-bottom: 15px;
             }
 
             .slide-content p {
-                font-size: 1rem;
+                font-size: 0.95rem;
+                line-height: 1.5;
+                margin-bottom: 20px;
             }
 
             .section-title {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
 
             .event-card {
@@ -1135,16 +1270,134 @@ if (empty($eventsItems)) {
             }
 
             .hero-slider {
-                height: 500px;
+                height: 550px;
                 width: 100%;
             }
 
-            /* Hide swiper navigation buttons on mobile */
+            /* Swiper navigation buttons on mobile - Enhanced visibility */
             .swiper-button-next,
             .swiper-button-prev {
-                display: none !important;
+                display: flex !important;
+                width: 40px;
+                height: 40px;
+                background-color: rgba(0, 0, 0, 0.4); /* Darker background for better contrast on mobile */
+                border-color: rgba(255, 255, 255, 0.2);
+            }
+
+            .swiper-button-next:after,
+            .swiper-button-prev:after {
+                font-size: 1rem;
+            }
+
+            /* Quick links mobile improvements */
+            .quick-links {
+                margin-top: -30px;
+                padding: 0 10px;
+            }
+
+            .quick-link-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .quick-link-card i {
+                font-size: 2.5rem;
+            }
+
+            .quick-link-card h4 {
+                font-size: 1.1rem;
+            }
+
+            .quick-link-card p {
+                font-size: 0.85rem;
+            }
+
+            /* Slider image mobile fix - ensure full image is visible */
+            .swiper-slide {
+                background-size: cover !important;
+                background-position: center top !important;
+            }
+
+            .swiper-slide::before {
+                background: rgba(0, 0, 0, 0.4) !important;
             }
         }
+
+        /* Extra small screens (iPhone SE 375px and similar) */
+        @media (max-width: 480px) {
+            .top-bar {
+                font-size: 0.7rem;
+                padding: 8px 0;
+            }
+
+            .top-bar-btn {
+                padding: 5px 10px !important;
+                font-size: 0.7rem !important;
+                margin: 2px !important;
+            }
+
+            .hero-slider {
+                height: 500px;
+            }
+
+            .swiper-slide {
+                background-size: cover !important;
+                background-position: center center !important;
+            }
+
+            .slide-content {
+                padding: 10px;
+            }
+
+            .slide-content h1 {
+                font-size: 1.5rem;
+            }
+
+            .slide-content p {
+                font-size: 0.85rem;
+            }
+
+            .slide-content .btn {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+                max-width: 240px;
+            }
+
+            .quick-link-card {
+                padding: 18px;
+            }
+
+            .quick-link-card i {
+                font-size: 2.2rem;
+            }
+
+            .quick-link-card h4 {
+                font-size: 1rem;
+            }
+        }
+
+        /* iPhone SE and smaller (375px) */
+        @media (max-width: 375px) {
+            .hero-slider {
+                height: 450px;
+            }
+
+            .slide-content h1 {
+                font-size: 1.3rem;
+            }
+
+            .slide-content p {
+                font-size: 0.8rem;
+            }
+
+            .top-bar-btn {
+                padding: 4px 8px !important;
+                font-size: 0.65rem !important;
+            }
+        }
+
+
+
     </style>
 </head>
 <body>
@@ -1167,11 +1420,13 @@ if (empty($eventsItems)) {
                     </div>
                 </div>
                 <div class="col-md-6 text-end">
+                    <a href="https://learning.vvu.edu.gh/" target="_blank" class="top-bar-btn"><i class="fas fa-laptop-code"></i> E-Learning</a>
+                    <a href="https://ischool.vvu.edu.gh/Default.aspx" target="_blank" class="top-bar-btn"><i class="fas fa-graduation-cap"></i> iSchool</a>
                     <?php if ($isLoggedIn): ?>
-                        <a href="pages_php/dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                        <a href="pages_php/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        <a href="pages_php/dashboard.php" class="top-bar-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                        <a href="pages_php/logout.php" class="top-bar-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     <?php else: ?>
-                        <a href="pages_php/login.php"><i class="fas fa-sign-in-alt"></i> Student Portal</a>
+                        <a href="pages_php/login.php" class="top-bar-btn"><i class="fas fa-sign-in-alt"></i> Student Portal</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1508,8 +1763,8 @@ if (empty($eventsItems)) {
                     <h5>Services</h5>
                     <ul>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Student Welfare</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Events Management</a></li>
-                        <li><a href="#"><i class="fas fa-chevron-right"></i> Scholarships</a></li>
+                        <li><a href="pages_php/public_chat.php"><i class="fas fa-chevron-right"></i> Public Chat</a></li>
+                        <li><a href="pages_php/elections.php"><i class="fas fa-chevron-right"></i> Election</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Feedback System</a></li>
                         <li><a href="#"><i class="fas fa-chevron-right"></i> Support</a></li>
                     </ul>
