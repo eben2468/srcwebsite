@@ -17,6 +17,9 @@ $createTableSQL = "CREATE TABLE IF NOT EXISTS user_profiles (
     bio TEXT NULL,
     phone VARCHAR(20) NULL,
     address TEXT NULL,
+    student_id VARCHAR(50) NULL,
+    level VARCHAR(20) NULL,
+    department VARCHAR(255) NULL,
     profile_picture VARCHAR(255) DEFAULT 'default.jpg',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -95,6 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $email = trim($_POST['email']);
     $phone = trim($_POST['phone'] ?? '');
     $bio = trim($_POST['bio'] ?? '');
+    $studentId = trim($_POST['student_id'] ?? '');
+    $level = trim($_POST['level'] ?? '');
+    $department = trim($_POST['department'] ?? '');
     
     // Validate required fields
     if (empty($fullName) || empty($email)) {
@@ -107,19 +113,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             $userUpdated = executeQuery($userSql, $userParams);
             
             // Update profile data in user_profiles table
-            $profileSql = "UPDATE user_profiles SET full_name = ?, bio = ?, phone = ? WHERE user_id = ?";
-            $profileParams = [$fullName, $bio, $phone, $userId];
+            $profileSql = "UPDATE user_profiles SET full_name = ?, bio = ?, phone = ?, student_id = ?, level = ?, department = ? WHERE user_id = ?";
+            $profileParams = [$fullName, $bio, $phone, $studentId, $level, $department, $userId];
             
             // Check if profile exists
             $checkProfile = fetchOne("SELECT profile_id FROM user_profiles WHERE user_id = ?", [$userId]);
             
             // If profile doesn't exist, create it
             if (!$checkProfile) {
-                $profileSql = "INSERT INTO user_profiles (user_id, full_name, bio, phone) VALUES (?, ?, ?, ?)";
-                $profileParams = [$userId, $fullName, $bio, $phone]; // Correct params for INSERT
+                $profileSql = "INSERT INTO user_profiles (user_id, full_name, bio, phone, student_id, level, department) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                $profileParams = [$userId, $fullName, $bio, $phone, $studentId, $level, $department]; // Correct params for INSERT
             } else {
                 // Parameters for UPDATE
-                $profileParams = [$fullName, $bio, $phone, $userId];
+                $profileParams = [$fullName, $bio, $phone, $studentId, $level, $department, $userId];
             }
             
             $profileUpdated = executeQuery($profileSql, $profileParams);
@@ -547,9 +553,40 @@ require_once 'includes/header.php';
                                 <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($currentUser['email'] ?? ''); ?>" required>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Phone</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($userProfile['phone'] ?? ''); ?>">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="student_id" class="form-label">Student ID</label>
+                                <input type="text" class="form-control" id="student_id" name="student_id" value="<?php echo htmlspecialchars($userProfile['student_id'] ?? ''); ?>" placeholder="Enter your student ID">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="<?php echo htmlspecialchars($userProfile['phone'] ?? ''); ?>">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="level" class="form-label">Level</label>
+                                <select class="form-control" id="level" name="level">
+                                    <option value="">Select Level</option>
+                                    <option value="Level 100" <?php echo (isset($userProfile['level']) && $userProfile['level'] == 'Level 100') ? 'selected' : ''; ?>>Level 100</option>
+                                    <option value="Level 200" <?php echo (isset($userProfile['level']) && $userProfile['level'] == 'Level 200') ? 'selected' : ''; ?>>Level 200</option>
+                                    <option value="Level 300" <?php echo (isset($userProfile['level']) && $userProfile['level'] == 'Level 300') ? 'selected' : ''; ?>>Level 300</option>
+                                    <option value="Level 400" <?php echo (isset($userProfile['level']) && $userProfile['level'] == 'Level 400') ? 'selected' : ''; ?>>Level 400</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="department" class="form-label">Department</label>
+                                <select class="form-control" id="department" name="department">
+                                    <option value="">Select Department</option>
+                                    <option value="School of Nursing and Midwifery" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'School of Nursing and Midwifery') ? 'selected' : ''; ?>>School of Nursing and Midwifery</option>
+                                    <option value="School of Theology and Mission" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'School of Theology and Mission') ? 'selected' : ''; ?>>School of Theology and Mission</option>
+                                    <option value="School of Education" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'School of Education') ? 'selected' : ''; ?>>School of Education</option>
+                                    <option value="School of Business" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'School of Business') ? 'selected' : ''; ?>>School of Business</option>
+                                    <option value="Faculty of Science" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'Faculty of Science') ? 'selected' : ''; ?>>Faculty of Science</option>
+                                    <option value="Development and Communication Studies" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'Development and Communication Studies') ? 'selected' : ''; ?>>Development and Communication Studies</option>
+                                    <option value="Biomedical Engineering" <?php echo (isset($userProfile['department']) && $userProfile['department'] == 'Biomedical Engineering') ? 'selected' : ''; ?>>Biomedical Engineering</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="bio" class="form-label">Bio</label>

@@ -306,7 +306,7 @@ require_once 'includes/header.php';
                         <div class="mb-3">
                             <label for="document_file" class="form-label">File</label>
                             <input type="file" class="form-control" id="document_file" name="document_file" required>
-                            <div class="form-text">Accepted file types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT (Max size: 5MB)</div>
+                            <div class="form-text">Accepted file types: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT (Max size: 15MB)</div>
                         </div>
                         <div class="mb-3">
                             <label for="document_description" class="form-label">Description</label>

@@ -712,3 +712,24 @@ SQL:
     
 MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
 
+[2025-12-03 15:53:29] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-12-03 17:23:36] Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+SQL: SELECT * FROM committees WHERE name IN ('Finance Committee','Welfare Committee','President\''s Committee','Public Relations Committee','Organizing Committee','Judicial Committee','Audit Board','Editorial Committee','Electoral Commission','Vetting Committee','Constitutional Amendment Committee') ORDER BY updated_at DESC
+MySQL Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 's Committee','Public Relations Committee','Organizing Committee','Judicial Co...' at line 1
+
+[2025-12-03 17:26:25] Error: Table 'src_management_system.user_guide_sections' doesn't exist
+SQL: 
+        SELECT * FROM user_guide_sections
+        WHERE role_access = 'all' AND is_active = 1
+        ORDER BY sort_order ASC, title ASC
+    
+MySQL Error: Table 'src_management_system.user_guide_sections' doesn't exist
+
+[2025-12-03 23:24:53] Error: Unknown column 'student_id' in 'field list'
+SQL: UPDATE user_profiles SET full_name = ?, bio = ?, phone = ?, student_id = ?, level = ?, department = ? WHERE user_id = ?
+Params: ["Ebenezer Owusu","Ebenezer Owusu is a Level 400 B.Ed. Information Technology student at Valley View University and the current Editor for the SRC. He is skilled in web development, system development, app design, graphic design, and so on. Ebenezer has worked on various creative and technical projects, including the SRC Management System, School MS, Church  MS, and many more. Driven by innovation and problem-solving, he continues to build impactful digital solutions and engaging multimedia content.","0548811774","223EI02003543","Level 400","School of Education",23]
+MySQL Error: Unknown column 'student_id' in 'field list'
+

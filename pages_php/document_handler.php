@@ -73,9 +73,9 @@ if (isset($_POST['action']) && $_POST['action'] === 'upload') {
             exit();
         }
         
-        // Check file size (5MB max)
-        if ($fileSize > 5 * 1024 * 1024) {
-            $_SESSION['error'] = "File is too large. Maximum size is 5MB.";
+        // Check file size (15MB max)
+        if ($fileSize > 15 * 1024 * 1024) {
+            $_SESSION['error'] = "File is too large. Maximum size is 15MB.";
             header("Location: documents.php");
             exit();
         }
