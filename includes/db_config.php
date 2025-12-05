@@ -6,8 +6,8 @@
 
 // Database credentials
 define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');        // Default XAMPP username
-define('DB_PASSWORD', '');            // Default XAMPP password (empty)
+define('DB_USERNAME', 'eben12');        // Default XAMPP username
+define('DB_PASSWORD', '@123ValleyViewSRC');            // Default XAMPP password (empty)
 define('DB_NAME', 'src_management_system');
 
 // Global connection variable
